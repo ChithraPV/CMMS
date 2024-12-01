@@ -1,0 +1,18 @@
+<!-- templates/admin/user_details.html -->
+{% extends 'admin.html' %} {% block content %}
+<h2>User Details</h2>
+
+<div class="user-details">
+  <ul>
+    <li><strong>Username:</strong> {{ user.username }}</li>
+    <li><strong>First Name:</strong> {{ user.first_name }}</li>
+    <li><strong>Last Name:</strong> {{ user.last_name }}</li>
+    <li><strong>Email:</strong> {{ user.email }}</li>
+    <li><strong>Role:</strong> {{ user.role }}</li>
+    <li><strong>Department:</strong> {{ user.department }}</li>
+  </ul>
+</div>
+
+<br />
+<a href="{% url 'user_management' %}">Back to User Management</a>
+{% endblock %}

@@ -1,0 +1,9 @@
+<!-- templates/admin/edit_user.html -->
+{% extends 'admin.html' %} {% block content %}
+<h2>Edit User: {{ user.username }}</h2>
+
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Update User</button>
+</form>
+{% endblock %}

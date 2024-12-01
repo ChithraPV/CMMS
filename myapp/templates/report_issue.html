@@ -1,0 +1,8 @@
+{% extends 'reporter.html' %}{% block content %}
+<h2>Report an Issue</h2>
+<form method="post" enctype="multipart/form-data">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">Submit Issue</button>
+</form>
+{% endblock %}
+  

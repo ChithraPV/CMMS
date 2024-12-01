@@ -1,0 +1,53 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/mediaqueries.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+  </head>
+  <body>
+    <nav id="desktop-nav">
+      <div class="logo">CFMMS WORKER</div>
+      <div>
+        <ul class="nav-links">
+          {% if user.is_authenticated %}
+          <li class="welcome-message">Welcome, {{ user.first_name }}</li>
+          <!-- Display username -->
+
+          {% endif %}
+          <li><a href="{% url 'user_management' %}">Manage Users</a></li>
+          <li><a href="#my_skills">Manage Assets</a></li>
+          <li><a href="#projects">Manage Issues</a></li>
+          <li><a href="#contact">Generate Reports</a></li>
+        </ul>
+      </div>
+    </nav>
+    <nav id="hamburger-nav">
+      <div class="logo">CFMMS ADMIN</div>
+      <div class="hamburger-menu">
+        <div class="hamburger-icon" onclick="toggleMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="menu-links">
+          <li><a href="#about" onclick="toggleMenu()">Manage Users</a></li>
+          <li><a href="#my_skills" onclick="toggleMenu()">Manage Assets</a></li>
+          <li><a href="#projects" onclick="toggleMenu()">Manage Assets</a></li>
+          <li><a href="#contact" onclick="toggleMenu()">Manage Assets</a></li>
+        </div>
+      </div>
+    </nav>
+    <div>{% block content %} {% endblock %}</div>
+    <script src="{% static 'js/scripts.js' %}"></script>
+  </body>
+</html>
