@@ -116,6 +116,12 @@ def report_issue(request):
 # List all issues by admin
 def issue_management(request):
     issues = IssueDB.objects.all()  # Fetch all users from the custom model
+     #Update the priority of each issue based on age
+    for issue in issues:
+        adjusted_priority = issue.adjusted_priority()  # Get the adjusted priority
+        if issue.priority != adjusted_priority:  # Only update if the priority has changed
+            issue.priority = adjusted_priority
+            issue.save()  # Save the updated issue
     return render(request, 'issue_management.html', {'issues': issues})
 
 
@@ -161,6 +167,20 @@ def search_issue(request):
     return render(request, 'issue_management.html', {'issues': issues})
 
 
+from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponse
+from django.views.generic import UpdateView
+
+class UpdatePriorityView(UpdateView):
+    model = IssueDB
+    fields = ['priority']  # Only allow changing the priority
+    template_name = 'update_priority.html'  # Create this template
+    success_url = '/issue-management/'  # Redirect after updating
+   
+
+    def form_valid(self, form):
+        # Add additional validation logic if needed
+        return super().form_valid(form)
 
 
 

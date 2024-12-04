@@ -36,7 +36,9 @@
         All Issues
       </button>
     </form>
+   
 
+    
     <div class="table-responsive" style="max-width: 95%; margin: 0 auto">
       <table class="table table-bordered table-striped" id="issueTable">
         <thead>
@@ -69,18 +71,21 @@
             <td>
               {% if issue.reporter.department %} {{issue.reporter.department.dept_name }} {% endif %}
             </td>
-            <td>
-              <span
-                style="
-                            {% if issue.priority == 'Low' %} color: green;
-                            {% elif issue.priority == 'Medium' %} color: orange;
-                            {% elif issue.priority == 'High' %} color: red;
-                            {% endif %}
-                        "
-              >
-                &#x273A; {{ issue.priority }}
+          
+             <td>
+              <span style="
+                  {% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}
+              ">
+                  &#x273A;
+                  {% if issue.priority == 1 %} Low
+                  {% elif issue.priority == 2 %} Medium
+                  {% elif issue.priority == 3 %} High
+                  {% endif %}
               </span>
-            </td>
+          </td> 
+      
+          
+          
             <td>
               {% if issue.image %}
               <a href="{{ issue.image.url }}" target="_blank">View Image</a>
@@ -101,8 +106,9 @@
               </span>
             </td>
             <td>
-              <a href="#">Assign</a> |
-              <a href="#">Resolved</a>
+              <a href="#">Assign</a> 
+             
+              <a href="{% url 'update_priority' issue.issue_id %}">set priority</a> 
             </td>
           </tr>
           {% endfor %}

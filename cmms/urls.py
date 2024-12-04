@@ -35,7 +35,9 @@ urlpatterns = [
     path('issue-management/', views.issue_management, name='issue_management'),
     path('report-issue/', views.report_issue, name='report_issue'),
     path('user/<int:id>/details/', views.user_details, name='user_details'),
-    path('issue_management/search/', views.search_issue, name='search_issue'),
+    path('issue-management/search/', views.search_issue, name='search_issue'),
+    path('issue-management/<int:pk>/update-priority/', views.UpdatePriorityView.as_view(), name='update_priority'),
+    
 
 
 

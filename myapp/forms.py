@@ -14,7 +14,9 @@ class UserForm(forms.ModelForm):
 class IssueForm(forms.ModelForm):
     class Meta:
         model = IssueDB
-        fields = ['issue_category', 'location', 'issue_description', 'priority', 'image']
+        # fields = ['issue_category', 'location', 'issue_description', 'priority', 'image']
+        fields = ['issue_category', 'location', 'issue_description', 'image']
+
 
 
 
