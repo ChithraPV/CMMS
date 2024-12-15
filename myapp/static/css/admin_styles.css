@@ -251,9 +251,9 @@ a {
   text-decoration: none;
 }
 
-a:hover {
+/* a:hover {
   text-decoration: underline;
-}
+} */
 
 td a {
   margin-right: 10px;
@@ -274,5 +274,6 @@ a.add-user {
 a.add-user:hover {
   background-color: #0b7dda;
 } 
+
 
 

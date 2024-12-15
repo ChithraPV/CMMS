@@ -1,0 +1,160 @@
+{% extends 'worker.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Task Calendar View</title>
+  <style>
+    /* General calendar container */
+    .calendar-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Calendar header with month/year navigation */
+    .calendar-header {
+      margin-bottom: 20px;
+    }
+
+    /* Styling for table calendar */
+    table.calendar {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    /* General table cell styles */
+    table.calendar td {
+      width: 14%;
+      text-align: center;
+      padding: 8px;
+      border: 1px solid #ddd;
+      height: 60px;
+      position: relative;
+    }
+
+    /* Highlight red for due dates */
+    .due-date {
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      display: inline-block;
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Header for calendar navigation */
+    .calendar-header button {
+      cursor: pointer;
+      padding: 5px 10px;
+      margin: 0 5px;
+      font-size: 14px;
+      border: 1px solid #888;
+      border-radius: 5px;
+      transition: 0.2s ease-in-out;
+    }
+
+    .calendar-header button:hover {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <button id="prevMonth">Previous Month</button>
+      <span id="currentMonthYear"></span>
+      <button id="nextMonth">Next Month</button>
+    </div>
+    <table class="calendar" id="calendar"></table>
+  </div>
+
+  <script>
+    const tasksJson = JSON.parse('{{ tasks_json|escapejs | default:"[]" }}');
+    let currentDate = new Date();
+    let monthOffset = 0;
+
+    function renderCalendar() {
+      const calendarTable = document.getElementById('calendar');
+      calendarTable.innerHTML = '';
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + monthOffset;
+
+      const firstDayOfMonth = new Date(year, month, 1);
+      const lastDayOfMonth = new Date(year, month + 1, 0);
+      const daysInMonth = lastDayOfMonth.getDate();
+
+      const tableHeader = `
+        <tr>
+          <th>Sun</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+        </tr>
+      `;
+      calendarTable.innerHTML = tableHeader;
+
+      const firstDayIndex = firstDayOfMonth.getDay();
+      let row = document.createElement('tr');
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('td');
+        row.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('td');
+        cell.innerText = day;
+
+        const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const task = tasksJson.find(task => task.due_date === cellDateStr);
+
+        if (task) {
+          const dueDiv = document.createElement('div');
+          dueDiv.classList.add('due-date');
+          dueDiv.innerText = '!';
+          cell.appendChild(dueDiv);
+
+          // Add click event to navigate to task details
+          cell.addEventListener('click', () => {
+            window.location.href = `/view_tasks/${task.task_id}/view_details/`;
+          });
+        }
+
+        row.appendChild(cell);
+
+        if (row.children.length === 7 || day === daysInMonth) {
+          calendarTable.appendChild(row);
+          row = document.createElement('tr');
+        }
+      }
+
+      document.getElementById('currentMonthYear').innerText = `${firstDayOfMonth.toLocaleString('default', { month: 'long' })} ${firstDayOfMonth.getFullYear()}`;
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+      monthOffset--;
+      renderCalendar();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+      monthOffset++;
+      renderCalendar();
+    });
+
+    renderCalendar();
+  </script>
+</body>
+</html>
+{% endblock %}

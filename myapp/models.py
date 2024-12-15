@@ -90,7 +90,7 @@ class IssueDB(models.Model):
         ('Others', 'Others'),
     ]
     issue_category = models.CharField(max_length=255, choices=CATEGORY_CHOICES, default='Electrical Maintenance')  # Issue category
-    reported_dept_id = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)  # Reported department (ForeignKey to Department)
+    reported_dept_id = models.ForeignKey(Department, related_name='reported_issues',   on_delete=models.SET_NULL, null=True, blank=True)  # Reported department (ForeignKey to Department)
     reporter = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='reported_issues')  # Reporter (ForeignKey to User model)
     location = models.CharField(max_length=255)  # Location of the issue
     issue_description = models.TextField()  # Description of the issue
@@ -106,13 +106,23 @@ class IssueDB(models.Model):
     # Status of the issue (Pending, In Progress, Resolved, Closed)
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
+        ('Assigned to Foreman', 'Assigned to Foreman'),
+        ('Assigned to Worker', 'Assigned to Worker'),
         ('In Progress', 'In Progress'),
         ('Resolved', 'Resolved'),
         ('Closed', 'Closed'),
+        ('Escalation Pending', 'Escalation Pending'),
+        ('Escalation Approved', 'Escalation Approved'),
+        ('Escalation Rejected', 'Escalation Rejected'),
+        ('Extension Pending', 'Extension Pending'),
+        ('Extension Approved', 'Extension Approved'),
+        ('Extension Rejected', 'Extension Rejected'),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     image = models.ImageField(upload_to='issues/', null=True, blank=True)  # Optional image
     reported_date = models.DateTimeField(auto_now_add=True)  # Date when the issue was reported
+    assigned_dept = models.ForeignKey(Department,  null=True, blank=True,related_name='assigned_issues', on_delete=models.CASCADE)  
+  
 
     def __str__(self):
         reporter_username = self.reporter.username if self.reporter else "No reporter"
@@ -142,3 +152,66 @@ class IssueDB(models.Model):
     
     class Meta:
         ordering = ['-reported_date']  # Order by most recent issues
+
+
+class Task(models.Model):
+    task_id = models.AutoField(primary_key=True)
+    issue_id = models.ForeignKey(IssueDB, on_delete=models.CASCADE)  # Foreign key to Issue table
+    assigned_dept = models.ForeignKey(Department, on_delete=models.CASCADE)  # Foreign key to Department table
+    worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Foreign key to Worker table
+    due_date = models.DateField()
+    assigned_date = models.DateTimeField(auto_now_add=True)
+
+    # def __str__(self):
+    #     return f"Task {self.task_id} for Issue {self.issue.issue_id}"
+    def __str__(self):
+        # Corrected the reference to `issue_id`
+        return f"Task {self.task_id} for Issue {self.issue_id.issue_id}"
+    
+
+
+class Escalation(models.Model):
+    task = models.ForeignKey('Task', on_delete=models.CASCADE)  # Link to Task
+    worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link to Worker
+    reason = models.TextField()  # Reason for escalation
+    status = models.CharField(max_length=20, choices=[
+        ('Escalation Pending', 'Escalation Pending'),
+        ('Escalation Approved', 'Escalation Approved'),
+      
+        ('Escalation Rejected', 'Escalation Rejected'),
+    ], default='Extension Pending')  # Status of escalation
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class ExtensionRequest(models.Model):
+    task = models.ForeignKey('Task', on_delete=models.CASCADE)  # Link to Task
+    worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Link to Worker
+    new_due_date = models.DateField()  # Requested new due date
+    reason = models.TextField()  # Reason for extension
+    status = models.CharField(max_length=20, choices=[
+        ('Extension Pending', 'Extension Pending'),
+        ('Extension Approved', 'Extension Approved'),
+        ('Extension Rejected', 'Extension Rejected'),
+    ], default='Extension Pending')  # Status of extension
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+   
+
+class TaskImage(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to='task_images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.task.task_id} - {self.image.url}"
+
+
+
+class IssueStatusChange(models.Model):
+    issue = models.ForeignKey(IssueDB, on_delete=models.CASCADE, related_name='status_changes')
+    status = models.CharField(max_length=255)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    changed_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"Issue {self.issue.issue_id} - {self.status} on {self.changed_at}"

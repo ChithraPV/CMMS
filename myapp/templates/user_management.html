@@ -7,7 +7,7 @@
   <input type="text" name="q" placeholder="Search by username" value="{{ request.GET.q }}"/>
   <button type="submit">Search</button>
 </form>
-
+<a href="{% url 'add_user' %}">Add New User</a>
 <table>
   <thead>
     <tr>
@@ -39,5 +39,5 @@
 </table>
 
 <br />
-<a href="{% url 'add_user' %}">Add New User</a>
+
 {% endblock %}

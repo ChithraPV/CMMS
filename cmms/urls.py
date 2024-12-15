@@ -20,6 +20,11 @@ from django.contrib import admin
 from django.urls import path
 from myapp import views
 
+# urls.py
+#from django.conf.urls.i18n import urlpatterns as i18n_urls
+
+
+
 urlpatterns = [
     path('', views.user_login, name='user_login'),
     path('admin/', admin.site.urls),
@@ -36,13 +41,58 @@ urlpatterns = [
     path('report-issue/', views.report_issue, name='report_issue'),
     path('user/<int:id>/details/', views.user_details, name='user_details'),
     path('issue-management/search/', views.search_issue, name='search_issue'),
-    path('issue-management/<int:pk>/update-priority/', views.UpdatePriorityView.as_view(), name='update_priority'),
+    path('assigned_tasks/search/', views.search_tasks, name='search_tasks'),
+    # path('issue-management/<int:pk>/update-priority/', views.UpdatePriorityView.as_view(), name='update_priority'),/update-priority/
+    path('update-priority/', views.update_priority, name='update_priority'),
+    path('issue-management/<int:pk>/assign-issue/', views.assign_issue.as_view(), name='assign_issue'),
+    path('assigned_issues/', views.assigned_issues, name='assigned_issues'),
+    path('assigned_tasks/', views.assigned_tasks, name='assigned_tasks'),
+    path('in_progress_issues/', views.in_progress_issues, name='in_progress_issues'),
+    path('completed_issues/', views.completed_issues, name='completed_issues'),
+    path('completed_tasks/', views.completed_tasks, name='completed_tasks'),
+    path('pending_tasks/', views.pending_tasks, name='pending_tasks'),
+    path('extended_tasks/', views.extended_tasks, name='extended_tasks'),
+    path('escalated_tasks/', views.escalated_tasks, name='escalated_tasks'),
+    path('escalated_issues/', views.escalated_issues, name='escalated_issues'),
+    path('reporter_assigned_tasks/', views.reporter_assigned_tasks, name='reporter_assigned_tasks'),
+    path('reporter_pending_tasks/', views.reporter_pending_tasks, name='reporter_pending_tasks'),
+    path('reporter_completed_tasks/', views.reporter_completed_tasks, name='reporter_completed_tasks'),
+    path('reporter_escalated_tasks/', views.reporter_escalated_tasks, name='reporter_escalated_tasks'),
+    path('worker_assigned_tasks/', views.worker_assigned_tasks, name='worker_assigned_tasks'),
+    path('worker_extended_tasks/', views.worker_extended_tasks, name='worker_extended_tasks'),
+    path('worker_escalated_tasks/', views.worker_escalated_tasks, name='worker_escalated_tasks'),
+    path('worker_in_progress_tasks/', views.worker_in_progress_tasks, name='worker_in_progress_tasks'),
+    path('worker_completed_tasks/', views.worker_completed_tasks, name='worker_completed_tasks'),
+    # path('view_pending_tasks/', views.view_pending_tasks, name='view_pending_tasks'),reporter_assigned_tasks
+    path('assign_tasks/', views.assign_tasks, name='assign_tasks'),
+    #path('tasks_assign/', views.foreman_assign, name='foreman_assign'),
+    path('assign_tasks/<int:pk>/foreman_assign/',views.foreman_assign, name='foreman_assign'),
     
+    path('view_tasks/',views.view_tasks, name='view_tasks'),
+    path('view_tasks/<int:pk>/view_details/',views.details, name='details'),
+    path('update-status/<int:pk>/', views.update_status, name='update_status'),
+    path('extension_update_status/<int:pk>/', views.extension_update_status, name='extension_update_status'),
+    path('escalate-task/<int:pk>/', views.escalate_task, name='escalate_task'),
+    path('extend-due-date/<int:pk>/', views.extend_due_date, name='extend_due_date'),
+    path('upload-image/<int:pk>/', views.upload_image, name='upload_image'),
+    path('track_issue/', views.track_issue, name='track_issue'),
+    path('issue_history/', views.issue_history, name='issue_history'),
+    path('logout/', views.logout_view, name='logout'),
+    path('calendar/',views.calendar,name='calendar'),
+    path('issue_details/<int:pk>/', views.issue_details, name='issue_details'),
+    path('my_issue_details/<int:pk>/', views.my_issue_details, name='my_issue_details'),
+    path('extension_details/<int:pk>/extension_details/', views.extension_details, name='extension_details'),
+    path('escalation_details/<int:pk>/extension_details/', views.escalation_details, name='escalation_details'),
+    # path('extension_review/',views.extension_review,name='extension_review'),
+
+    path('autocomplete_category/', views.autocomplete_category, name='autocomplete_category'),
+    
+      
 
 
 
 
-]
+]#+ i18n_urls   Include the language switcher URLs
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

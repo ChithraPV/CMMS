@@ -1,0 +1,204 @@
+{% extends 'reporter.html' %} {% block content %}
+<style>
+  /* Style for the button container */
+.button-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Style for each button */
+.action-button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover effect for buttons */
+.action-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Focus effect for buttons */
+.action-button:focus {
+    outline: none;
+    border: 2px solid #2e7d32;
+}
+
+/* Active (clicked) effect for buttons */
+.action-button:active {
+    background-color: #388e3c;
+    transform: scale(0.98);
+}
+
+</style>
+
+<div class="button-container">
+  <a class="action-button" id="button1" href="{% url 'reporter_assigned_tasks' %}">Total Issues</a>
+  <a class="action-button" id="button2" href="{% url 'reporter_pending_tasks' %}">In Progress</a>
+  <a class="action-button" id="button3" href="{% url 'reporter_completed_tasks' %}">Resolved</a>
+  <a class="action-button" id="button4" href="{% url 'reporter_escalated_tasks' %}">Escalated</a>
+</div>
+
+<div class="table-responsive" style="max-width: 95%; margin: 0 auto">
+      <table class="table table-bordered table-striped" id="issueTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">ID</th>
+            <th onclick="sortTable(1)">Category</th>
+            <th onclick="sortTable(2)">Location</th>
+            <th onclick="sortTable(3)">Reporter</th>
+            <th onclick="sortTable(4)">Description</th>
+            <th onclick="sortTable(5)">Department</th>
+            <th onclick="sortTable(6)">Priority</th>
+            <th onclick="sortTable(7)">Image</th>
+            <th onclick="sortTable(8)">Reported Date</th>
+            <th onclick="sortTable(9)">Status</th>
+            <th >Details</th>
+            
+              
+          
+         
+          </tr>
+        </thead>
+        <tbody>
+          
+           {% for issue in issues %}
+           <tr>
+            
+            <td>{{ issue.issue_id }}</td>
+            <td>{{ issue.issue_category }}</td>
+            <td>{{ issue.location }}</td>
+            <td>
+              {% if issue.reporter %}
+              <strong>{{ issue.reporter.first_name|add:" "}}{{issue.reporter.last_name }}</strong>
+              {% endif %}
+            </td>
+            <td>{{ issue.issue_description }}</td>
+            <td>
+              {% if issue.reporter.department %} {{issue.reporter.department.dept_name }} {% endif %}
+            </td>
+          
+             <td>
+              <span style="
+                  {% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}
+              ">
+                  &#x273A;
+                  {% if issue.priority == 1 %} Low
+                  {% elif issue.priority == 2 %} Medium
+                  {% elif issue.priority == 3 %} High
+                  {% endif %}
+              </span>
+           </td> 
+      
+          
+          
+            <td>
+              {% if issue.image %}
+              <a href="{{ issue.image.url }}" target="_blank">View Image</a>
+              {% else %} No Image {% endif %}
+            </td>
+            <td>{{ issue.reported_date }}</td>
+            <td>
+              <span
+                style="
+                            {% if issue.status == 'Pending' %} color: orange;
+                            {% elif issue.status == 'In Progress' %} color: blue;
+                            {% elif issue.status == 'Resolved' %} color: green;
+                            {% elif issue.status == 'Closed' %} color: gray;
+                            {% endif %}
+                        "
+              >
+                &#x25CF; {{ issue.status }}
+              </span>
+            </td>
+          <td> <a href="{% url 'my_issue_details' pk=issue.issue_id %}">Click Here</a></td>
+             
+         
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <br />
+    
+ 
+
+
+    
+ <script>
+      function sortTable(columnIndex) {
+        var table = document.getElementById("issueTable");
+        var rows = Array.from(table.rows).slice(1); // Exclude header row
+        var headers = table.rows[0].cells; // Access table headers
+        var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
+
+        // Remove sorting classes from all headers
+        Array.from(headers).forEach((header) => {
+          header.classList.remove("asc", "desc");
+        });
+
+        // Helper function to parse the custom date format
+        function parseCustomDate(dateStr) {
+          return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
+        }
+
+        // Sorting logic
+        rows.sort(function (a, b) {
+          var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+          var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+
+          // **Priority Column Sorting**
+          if (columnIndex === 6) {
+            // Remove decorative symbol and trim priority text
+            aText = aText
+              .replace(/\★|[\u273A]/g, "")
+              .trim()
+              .toLowerCase();
+            bText = bText
+              .replace(/\★|[\u273A]/g, "")
+              .trim()
+              .toLowerCase();
+
+            // Define priority mapping
+            var priorityOrder = { high: 1, medium: 2, low: 3 };
+            aText = priorityOrder[aText] || 0;
+            bText = priorityOrder[bText] || 0;
+          }
+
+          // **Reported Date Column Sorting**
+          else if (columnIndex === 8) {
+            aText = parseCustomDate(aText).getTime() || 0;
+            bText = parseCustomDate(bText).getTime() || 0;
+          }
+
+          // General sorting for other columns
+          if (isAscending) {
+            return aText > bText ? 1 : aText < bText ? -1 : 0;
+          } else {
+            return aText < bText ? 1 : aText > bText ? -1 : 0;
+          }
+        });
+
+        // Append sorted rows back to the table
+        var tbody = table.querySelector("tbody");
+        rows.forEach((row) => tbody.appendChild(row));
+
+        // Add sorting classes to the current header
+        headers[columnIndex].classList.toggle("asc", isAscending);
+        headers[columnIndex].classList.toggle("desc", !isAscending);
+      }
+
+    
+    </script>
+    {% endblock %}
+
+

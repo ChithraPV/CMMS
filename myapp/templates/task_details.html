@@ -1,0 +1,1025 @@
+{% extends 'worker.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fc;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .task-header h1 {
+            font-size: 30px;
+            color: #333;
+        }
+
+        .task-details p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button {
+            padding: 12px 25px;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .start {
+            background-color: #007bff;
+        }
+
+        .start:hover {
+            background-color: #0056b3;
+        }
+
+        .update {
+            background-color: #28a745;
+        }
+
+        .update:hover {
+            background-color: #1e7e34;
+        }
+
+        .complete {
+            background-color: #dc3545;
+        }
+
+        .complete:hover {
+            background-color: #b02a37;
+        }
+        .escalate {
+          background-color:rgb(7, 129, 229);
+      }
+
+      .escalate:hover {
+          background-color:rgb(65, 34, 217);
+      }
+        
+      .extend {
+        background-color:rgb(227, 207, 25);
+    }
+
+    .extend:hover {
+        background-color:rgb(176, 167, 42);
+    }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* The Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 1;
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    margin: 10% auto;
+    width: 50%;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Close Button (optional) */
+.modal-content button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.modal-content button:hover {
+    background-color: #45a049;
+}
+
+/* Textarea Styling */
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+/* Input Styling */
+input[type="date"], select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Button Styling */
+.button.extend {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.button.extend:hover {
+    background-color: #45a049;
+}
+/* Modal Styles */
+#extensionModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed at the top */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Background with some transparency */
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Modal Content Styling */
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 800px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+}
+
+/* Close Icon */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 25px;
+    color: #aaa;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* Form elements */
+#extensionModal label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#extensionModal input, #extensionModal select, #extensionModal textarea {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#extensionModal button {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#extensionModal button:hover {
+    background-color: #45a049;
+}
+
+/* Optional: Make 'Other' reason textarea visible when selected */
+#otherExtensionReason {
+    display: none;
+    width: 100%;
+    height: 80px;
+    resize: vertical;
+}
+
+/* Optional: Close the modal when clicking outside */
+#extensionModal::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
+
+
+/* Modal Styles */
+#escalationModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Fixed at the top */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Background with some transparency */
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Modal Content Styling */
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 700px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+}
+
+/* Close Icon */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 25px;
+    color: #aaa;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* Form elements */
+#escalationModal label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#escalationModal input, #escalationModal select, #escalationModal textarea {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#escalationModal button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#escalationModal button:hover {
+    background-color: #0056b3;
+}
+
+/* Optional: Make 'Other' reason textarea visible when selected */
+#escalationOtherReason {
+    display: none;
+    width: 100%;
+    height: 80px;
+    resize: vertical;
+}
+
+/* Optional: Close the modal when clicking outside */
+#escalationModal::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
+
+/* Modal Overlay Styling */
+#statusUpdateModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensures modal appears above other elements */
+}
+
+/* Modal Content Styling */
+
+
+/* Close Button Styling */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #333; /* Darker shade when hovered */
+}
+
+/* Label Styling */
+#statusUpdateModal label {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+  font-weight: bold;
+  width: 100%;
+}
+
+/* Textarea Styling */
+#statusUpdateModal textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none; /* Prevent resizing for consistency */
+}
+
+/* File Input Button */
+#statusUpdateModal .button {
+  width: 100%;
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#statusUpdateModal .button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* File Name Display */
+#statusUpdateModal #fileName {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* Submit Button */
+#statusUpdateModal button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#statusUpdateModal button[type="submit"]:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+#statusUpdateModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensures modal appears above other elements */
+  }
+  
+  /* Modal Content Styling */
+  
+  
+  /* Close Button Styling */
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    color: #aaa;
+    cursor: pointer;
+  }
+  
+  .close:hover {
+    color: #333; /* Darker shade when hovered */
+  }
+  
+  /* Label Styling */
+   label {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: bold;
+    width: 100%;
+  }
+  
+  /* Textarea Styling */
+   textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: none; /* Prevent resizing for consistency */
+  }
+  
+  /* File Input Button */
+   .button {
+    width: 100%;
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+   .button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  /* File Name Display */
+   #fileName {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #555;
+  }
+  
+  /* Submit Button */
+   button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button:disabled {
+    background-color: #ccc; /* Greyed-out background */
+    cursor: not-allowed;
+    position: relative; /* To allow positioning of the tooltip */
+}
+
+/* Custom Tooltip */
+button:disabled[title]:hover::after {
+    content: attr(title);  /* Display the title text */
+    position: absolute;
+    top: -25px;  /* Position it above the button */
+    left: 50%;  /* Center it horizontally */
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10; /* Ensure it's above other elements */
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="task-header">
+        
+       
+        <h1>Task Details</h1>
+        {% for task in details %}
+        <div class="status">Status: <strong>{{ task.issue_id.status }}</strong></div>
+    </div>
+
+    <div class="task-details">
+        <p><strong>Issue ID:</strong> {{ task.issue_id.issue_id }}</p>
+        <p><strong>Task ID:</strong> {{ task.task_id }}</p>
+        <p><strong>Description:</strong> {{ task.issue_id.issue_description }}</p>
+        <p><strong>Location:</strong> {{ task.issue_id.location }}</p>
+        <p><strong>Reported Department:</strong> {{ task.issue_id.reporter.department.dept_name }}</p>
+        <p><strong>Reported By:</strong> {{ task.issue_id.reporter.first_name }} {{ task.issue_id.reporter.last_name }}</p>
+        <p><strong>Assigned On:</strong> {{ task.assigned_date }}</p>
+        <p><strong>Due Date:</strong> {{ task.due_date }}</p>
+        <p><strong>Priority:</strong> 
+            <span style="color: {% if task.issue_id.priority == 1 %} green; {% elif task.issue_id.priority == 2 %} orange; {% elif task.issue_id.priority == 3 %} red; {% endif %}">
+                &#9733;
+                {% if task.issue_id.priority == 1 %} Low {% elif task.issue_id.priority == 2 %} Medium {% else %} High {% endif %}
+            </span>
+        </p>
+    </div>
+    {%endfor%}
+    {%for task in details%}
+    <div class="button-group">
+        <button class="button start" 
+onclick="handleStart({{ task.issue_id.issue_id }})" 
+        {% if task.issue_id.status == "In Progress"  or  task.issue_id.status == "Completed" or task.issue_id.status == "Escalation Pending" or task.issue_id.status == "Escalation Approved" or task.issue_id.status == "Escalation Rejected" or task.issue_id.status == "Extension Pending" or task.issue_id.status == "Extension Rejected" or task.issue_id.status == "Extension Approved"%}
+            disabled
+            title="This task has already been started"
+        {% endif %}>
+    Start Task
+</button>
+
+        <button class="button update" onclick="handleUpdate({{ task.issue_id.issue_id  }})"  {% if task.issue_id.status == "Assigned to Worker" %}
+            disabled
+            title="Please start the task"
+            {% endif %} {% if task.issue_id.status == "Completed" %}
+            disabled
+            title="This task has already completed"
+            {% endif %}>
+    Add Comment</button>
+        <button class="button complete" onclick="handleComplete({{ task.issue_id.issue_id  }})"
+        {% if task.issue_id.status == "Completed"%}
+            disabled
+            title="This task has already completed"
+        {% endif %}>Mark as Complete</button>
+        <button class="button escalate" onclick="openEscalationModal()"{% if task.issue_id.status == "Completed"%}
+        disabled
+        title="This task has already completed"
+    {% endif %}>Escalate Task</button>
+        <button class="button extend" onclick="openExtensionModal()"{% if task.issue_id.status == "Completed"%}
+            disabled
+            title="This task has already completed"
+        {% endif %}>Extend Due Date</button>
+    
+    </div>
+    <div id="startModal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeStartModal()">&#10006;</span>
+            
+            <!-- Confirmation Step (First Step) -->
+            <div id="confirmationStep">
+                <p>Are you sure you want to start this task?</p>
+                <button type="button" onclick="showFileUpload()">Yes</button>
+                <button type="button" onclick="closeStartModal()">No</button>
+            </div>
+            
+            <div id="fileUploadStep" style="display: none;">
+                <form method="POST" action="{% url 'update_status' pk=task.issue_id.issue_id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="status" value="In Progress">
+                    
+                    <label for="fileInput" class="button">Upload an Image</label>
+                    <input type="file" id="fileInput" name="image" style="display: none;" onchange="handleFileChange(event)">
+                    
+                    <span id="fileName" style="margin-left: 10px; font-size: 14px; color: #555;"></span>
+                    
+                    <!-- Button with icon inside it -->
+                    <button type="submit" id="submitBtn" disabled>
+                        <span id="icon" class="not-accessible">&#128683;</span> Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Stop Modal -->
+<div id="stopModal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeStopModal()">&#10006;</span>
+        <div id="confirmationStep2">
+            <p>Are you sure you want to complete this task?</p>
+            <button type="button" onclick="showFileUpload2()">Yes</button>
+            <button type="button" onclick="closeStopModal()">No</button>
+        </div>
+
+        <div id="fileUploadStep2" style="display: none;">
+            <form method="POST" action="{% url 'update_status' pk=task.issue_id.issue_id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="Completed">
+                <label for="fileInput2" class="button">Upload an Image</label>
+                <input type="file" id="fileInput2" name="image" style="display: none;" onchange="handleFileChange2(event)">
+                <span id="fileName2" style="margin-left: 10px; font-size: 14px; color: #555;"></span>
+                <button type="submit" id="submitBtn2" disabled>
+                    <span id="icon2" class="not-accessible">&#128683;</span> Submit
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+    {% comment %} <div id="stopModal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeStopModal()">&#10006;</span>
+            
+            <!-- Confirmation Step (First Step) -->
+            <div id="confirmationStep2">
+                <p>Are you sure you want to complete this task?</p>
+                <button type="button" onclick="showFileUpload2()">Yes</button>
+                <button type="button" onclick="closeStopModal()">No</button>
+            </div>
+            
+            <div id="fileUploadStep2" style="display: none;">
+                <form method="POST" action="{% url 'update_status' pk=task.issue_id.issue_id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="status" value="Completed">
+                    
+                    <label for="fileInput" class="button">Upload an Image</label>
+                    <input type="file" id="fileInput" name="image" style="display: none;" onchange="handleFileChange(event)">
+                    
+                    <span id="fileName" style="margin-left: 10px; font-size: 14px; color: #555;"></span>
+                    
+                    <!-- Button with icon inside it -->
+                    <button type="submit" id="submitBtn" disabled>
+                        <span id="icon" class="not-accessible">&#128683;</span> Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div> {% endcomment %}
+    
+
+   
+
+<div id="statusUpdateModal" style="display: none;">
+  <div class="modal-content">
+      <span class="close" onclick="closeStatusModal()">&#10006;</span>
+      <form method="POST" action="{% url 'update_status' pk=task.issue_id.issue_id %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="progressDescription">Progress Description:</label>
+          <textarea id="progressDescription" name="status" placeholder="Enter progress details..." required></textarea>
+
+          {% comment %} <label for="fileInput" class="button">Choose File</label>
+          <input type="file" id="fileInput" name="image" onchange="handleFileChange(event)"> {% endcomment %}
+          <label for="fileInput" class="button">Choose File</label>
+          <input type="file" id="fileInput" name="image" style="display: none;" onchange="handleFileChange(event)">
+          <span id="fileName" style="margin-left: 10px; font-size: 14px; color: #555;"></span>
+
+
+          <button type="submit">Submit</button>
+      </form>
+  </div>
+</div>
+
+
+<div id="extensionModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeExtensionModal()">&#10006;</span>
+
+      <form method="POST" action="{% url 'extend_due_date' pk=task.task_id %}">
+          {% csrf_token %}
+          <label for="new_due_date">New Due Date:</label>
+          <input type="date" name="new_due_date" required>
+          <label for="reason">Reason for Extension:</label><br>
+          <select id="extensionReason" name="reason" onchange="toggleOtherReason('extension')">
+              <option value="">--Select a reason--</option>
+              <option value="Task Complexity">Task Complexity</option>
+              <option value="Dependency Delays">Dependency Delays</option>
+              <option value="Resource Shortage">Resource Shortage</option>
+              <option value="Other">Other</option>
+          </select>
+          <textarea id="extensionOtherReason" name="other_reason" style="display: none;" placeholder="Enter your reason"></textarea>
+          <button type="submit">Submit</button>
+      </form>
+  </div>
+</div>
+
+
+<!-- Escalation Modal -->
+<div id="escalationModal" style="display: none;">
+    <div class="modal-content">
+        <!-- Close Button -->
+        <span class="close" onclick="closeEscalationModal()">&#10006;</span>
+
+        <form method="POST" action="{% url 'escalate_task' pk=task.task_id %}">
+            {% csrf_token %}
+            <label for="reason">Reason for Escalation:</label>
+            <select id="escalationReason" name="reason" onchange="toggleOtherReason('escalation')">
+                <option value="">--Select a reason--</option>
+                <option value="High Priority">High Priority</option>
+                <option value="Unclear Instructions">Unclear Instructions</option>
+                <option value="Insufficient Resources">Insufficient Resources</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <!-- 'Other' reason input box -->
+            <textarea id="escalationOtherReason" name="other_reason" style="display: none;" placeholder="Enter your reason"></textarea>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+
+</div>
+{%endfor%}
+<script>
+    function handleComplete(IssueId) {
+        document.getElementById('stopModal').style.display = 'flex';
+      }
+      function closeStopModal() {
+        document.getElementById('stopModal').style.display = 'none';
+    }
+    function handleStart(issueId) {
+   
+        document.getElementById('startModal').style.display = 'flex';
+      }
+    
+    function closeStartModal() {
+        document.getElementById('startModal').style.display = 'none';
+    }
+
+    // Show the file upload step after confirmation
+    function showFileUpload2() {
+        document.getElementById('confirmationStep2').style.display = 'none';
+        document.getElementById('fileUploadStep2').style.display = 'block';
+    }
+    function showFileUpload() {
+        document.getElementById('confirmationStep').style.display = 'none';
+        document.getElementById('fileUploadStep').style.display = 'block';
+    }
+   
+    function handleFileChange(event) {
+        const fileInput = event.target;
+        const submitBtn = document.getElementById("submitBtn");
+        const fileName = document.getElementById("fileName");
+        const icon = document.getElementById("icon");
+
+        // Enable submit button if file is selected
+        if (fileInput.files.length > 0) {
+            submitBtn.disabled = false; // Enable submit
+            submitBtn.style.backgroundColor = "#4CAF50"; // Bright color (green)
+            submitBtn.style.color = "white"; // Button text color
+            icon.textContent = "✓";  // Change icon to "check" symbol (submit enabled)
+            icon.style.color = "#fff"; // Bright color for icon
+        } else {
+            submitBtn.disabled = true; // Disable submit
+            submitBtn.style.backgroundColor = "#c6c6c6"; // Dim color
+            submitBtn.style.color = "#808080"; // Dimmed text color
+            icon.textContent = "⛔"; // "Not accessible" icon (red cross)
+            icon.style.color = "#808080"; // Dim color for icon
+        }
+    }
+    function handleFileChange2(event) {
+        const fileInput = event.target;
+        const submitBtn = document.getElementById("submitBtn2");
+        const fileName = document.getElementById("fileName2");
+        const icon = document.getElementById("icon2");
+
+        // Enable submit button if file is selected
+        if (fileInput.files.length > 0) {
+            submitBtn.disabled = false; // Enable submit
+            submitBtn.style.backgroundColor = "#4CAF50"; // Bright color (green)
+            submitBtn.style.color = "white"; // Button text color
+            icon.textContent = "✓";  // Change icon to "check" symbol (submit enabled)
+            icon.style.color = "#fff"; // Bright color for icon
+        } else {
+            submitBtn.disabled = true; // Disable submit
+            submitBtn.style.backgroundColor = "#c6c6c6"; // Dim color
+            submitBtn.style.color = "#808080"; // Dimmed text color
+            icon.textContent = "⛔"; // "Not accessible" icon (red cross)
+            icon.style.color = "#808080"; // Dim color for icon
+        }
+    }
+  function handleStatusUpdate(IssueId, newStatus) {
+   
+    fetch(`/update-status/${IssueId}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCSRFToken(), // Include the CSRF token
+      },
+      body: `status=${newStatus}`
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          document.querySelector('.status').innerHTML = `Status: <strong>${data.status}</strong>`;
+        } else {
+          alert('Failed to update status.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred.');
+      });
+  }
+
+  function getCSRFToken() {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    return cookieValue || '';
+  }
+
+ 
+function handleUpdate(taskId) {
+  document.getElementById('statusUpdateModal').style.display = 'flex';
+}
+
+// Function to close the modal
+function closeStatusModal() {
+  document.getElementById('statusUpdateModal').style.display = 'none';
+}
+
+// Function to handle form submission and image upload
+function submitStatusUpdate(event, taskId) {
+  event.preventDefault();  // Prevent form from submitting normally
+
+  const progress = document.getElementById('progress').value;
+  const fileInput = document.getElementById(`fileInput-${taskId}`);
+  const formData = new FormData();
+  formData.append('progress', progress);
+  if (fileInput.files[0]) {
+      formData.append('image', fileInput.files[0]);
+  }
+
+  fetch(`/update-status/${taskId}/`, {
+      method: 'POST',
+      headers: {
+          'X-CSRFToken': getCSRFToken(),  // Include CSRF token
+      },
+      body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+      if (data.success) {
+          alert('Status updated successfully!');
+          document.querySelector('.status').innerHTML = `Status: <strong>${data.status}</strong>`;
+          closeModal();
+      } else {
+          alert('Failed to update status.');
+      }
+  })
+  .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while updating the status.');
+  });
+}
+
+
+ // Function to open the modal
+function openExtensionModal() {
+  document.getElementById('extensionModal').style.display = 'flex';
+}
+
+// Function to close the modal
+function closeExtensionModal() {
+  document.getElementById('extensionModal').style.display = 'none';
+}
+
+// Function to show or hide the 'Other' reason text area
+{% comment %} function toggleOtherReason(type) {
+  const otherReasonTextarea = document.getElementById('otherExtensionReason');
+  if (type === 'extension' && document.getElementById('extensionReason').value === 'Other') {
+      otherReasonTextarea.style.display = 'block';
+  } else {
+      otherReasonTextarea.style.display = 'none';
+  }
+} {% endcomment %}
+
+// Function to open the Escalation modal
+function openEscalationModal() {
+  document.getElementById('escalationModal').style.display = 'flex';
+}
+
+// Function to close the Escalation modal
+function closeEscalationModal() {
+  document.getElementById('escalationModal').style.display = 'none';
+}
+
+// Function to show or hide the 'Other' reason textarea
+function toggleOtherReason(type) {
+  const otherReasonTextarea = document.getElementById(type + 'OtherReason');
+  const reasonValue = document.getElementById(type + 'Reason').value;
+  if (reasonValue === 'Other') {
+      otherReasonTextarea.style.display = 'block';
+  } else {
+      otherReasonTextarea.style.display = 'none';
+  }
+}
+
+    function startTask() {
+        openCamera();
+    }
+
+    function updateStatus() {
+        alert("Status update functionality here.");
+    }
+
+    function completeTask() {
+        alert("Task marked as complete.");
+    }
+
+   
+   
+
+
+
+  
+    function closeStatusModal() {
+      document.getElementById('statusUpdateModal').style.display = 'none';
+    }
+</script>
+</body>
+</html>
+{% endblock %}

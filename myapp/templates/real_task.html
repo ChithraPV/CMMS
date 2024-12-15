@@ -1,0 +1,9 @@
+{% extends 'foreman.html' %}
+{% block content %}
+<h2>Assign Work</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Assign</button>
+</form>
+{% endblock %}

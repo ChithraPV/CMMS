@@ -48,6 +48,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.locale.LocaleMiddleware', 
+]
+
+# Add the languages you support
+# LANGUAGES = [
+#     ('en', 'English'),
+#     ('ml', 'Malayalam'),
+# ]
+
+LANGUAGE_CODE = 'en-us'
+
+# Path to translation files
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',  # Adjust path based on your project's structure
 ]
 
 ROOT_URLCONF = 'cmms.urls'
@@ -107,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+
 
 #TIME_ZONE = 'UTC'
 
