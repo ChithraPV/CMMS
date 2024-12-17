@@ -211,7 +211,7 @@ select, input,  {
 
       <tr>
         <td>{{ issue.issue_id }}</td>
-        <td>{{ issue.issue_category }}</td>
+        <td>{{ issue.issue_category }} {% if issue.issue_category == 'Others' %} <a href={% url 'assign_issue' pk=issue.issue_id%} style="color:white; font-size: 20px; text-decoration: none;background-color:red">Assign</a>{%endif%} </td>
         <td>{{ issue.location }}</td>
         <td>
           {% if issue.reporter %}

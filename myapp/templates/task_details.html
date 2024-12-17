@@ -743,16 +743,8 @@ onclick="handleStart({{ task.issue_id.issue_id }})"
       <form method="POST" action="{% url 'update_status' pk=task.issue_id.issue_id %}" enctype="multipart/form-data">
           {% csrf_token %}
           <label for="progressDescription">Progress Description:</label>
-          <textarea id="progressDescription" name="status" placeholder="Enter progress details..." required></textarea>
-
-          {% comment %} <label for="fileInput" class="button">Choose File</label>
-          <input type="file" id="fileInput" name="image" onchange="handleFileChange(event)"> {% endcomment %}
-          <label for="fileInput" class="button">Choose File</label>
-          <input type="file" id="fileInput" name="image" style="display: none;" onchange="handleFileChange(event)">
-          <span id="fileName" style="margin-left: 10px; font-size: 14px; color: #555;"></span>
-
-
-          <button type="submit">Submit</button>
+          <textarea id="progressDescription" name="comment" placeholder="Enter progress details..." required></textarea>
+          <button type="submit"id="submitBtn3" > Submit</button>
       </form>
   </div>
 </div>
@@ -863,6 +855,28 @@ onclick="handleStart({{ task.issue_id.issue_id }})"
         const fileName = document.getElementById("fileName2");
         const icon = document.getElementById("icon2");
 
+        // Enable submit button if file is selected
+        if (fileInput.files.length > 0) {
+            submitBtn.disabled = false; // Enable submit
+            submitBtn.style.backgroundColor = "#4CAF50"; // Bright color (green)
+            submitBtn.style.color = "white"; // Button text color
+            icon.textContent = "✓";  // Change icon to "check" symbol (submit enabled)
+            icon.style.color = "#fff"; // Bright color for icon
+        } else {
+            submitBtn.disabled = true; // Disable submit
+            submitBtn.style.backgroundColor = "#c6c6c6"; // Dim color
+            submitBtn.style.color = "#808080"; // Dimmed text color
+            icon.textContent = "⛔"; // "Not accessible" icon (red cross)
+            icon.style.color = "#808080"; // Dim color for icon
+        }
+    }
+    function handleFileChange3(event) {
+        const icon = document.getElementById("icon3");
+
+        const fileInput = event.target;
+        const submitBtn = document.getElementById("submitBtn3");
+        const fileName = document.getElementById("fileName3");
+        
         // Enable submit button if file is selected
         if (fileInput.files.length > 0) {
             submitBtn.disabled = false; // Enable submit

@@ -655,6 +655,7 @@ def extension_update_status(request, pk):
             changed_by=request.user  # Assumes request.user is the one updating the status
         )
         messages.success(request, "Status updated successfully!")
+        
        # Handle image upload if present
         if request.FILES.get('image'):
             image_file = request.FILES['image']
@@ -664,42 +665,100 @@ def extension_update_status(request, pk):
         return redirect('extended_tasks')
 from django.http import JsonResponse
 
+# def update_status(request, pk):
+#     if request.method == 'POST':
+#         # Get the new status from the form data
+#         new_status = request.POST.get('status')
+        
+#         if new_status:  # Ensure new status is provided
+#             # Fetch the issue by primary key (pk)
+#             issue = get_object_or_404(IssueDB, pk=pk)
+            
+#             # Update task status
+#             issue.status = new_status
+#             issue.save()
+
+#             # Create a new IssueStatusChange to record this change
+#             IssueStatusChange.objects.create(
+#                 issue=issue,
+#                 status=new_status,
+#                 changed_by=request.user  # Assumes request.user is the one updating
+#             )
+#         new_comment = request.POST.get('comment')
+#         if new_comment:
+#             issue = get_object_or_404(IssueDB, pk=pk)
+#             issue.comment = new_comment
+#             issue.save()
+#             # Handle image upload if present
+#         if 'image' in request.FILES:
+#             image_file = request.FILES['image']
+#             task = Task.objects.filter(issue_id=pk).first()
+#             if task:  # Ensure the task exists
+#                 TaskImage.objects.create(task=task, image=image_file)
+#                 messages.success(request, "Image uploaded successfully!")
+#             else:
+#                 messages.error(request, "Task not found.")
+#             messages.success(request, " Status updated.")
+#             return redirect('view_tasks')
+
+#         else:
+#             messages.error(request, "Status is required.")
+    
+#     # Optional: If not a POST request, handle accordingly
+#     return redirect('view_tasks')  # Default action if method isn't POST
+
 def update_status(request, pk):
     if request.method == 'POST':
-        # Get the new status from the form data
+        # Fetch the issue only once to reduce overhead
+        issue = get_object_or_404(IssueDB, pk=pk)
+        status_updated = False  # Track if status was updated
+        comment_added = False   # Track if comment was added
+
+        # Update task status if provided
         new_status = request.POST.get('status')
-        
-        if new_status:  # Ensure new status is provided
-            # Fetch the issue by primary key (pk)
-            issue = get_object_or_404(IssueDB, pk=pk)
-            
-            # Update task status
+        if new_status:
             issue.status = new_status
             issue.save()
-
-            # Create a new IssueStatusChange to record this change
             IssueStatusChange.objects.create(
                 issue=issue,
                 status=new_status,
-                changed_by=request.user  # Assumes request.user is the one updating
+                changed_by=request.user
             )
+            status_updated = True
 
-            # Handle image upload if present
-            if 'image' in request.FILES:
-                image_file = request.FILES['image']
-                task = Task.objects.filter(issue_id=pk).first()
-                if task:  # Ensure the task exists
-                    TaskImage.objects.create(task=task, image=image_file)
-                    messages.success(request, "Image uploaded successfully!")
-                else:
-                    messages.error(request, "Task not found.")
-            messages.success(request, " Status updated.")
-            return redirect('view_tasks')
-        else:
-            messages.error(request, "Status is required.")
-    
-    # Optional: If not a POST request, handle accordingly
-    return redirect('view_tasks')  # Default action if method isn't POST
+        # Update the comment if provided
+        new_comment = request.POST.get('comment')
+        if new_comment:
+            issue.comment = new_comment
+            issue.save()
+            comment_added = True
+
+        # Handle image upload if present
+        if 'image' in request.FILES:
+            image_file = request.FILES['image']
+            task = Task.objects.filter(issue_id=pk).first()  # Fetch related task
+            if task:
+                TaskImage.objects.create(task=task, image=image_file)
+                messages.success(request, "Image uploaded successfully!")
+            else:
+                messages.error(request, "Task not found. Image not saved.")
+
+        # Feedback messages for status and comment updates
+        if status_updated:
+            messages.success(request, "Status updated successfully.")
+        if comment_added:
+            messages.success(request, "Comment added successfully.")
+
+        # If no valid inputs, show error
+        if not (new_status or new_comment or 'image' in request.FILES):
+            messages.error(request, "No changes detected. Please provide status, comment, or image.")
+
+        return redirect('view_tasks')
+
+    # Optional: Handle GET request fallback
+    messages.error(request, "Invalid request method.")
+    return redirect('view_tasks')
+
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404

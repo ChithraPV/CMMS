@@ -119,6 +119,7 @@ class IssueDB(models.Model):
         ('Extension Rejected', 'Extension Rejected'),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    comment = models.CharField(max_length=100,null=True, blank=True)
     image = models.ImageField(upload_to='issues/', null=True, blank=True)  # Optional image
     reported_date = models.DateTimeField(auto_now_add=True)  # Date when the issue was reported
     assigned_dept = models.ForeignKey(Department,  null=True, blank=True,related_name='assigned_issues', on_delete=models.CASCADE)  

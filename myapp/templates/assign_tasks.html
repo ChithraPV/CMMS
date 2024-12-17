@@ -73,6 +73,20 @@
       .submit button:hover {
         background-color: #0056b3; /* Darken button on hover */
       }
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .btn-danger {
+        background-color: red;
+    }
+    
     </style>
 
       <form method="get" action="{% url 'search_issue' %}" class="search-form">
@@ -191,7 +205,9 @@
             {% if issue.status == 'Assigned to Foreman' %}
               <td>
               <!-- Button for updating priority -->
-              <a href="{% url 'foreman_assign' pk=issue.issue_id %}">Assign</a>
+              {% comment %} <a href="{% url 'foreman_assign' pk=issue.issue_id %}">Assign</a> {% endcomment %}
+              <a href="{% url 'foreman_assign' pk=issue.issue_id %}" class="btn btn-danger">Assign</a>
+
               {% comment %} <a href="{% url 'update_priority' issue.issue_id %}">Set Priority</a> {% endcomment %}
               <td>
                 <button onclick="openPriorityModal('{{ issue.issue_id }}', '{{ issue.priority }}')">Set Priority</button>
@@ -201,7 +217,7 @@
               {% if issue.status == 'Extension Pending' %}
                 
                 <!-- Button for updating priority -->
-                <td> <a href="{% url 'extension_details' pk=issue.issue_id %}">Click Here</a></td> 
+                <td> <a href="{% url 'extension_details' pk=issue.issue_id %}" class="btn btn-danger">Extend</a></td> 
                 {% comment %} <a href="{% url 'update_priority' issue.issue_id %}">Set Priority</a> {% endcomment %}
                 
                {% endif %}
@@ -209,7 +225,7 @@
               {% if issue.status == 'Escalation Pending' %}
               
               <!-- Button for updating priority -->
-              <td> <a href="{% url 'escalation_details' pk=issue.issue_id %}">Click escalation</a></td> 
+              <td> <a href="{% url 'escalation_details' pk=issue.issue_id %}" class="btn btn-danger">Escalate</a></td> 
               {% comment %} <a href="{% url 'update_priority' issue.issue_id %}">Set Priority</a> {% endcomment %}
               
              
