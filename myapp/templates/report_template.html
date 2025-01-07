@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>CFMMS Maintenance Report</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+         body {
+         background-color: #f8f9fa;
+         font-family: 'Arial', sans-serif;
+         }
+         .summary-box {
+         padding: 20px;
+         margin: 10px 0;
+         border-radius: 8px;
+         background-color: #ffffff;
+         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+         }
+         table {
+         margin-top: 20px;
+         }
+         .card-header {
+         font-weight: bold;
+         }
+      </style>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+   </head>
+   <body>
+      <div class="container mt-5">
+         <h1 class="text-center">CFMMS Maintenance Report</h1>
+         <p class="text-center text-muted">Generated dynamically</p>
+         <button onclick="window.print()">Download as PDF</button>
+         <!-- Summary Section -->
+         <div class="row">
+            <div class="col-md-3">
+               <div class="summary-box text-center">
+                  <h3>{{ issues }}</h3>
+                  <p>Total Issues</p>
+               </div>
+            </div>
+            <div class="col-md-3">
+               <div class="summary-box text-center">
+                  <h3>{{ in_progress }}</h3>
+                  <p>In Progress</p>
+               </div>
+            </div>
+            <div class="col-md-3">
+               <div class="summary-box text-center">
+                  <h3>{{ completed }}</h3>
+                  <p>Completed</p>
+               </div>
+            </div>
+            <div class="col-md-3">
+               <div class="summary-box text-center">
+                  <h3>{{ escalated }}</h3>
+                  <p>Escalated</p>
+               </div>
+            </div>
+         </div>
+         <!-- Priority Breakdown Chart -->
+         <div class="row">
+            <div class="chart-container  col-md-3">
+               <canvas id="priorityChart"></canvas>
+            </div>
+            <!-- Categories Breakdown Chart -->
+            <div class="chart-container  col-md-6">
+               <canvas id="categoryChart"></canvas>
+            </div>
+            <!-- Reported Departments Breakdown Chart -->
+            <div class="chart-container col-md-3">
+               <canvas id="departmentChart"></canvas>
+            </div>
+         </div>
+         <!-- Issues Table -->
+         <div class="mt-5  ">
+            <h3>Issues Details</h3>
+            <table class="table table-striped table-bordered">
+               <thead class="thead-dark">
+                  <tr>
+                     <th >ID</th>
+                     <th >Category</th>
+                     <th >Reporter</th>
+                     <th>Description</th>
+                     <th >Department</th>
+                     <th >Priority</th>
+                     <th >Location</th>
+                     <th >Reported Date</th>
+                     <th >Status</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for issue in issues_data %}
+                  <tr>
+                     <td>{{ issue.issue_id }}</td>
+                     <td>{{ issue.issue_category }}
+                     <td>
+                        {% if issue.reporter %}
+                        <strong>{{ issue.reporter.first_name|add:" "}}{{ issue.reporter.last_name }}</strong>
+                        {% endif %}
+                     </td>
+                     <td>{{ issue.issue_description }}</td>
+                     <td>
+                        {% if issue.reporter.department %}{{ issue.reporter.department.dept_name }}{% endif %}
+                     </td>
+                     <td>
+                        <span style="
+                           {% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}
+                           ">
+                        &#x273A;
+                        {% if issue.priority == 1 %} Low
+                        {% elif issue.priority == 2 %} Medium
+                        {% elif issue.priority == 3 %} High
+                        {% endif %}
+                        </span>
+                     </td>
+                     <td>{{ issue.location }}</td>
+                     <td>{{ issue.reported_date }}</td>
+                     <td>
+                        <span
+                           style="
+                           {% if issue.status == 'Pending' %} color: orange;
+                           {% elif issue.status == 'In Progress' %} color: blue;
+                           {% elif issue.status == 'Resolved' %} color: green;
+                           {% elif issue.status == 'Closed' %} color: gray;
+                           {% endif %}
+                           ">
+                        &#x25CF; {{ issue.status }}
+                        </span>
+                     </td>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+            </table>
+         </div>
+      </div>
+      <script>
+         // Priority Chart
+         const priorityData = {
+           labels: ['High Priority', 'Medium Priority', 'Low Priority'],
+           datasets: [{
+             data: [{{ high_priority }}, {{ medium_priority }}, {{ low_priority }}],
+             backgroundColor: ['#e74c3c', '#f1c40f', '#2ecc71']
+           }]
+         };
+         
+         new Chart(document.getElementById('priorityChart'), {
+           type: 'doughnut',
+           data: priorityData,
+           options: {
+             responsive: true,
+             plugins: {
+               legend: { position: 'top' },
+               title: { display: true, text: 'Priority Breakdown' }
+             }
+           }
+         });
+         
+         // Categories Chart
+         const categoryData = {
+           labels: {{ category_labels|safe }},
+           datasets: [{
+             data: {{ category_data|safe }},
+             backgroundColor: ['#1abc9c', '#3498db', '#9b59b6', '#e74c3c', '#34495e', '#f39c12', '#2ecc71', '#e67e22']
+           }]
+         };
+         
+         new Chart(document.getElementById('categoryChart'), {
+           type: 'bar',
+           data: categoryData,
+           options: {
+             responsive: true,
+             plugins: {
+               legend: { display: false },
+               title: { display: true, text: 'Category Breakdown' }
+             },
+             scales: {
+               x: { title: { display: true, text: 'Categories' } },
+               y: { title: { display: true, text: 'Number of Issues' } }
+             }
+           }
+         });
+         
+         // Departments Chart
+         const departmentData = {
+           labels: Object.keys({{ departments|safe }}),
+           datasets: [{
+             data: Object.values({{ departments|safe }}),
+             backgroundColor: ['#2ecc71', '#9b59b6', '#e74c3c', '#3498db', '#f39c12', '#e67e22', '#34495e']
+           }]
+         };
+         
+         new Chart(document.getElementById('departmentChart'), {
+           type: 'pie',
+           data: departmentData,
+           options: {
+             responsive: true,
+             plugins: {
+               legend: { position: 'right' },
+               title: { display: true, text: 'Reported Departments' }
+             }
+           }
+         });
+         
+         
+  </script>
+   </body>
+</html>

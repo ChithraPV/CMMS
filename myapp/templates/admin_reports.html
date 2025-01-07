@@ -1,0 +1,88 @@
+{% extends 'admin.html' %}
+{% block content %}
+<style>
+   form{
+   width:80%;
+   }
+</style>
+<form action="{% url 'generate_pdf_report' %}" method="GET">
+   {% comment %} <div class="text-end mb-3">
+      <a href="{% url 'generate_pdf_report' %}" id="importButton" class="btn btn-success">Export as Excel</a>
+   </div> {% endcomment %}
+   <div class="text-end mb-3">
+      <input type="hidden" name="export_excel" id="exportExcelFlag" value="false">
+      <button type="submit" id="exportButton" class="btn btn-success">Export as Excel</button>
+  </div>
+   <div class="row mb-4 screen">
+      <div class="filter col-md-2">
+         <label for="timeFilter" class="form-label">Time Range</label>
+         <select name="timeFilter" id="timeFilter" class="form-select select-dropdown" onchange="handleTimeFilterChange()">
+            <option value="">All</option>
+            <option value="thisYear">This Year</option>
+            <option value="thisMonth">This Month</option>
+            <option value="thisWeek">This Week</option>
+            <option value="dateRange">Date Range</option>
+         </select>
+      </div>
+      <div class="filter col-md-2" id="startDateContainer" style="display: none;">
+         <label for="startDate" class="form-label">Start Date</label>
+         <input type="date" name="startDate" id="startDate" class="form-control">
+      </div>
+      <div class="filter col-md-2" id="endDateContainer" style="display: none;">
+         <label for="endDate" class="form-label">End Date</label>
+         <input type="date" name="endDate" id="endDate" class="form-control">
+      </div>
+      <div class="filter col-md-2">
+         <label for="category" class="form-label">Category</label>
+         <select name="category" id="category" class="form-select select-dropdown">
+            <option value="">All</option>
+            {% for label in category_labels %}
+            <option value="{{ label }}">{{ label }}</option>
+            {% endfor %}
+         </select>
+      </div>
+      <div class="filter col-md-2">
+         <label for="department" class="form-label">Department</label>
+         <select name="department" id="department" class="form-select select-dropdown">
+            <option value="">All</option>
+            {% for label, dept_id in departments.items %}
+            <option value="{{ dept_id }}">{{ label }}</option>
+            {% endfor %}
+         </select>
+      </div>
+      <div class="filter col-md-2">
+         <label for="priority" class="form-label">Priority</label>
+         <select name="priority" id="priority" class="form-select select-dropdown">
+            <option value="">All</option>
+            <option value="3">High</option>
+            <option value="2">Medium</option>
+            <option value="1">Low</option>
+         </select>
+      </div>
+      <div class="filter col-md-2">
+         <button class="btn btn-primary mt-4">Generate</button>
+      </div>
+   </div>
+</form>
+<script>
+   function handleTimeFilterChange() {
+     const selectedFilter = document.getElementById('timeFilter').value;
+     const startDateContainer = document.getElementById('startDateContainer');
+     const endDateContainer = document.getElementById('endDateContainer');
+   
+     if (selectedFilter === 'dateRange') {
+         startDateContainer.style.display = 'block';
+         endDateContainer.style.display = 'block';
+     } else {
+         startDateContainer.style.display = 'none';
+         endDateContainer.style.display = 'none';
+     }
+   }
+     const issuesData = JSON.parse('{{ issues_data|safe }}');
+     console.log("Issues Data Loaded:", issuesData);
+
+     document.getElementById("exportButton").addEventListener("click", function () {
+      document.getElementById("exportExcelFlag").value = "true";
+  });
+</script>
+{%endblock%}

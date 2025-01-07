@@ -1,162 +1,136 @@
 {%extends 'foreman.html'%}{% block content %}<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Details</title>
-  
-  <style>
-    /* General styles */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-    }
-
-    .container {
-      width: 40%;
-      
-      background-color: #ffffff;
-      padding: 2rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-
-    .task-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    h1 {
-      font-size: 2rem;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
-    .status {
-      font-size: 1.2rem;
-      color: #555;
-    }
-
-    /* Task Details Section */
-    .task-details {
-      margin-bottom: 2rem;
-    }
-
-    .task-details p {
-      font-size: 1rem;
-      margin: 0.5rem 0;
-    }
-
-    .task-details strong {
-      color: #333;
-    }
-
-    /* Priority Styling */
-    .priority {
-      font-size: 1rem;
-      font-weight: bold;
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      color: #fff;
-    }
-
-    .priority-low {
-      background-color: green;
-    }
-
-    .priority-medium {
-      background-color: orange;
-    }
-
-    .priority-high {
-      background-color: red;
-    }
-
-    /* Extension Details Section */
-    .extension-details p {
-      margin: 0.5rem 0;
-      color: #444;
-    }
-
-    .extension-details strong {
-      color: #333;
-    }
-
-    /* Form Section */
-    form {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 2rem;
-    }
-
-    button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #45a049;
-    }
-
-    .reject-button {
-      background-color: #f44336;
-    }
-
-    .reject-button:hover {
-      background-color: #e53935;
-    }
-
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="task-header">
-      <h1>Task Details</h1>
-      
-      {% for task in details %}
-      <div class="status">Status:<strong>{{task.issue_id.status}}</strong></div>
-      {%endfor%}
-    </div>
-
-    <div class="task-details">
-    {% for task in task %}
-      <p><strong>Issue ID:</strong> {{task.issue_id.issue_id}}</p>
-      <p><strong>Task ID:</strong>{{task.task_id}}</p>
-      <p><strong>Description:</strong>{{task.issue_id.issue_description}}</p>
-     
-      <p><strong>Assigned On:</strong> {{task.assigned_date}}</p>
-      <p><strong>Due Date:</strong> {{task.due_date}}</p>
-      <p><strong>Priority:</strong> <span style="{% if task.issue_id.priority == 1 %} color: green; {% elif task.issue_id.priority == 2 %} color: orange; {% elif task.issue_id.priority == 3 %} color: red; {% endif %}">
-        &#x273A;
-        {% if task.issue_id.priority == 1 %} Low
-        {% elif task.issue_id.priority == 2 %} Medium
-        {% elif task.issue_id.priority == 3 %} High
-        {% endif %}</p>
-    </div>
-    <div class="extension-details">
-    {% for esc in escalation %}
-    {% if esc.task_id == task.task_id %}
-        <p><strong>Extension Reason:</strong> {{ esc.reason }}</p>
-        <p><strong>Requested at:</strong> {{ esc.updated_at }}</p>
-        
-    {% endif %}
-{% endfor %}
-</div>
-
-    <form method="POST" action="{% url 'extension_update_status' pk=task.issue_id.pk %}">
-        {% csrf_token %}
-        <button type="submit" name="status" value="Escalation Approved">Approve</button>
-        <button type="submit" name="status" value="Escalation Rejected">Reject</button>
-      </form>
-    </div>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Task Details</title>
+      <style>
+         /* General styles */
+         body {
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+         background-color: #f4f4f9;
+         }
+         .container {
+         width: 40%;
+         background-color: #ffffff;
+         padding: 2rem;
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+         border-radius: 8px;
+         }
+         .task-header {
+         text-align: center;
+         margin-bottom: 2rem;
+         }
+         h1 {
+         font-size: 2rem;
+         color: #333;
+         margin-bottom: 1rem;
+         }
+         .status {
+         font-size: 1.2rem;
+         color: #555;
+         }
+         /* Task Details Section */
+         .task-details {
+         margin-bottom: 2rem;
+         }
+         .task-details p {
+         font-size: 1rem;
+         margin: 0.5rem 0;
+         }
+         .task-details strong {
+         color: #333;
+         }
+         /* Priority Styling */
+         .priority {
+         font-size: 1rem;
+         font-weight: bold;
+         padding: 0.3rem 0.6rem;
+         border-radius: 4px;
+         color: #fff;
+         }
+         .priority-low {
+         background-color: green;
+         }
+         .priority-medium {
+         background-color: orange;
+         }
+         .priority-high {
+         background-color: red;
+         }
+         /* Extension Details Section */
+         .extension-details p {
+         margin: 0.5rem 0;
+         color: #444;
+         }
+         .extension-details strong {
+         color: #333;
+         }
+         /* Form Section */
+         form {
+         display: flex;
+         justify-content: space-around;
+         margin-top: 2rem;
+         }
+         button {
+         background-color: #4CAF50;
+         color: white;
+         border: none;
+         padding: 10px 20px;
+         font-size: 1rem;
+         cursor: pointer;
+         border-radius: 4px;
+         transition: background-color 0.3s;
+         }
+         button[type="submit"]:hover {
+         background-color: #45a049;
+         }
+         .reject-button {
+         background-color: #f44336;
+         }
+         .reject-button:hover {
+         background-color: #e53935;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <div class="task-header">
+            <h1>Task Details</h1>
+            {% for task in details %}
+            <div class="status">Status:<strong>{{task.issue_id.status}}</strong></div>
+            {%endfor%}
+         </div>
+         <div class="task-details">
+            {% for task in task %}
+            <p><strong>Issue ID:</strong> {{task.issue_id.issue_id}}</p>
+            <p><strong>Task ID:</strong>{{task.task_id}}</p>
+            <p><strong>Description:</strong>{{task.issue_id.issue_description}}</p>
+            <p><strong>Assigned On:</strong> {{task.assigned_date}}</p>
+            <p><strong>Due Date:</strong> {{task.due_date}}</p>
+            <p><strong>Priority:</strong> <span style="{% if task.issue_id.priority == 1 %} color: green; {% elif task.issue_id.priority == 2 %} color: orange; {% elif task.issue_id.priority == 3 %} color: red; {% endif %}">
+               &#x273A;
+               {% if task.issue_id.priority == 1 %} Low
+               {% elif task.issue_id.priority == 2 %} Medium
+               {% elif task.issue_id.priority == 3 %} High
+               {% endif %}
+            </p>
+         </div>
+         <div class="extension-details">
+            {% for esc in escalation %}
+            {% if esc.task_id == task.task_id %}
+            <p><strong>Extension Reason:</strong> {{ esc.reason }}</p>
+            <p><strong>Requested at:</strong> {{ esc.updated_at }}</p>
+            {% endif %}
+            {% endfor %}
+         </div>
+         <form method="POST" action="{% url 'extension_update_status' pk=task.issue_id.pk %}">
+            {% csrf_token %}
+            <button type="submit" name="status" value="Escalation Approved">Approve</button>
+            <button type="submit" name="status" value="Escalation Rejected">Reject</button>
+         </form>
+      </div>
       {% endfor %}
-      
-{%endblock%}
+      {%endblock%}

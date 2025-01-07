@@ -39,10 +39,8 @@ urlpatterns = [
     path('user-management/delete/<int:user_id>/', views.delete_user, name='delete_user'),
     path('issue-management/', views.issue_management, name='issue_management'),
     path('report-issue/', views.report_issue, name='report_issue'),
-    path('user/<int:id>/details/', views.user_details, name='user_details'),
     path('issue-management/search/', views.search_issue, name='search_issue'),
     path('assigned_tasks/search/', views.search_tasks, name='search_tasks'),
-    # path('issue-management/<int:pk>/update-priority/', views.UpdatePriorityView.as_view(), name='update_priority'),/update-priority/
     path('update-priority/', views.update_priority, name='update_priority'),
     path('issue-management/<int:pk>/assign-issue/', views.assign_issue.as_view(), name='assign_issue'),
     path('assigned_issues/', views.assigned_issues, name='assigned_issues'),
@@ -63,11 +61,8 @@ urlpatterns = [
     path('worker_escalated_tasks/', views.worker_escalated_tasks, name='worker_escalated_tasks'),
     path('worker_in_progress_tasks/', views.worker_in_progress_tasks, name='worker_in_progress_tasks'),
     path('worker_completed_tasks/', views.worker_completed_tasks, name='worker_completed_tasks'),
-    # path('view_pending_tasks/', views.view_pending_tasks, name='view_pending_tasks'),reporter_assigned_tasks
     path('assign_tasks/', views.assign_tasks, name='assign_tasks'),
-    #path('tasks_assign/', views.foreman_assign, name='foreman_assign'),
     path('assign_tasks/<int:pk>/foreman_assign/',views.foreman_assign, name='foreman_assign'),
-    
     path('view_tasks/',views.view_tasks, name='view_tasks'),
     path('view_tasks/<int:pk>/view_details/',views.details, name='details'),
     path('update-status/<int:pk>/', views.update_status, name='update_status'),
@@ -80,16 +75,13 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('calendar/',views.calendar,name='calendar'),
     path('issue_details/<int:pk>/', views.issue_details, name='issue_details'),
-    path('my_issue_details/<int:pk>/', views.my_issue_details, name='my_issue_details'),
     path('extension_details/<int:pk>/extension_details/', views.extension_details, name='extension_details'),
     path('escalation_details/<int:pk>/extension_details/', views.escalation_details, name='escalation_details'),
-    # path('extension_review/',views.extension_review,name='extension_review'),
-
-    path('autocomplete_category/', views.autocomplete_category, name='autocomplete_category'),
+    path('reports/', views.reports, name='reports'),
+    path('generate_report/', views.generate_pdf_report, name='generate_pdf_report'),
+    path('bulk_upload_users/', views.bulk_upload_users, name='bulk_upload_users'),
+    path('password_change/',views.password_change,name='password_change'),
     
-      
-
-
 
 
 ]#+ i18n_urls   Include the language switcher URLs

@@ -1,9 +1,106 @@
-<!-- templates/admin/add_user.html -->
-{% extends 'admin.html' %} {% block content %}
-<h2>Add New User</h2>
-
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">Add User</button>
-</form>
+{% extends 'admin.html' %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+<style>
+   /* Styling for forms and buttons (unchanged from your original) */
+   form {
+   max-width: 500px;
+   margin: 0 auto;
+   padding: 20px;
+   background-color: #f9f9f9;
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   }
+   label {
+   display: block;
+   margin-bottom: 5px;
+   font-weight: bold;
+   color: #333;
+   }
+   input, select, textarea {
+   width: 100%;
+   padding: 8px;
+   margin-bottom: 10px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   }
+   button {
+   padding: 10px 15px;
+   background-color: #007bff;
+   color: white;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   }
+   button:hover {
+   background-color: #0056b3;
+   }
+   @media screen and (max-width: 600px) {
+   form {
+   width: 80%;
+   padding: 10px;
+   }
+   input, select, textarea {
+   width: 100%;
+   }
+   }
+   /* Hide the bulk upload by default */
+   .excel {
+   display: none;
+   }
+   a{
+   text-decoration:none;
+   }
+</style>
+<div class="row text-center mb-3">
+   <div class="text-end mb-3">
+      <a href="#" id="importButton" class="btn btn-success">IMPORT FROM EXCEL</a>
+   </div>
+   <div class="col-6 col-md-12 single">
+      <h3>Add New User</h3>
+      <br>
+      <form method="post">
+         {% csrf_token %} {{ form.as_p }}
+         <button type="submit">Add User</button>
+      </form>
+   </div>
+   <br>
+   <div class="col-6 col-md-12 excel">
+      <form method="post" enctype="multipart/form-data" action="{% url 'bulk_upload_users' %}">
+         {% csrf_token %}
+         <label for="excelFile">Upload Excel File</label>
+         <input type="file" id="excelFile" name="excelFile" accept=".xlsx, .xls">
+         <button type="submit">Upload</button>
+      </form>
+   </div>
+</div>
+<script>
+   // Show the bulk upload form and hide the single add user form when IMPORT FROM EXCEL is clicked
+   $(document).ready(function() {
+     $('#importButton').click(function() {
+       
+       $('.excel').show();   // Show the bulk upload form
+     });
+   });
+   
+   function toggleDropdown() {
+     const dropdown = document.getElementById('reportsDropdown');
+     if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+       dropdown.style.display = 'block';
+     } else {
+       dropdown.style.display = 'none';
+     }
+   }
+   
+   // Close the dropdown if clicked outside
+   document.addEventListener('click', function (event) {
+     const dropdown = document.getElementById('reportsDropdown');
+     const isClickInside = dropdown.parentNode.contains(event.target);
+   
+     if (!isClickInside && dropdown.style.display === 'block') {
+       dropdown.style.display = 'none';
+     }
+   });
+</script>
 {% endblock %}

@@ -1,255 +1,187 @@
 {% extends 'foreman.html' %}{% load static %}
 {% block content %}
-
-  <link rel="stylesheet" href="{% static 'css/issue_tracking.css'%}"/>
+<link rel="stylesheet" href="{% static 'css/issue_tracking.css'%}"/>
 <style>
-  /* 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Body and Base Fonts */
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.6;
-}
-
-/* Header Section */
-header {
-  background-color: #1fb133;
-  color: white;
-  padding: 10px 0;
-  text-align: center;
-}
-
-.header-container h1 {
-  font-size: 24px;
-}
-
-/* Hero Section */
-.hero-section {
-  text-align: center;
-  padding: 15px;
-  background-color: #f0f0f0;
-  font-size: 16px;
-}
-
-/* Main Container */
-.tracking-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  padding: 20px;
-}
-
-/* Issue Progress Section */
-{% comment %} .status-section {
-  flex: 1 1 400px;
-  max-width: 500px;
-  padding: 20px;
-  background-color: #e6e6e6;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-} {% endcomment %}
-/* Parent container */
-.status-section {
-  flex: 1 1 400px;
-  max-width: 500px;
-  padding: 20px;
-  background-color: #e6e6e6;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Timeline container */
-.timeline-container {
-  position: relative;
-  margin: 10px 0;
-  width: 100%;
-}
-
-/* Line in the timeline */
-.timeline-line {
-  position: absolute;
-  top: 0;
-  left: 20px;
-  width: 4px;
-  height: auto;
-  background-color: #555;
-  z-index: -1;
-}
-
-/* Steps on the timeline */
-.status-timeline {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.status-step {
-  position: relative;
-  padding: 10px 15px;
-  font-size: 16px;
-  color: #555;
-  border-radius: 20px;
-  width: 100%;
-}
-
-/* Fix for ticks alignment */
-.status-step::before {
-  content: '\2705'; /* Unicode tick mark */
-  position: absolute;
-  left: 8px; /* Set a consistent left offset for all tick icons */
-  font-size: 16px;
-  color: #007bff;
-  line-height: 1;
-}
-
-{% comment %} 
-.timeline-container {
-  position: relative;
-  margin: 10px 0;
-}
-
-.status-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.status-step {
-  position: relative;
-  padding: 10px 15px;
-  font-size: 18px;
-  border-radius: 20px;
-  color: #e01f28;
-  text-align: center;
-  width: 520px;
-  margin-left:10px;
-}
-
-
-
-.timeline-line {
-  position: absolute;
-  top: 0;
-  left: 20px;
-  width: 4px;
-  height: 100%;
-  background-color: #555;
-  z-index: -1;
-} {% endcomment %}
-
-/* Issue Summary Section */
-.issue-summary {
-  flex: 1 1 400px;
-  max-width: 500px;
-  padding: 20px;
-  background-color: #d9d9d9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 10px 0;
-  background-color: #004080;
-  color: white;
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .tracking-container {
-    flex-direction: column;
-  }
-
-  .status-section,
-  .issue-summary {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .status-step {
-    font-size: 12px;
-  }
-}
-
-
-   
-
-     
-  </style>
-
+   /* 
+   * {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+   }
+   /* Body and Base Fonts */
+   body {
+   font-family: Arial, Helvetica, sans-serif;
+   line-height: 1.6;
+   }
+   /* Header Section */
+   header {
+   background-color: #1fb133;
+   color: white;
+   padding: 10px 0;
+   text-align: center;
+   }
+   .header-container h1 {
+   font-size: 24px;
+   }
+   /* Hero Section */
+   .hero-section {
+   text-align: center;
+   padding: 15px;
+   background-color: #f0f0f0;
+   font-size: 16px;
+   }
+   /* Main Container */
+   .tracking-container {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 20px;
+   justify-content: center;
+   padding: 20px;
+   }
+   /* Parent container */
+   .status-section {
+   flex: 1 1 400px;
+   max-width: 500px;
+   padding: 20px;
+   background-color: #e6e6e6;
+   border-radius: 8px;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   }
+   /* Timeline container */
+   .timeline-container {
+   position: relative;
+   margin: 10px 0;
+   width: 100%;
+   }
+   /* Line in the timeline */
+   .timeline-line {
+   position: absolute;
+   top: 0;
+   left: 20px;
+   width: 4px;
+   height: auto;
+   background-color: #555;
+   z-index: -1;
+   }
+   /* Steps on the timeline */
+   .status-timeline {
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 10px;
+   }
+   .status-step {
+   position: relative;
+   padding: 10px 15px;
+   font-size: 16px;
+   color: #555;
+   border-radius: 20px;
+   width: 100%;
+   }
+   /* Fix for ticks alignment */
+   .status-step::before {
+   content: '\2705'; /* Unicode tick mark */
+   position: absolute;
+   left: 8px; /* Set a consistent left offset for all tick icons */
+   font-size: 16px;
+   color: #007bff;
+   line-height: 1;
+   }
+   /* Issue Summary Section */
+   .issue-summary {
+   flex: 1 1 400px;
+   max-width: 500px;
+   padding: 20px;
+   background-color: #d9d9d9;
+   border-radius: 8px;
+   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   font-size: 14px;
+   line-height: 1.6;
+   }
+   /* Footer */
+   footer {
+   text-align: center;
+   padding: 10px 0;
+   background-color: #004080;
+   color: white;
+   margin-top: 20px;
+   font-size: 14px;
+   }
+   /* Responsive Design */
+   @media (max-width: 768px) {
+   .tracking-container {
+   flex-direction: column;
+   }
+   .status-section,
+   .issue-summary {
+   max-width: 100%;
+   }
+   }
+   @media (max-width: 480px) {
+   .status-step {
+   font-size: 12px;
+   }
+   }
+</style>
 <body>
-  
-  
-  <!-- Main Container -->
-  <main>
-    <div class="tracking-container">
-        {% if error %}
-        <div class="error-message">
-          <p style="color: red;">{{ error }}</p>
-        </div>
-      {% else %}
-      <div class="status-section">
-        <h2> Issue Progress</h2>
-      
-        <div class="timeline-container">
-          <div class="status-timeline">{% for i in status_history %}
-            <div class="status-step">{{i.status}} - {{i.changed_at }}</div>
-            {% endfor %}
-            
-          </div>
-         
-          
-          <div class="timeline-line"></div>
-        </div>
-      </div>
-      <div class="status-section ">
-        <h2>Issue Details</h2>
-          <p><strong>Issue ID:</strong> {{ issue.issue_id }}</p><br>
-          <p><strong>Issue status:</strong> {{ issue.status }}</p><br>
-          <p><strong>Task ID:</strong> {{ task.task_id }}</p><br>
-          <p><strong>Issue Category:</strong> {{ issue.issue_category }}</p><br>
-          <p><strong>Description:</strong> {{ issue.issue_description }}</p><br>
-          <p><strong>Priority:</strong> <span style="{% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}">
-            &#x273A;
-            {% if issue.priority == 1 %} Low
-            {% elif issue.priority == 2 %} Medium
-            {% elif issue.priority == 3 %} High
+   <!-- Main Container -->
+   <main>
+      <div class="tracking-container">
+         {% if error %}
+         <div class="error-message">
+            <p style="color: red;">{{ error }}</p>
+         </div>
+         {% else %}
+         <div class="status-section">
+            <h2> Issue Progress</h2>
+            <div class="timeline-container">
+               <div class="status-timeline">
+                  {% for i in status_history %}
+                  <div class="status-step">{{i.status}} - {{i.changed_at }}</div>
+                  {% endfor %}
+               </div>
+               <div class="timeline-line"></div>
+            </div>
+         </div>
+         <div class="status-section ">
+            <h2>Issue Details</h2>
+            <p><strong>Issue ID:</strong> {{ issue.issue_id }}</p>
+            <br>
+            <p><strong>Issue status:</strong> {{ issue.status }}</p>
+            <br>
+            <p><strong>Task ID:</strong> {{ task.task_id }}</p>
+            <br>
+            <p><strong>Issue Category:</strong> {{ issue.issue_category }}</p>
+            <br>
+            <p><strong>Description:</strong> {{ issue.issue_description }}</p>
+            <br>
+            <p><strong>Priority:</strong> <span style="{% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}">
+               &#x273A;
+               {% if issue.priority == 1 %} Low
+               {% elif issue.priority == 2 %} Medium
+               {% elif issue.priority == 3 %} High
+               {% endif %}
+               </span>
+            </p>
+            <br>
+            <p><strong>Image:</strong>{% if issue.image %}
+               <a href="{{ issue.image.url }}" target="_self">View Image</a>
+               {% else %} No Image {% endif %}
+            </p>
+            <br>
+            <p><strong>Issue Location:</strong> {{ issue.location }}</p>
+            <br>
+            <p><strong>Reported Date:</strong> {{ issue.reported_date }}</p>
+            <br>
+            <p><strong>Assigned date:</strong> {{ task.assigned_date }}</p>
+            <br>
+            <p><strong>Due date:</strong> {{ task.due_date }}</p>
+            <br>
+            <p><strong>In Charge:</strong> {{ task.worker.first_name|add:" "}}{{task.worker.last_name }} </p>
+            <br>
             {% endif %}
-        </span></p><br>
-        <p><strong>Image:</strong>{% if issue.image %}
-            <a href="{{ issue.image.url }}" target="_self">View Image</a>
-            {% else %} No Image {% endif %}</p><br>
-          <p><strong>Issue Location:</strong> {{ issue.location }}</p><br>
-          <p><strong>Reported Date:</strong> {{ issue.reported_date }}</p><br>
-          <p><strong>Assigned date:</strong> {{ task.assigned_date }}</p><br>
-          <p><strong>Due date:</strong> {{ task.due_date }}</p><br>
-          <p><strong>In Charge:</strong> {{ task.worker.first_name|add:" "}}{{task.worker.last_name }} </p><br>
-         
-          {% endif %}
-</div>
- 
-    </div>
-  </main>
-
- 
+         </div>
+      </div>
+   </main>
 </body>
-
- 
-
-
-
-{%endblock%} 
-
+{%endblock%}

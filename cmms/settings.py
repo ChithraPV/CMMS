@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
+    'push_notifications',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
     # 'django.middleware.locale.LocaleMiddleware', 
 ]
 
@@ -161,3 +163,28 @@ MEDIA_URL = '/media/'
 
 # Absolute path to the directory where media files are stored
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "FCM_API_KEY": "BHuFbcQqQdHqfnUuow0sG4nZHl4aE2B3bG7wI6IFQd_s5mcNBUu8Yl8RB4N-Moj2Zt2uAKvVSdE1mxqIayTGays",
+   
+}
+
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use SMTP backend
+EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
+EMAIL_PORT = 587  # Use 587 for TLS, 465 for SSL
+EMAIL_USE_TLS = True  # Enable TLS for secure connection
+EMAIL_USE_SSL = False  # Disable SSL since TLS is enabled
+EMAIL_HOST_USER = 'cfmms07@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'idxt tvla opwx gpnf'  
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
+
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: store sessions in the database
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1 hour
+
+LOGIN_URL = '/'
+

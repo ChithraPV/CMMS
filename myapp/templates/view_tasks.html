@@ -1,236 +1,194 @@
 {% extends 'worker.html' %}{% block content %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assigned Works</title>
-
-    <!-- FullCalendar CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
-
-    <!-- FullCalendar JS -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
-
-    <!-- General Styles -->
-    <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            
-            color: #333;
-        }
-
-        /* Main container */
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 10px;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            cursor: pointer;
-            padding: 10px;
-            background: #45a049;
-            border: 1px solid #ddd;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .tab.active {
-            background: #286638;
-        }
-
-       
-
-        .view.active {
-            display: block;
-        }
-
-        /* Calendar View */
-        #calendar-view {
-            max-width: 50%;
-            height:auto;
-            padding: 0px;
-            border-radius: 10px;
-            
-            margin:auto;
-        }
-
-        /* Table View */
-        #table-view table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        #table-view table th,
-        #table-view table td {
-            border: 1px solid #ddd;
-            text-align: center;
-            padding: 8px;
-        }
-
-        #table-view table th {
-            background: #45a049;
-            color: white;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            #calendar-view,
-            #table-view {
-                max-width: 100%;
-                height: auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #calendar {
-                height: 400px !important;
-            }
-        }
-
-      
-            /* Style for the button container */
-          .button-container {
-              display: flex;
-              gap: 15px;
-              flex-wrap: wrap;
-              justify-content: center;
-              margin-top: 20px;
-          }
-          
-          /* Style for each button */
-          .action-button {
-              background-color: #4CAF50; /* Green */
-              color: white;
-              font-size: 16px;
-              padding: 10px 20px;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              transition: background-color 0.3s ease, transform 0.2s ease;
-          }
-          
-          /* Hover effect for buttons */
-          .action-button:hover {
-              background-color: #45a049;
-              transform: scale(1.05);
-          }
-          
-          /* Focus effect for buttons */
-          .action-button:focus {
-              outline: none;
-              border: 2px solid #2e7d32;
-          }
-          
-          /* Active (clicked) effect for buttons */
-          .action-button:active {
-              background-color: #388e3c;
-              transform: scale(0.98);
-          }
-          
-          
-    </style>
-</head>
-
-<body>
-    {% if messages %}
-    {% for message in messages %}
-       {% if message.tags == 'success' %}
-           <div class="alert alert-danger text-center" role="alert">
-           {{ message }}
-           </div>
-       {% endif %}
-    {% endfor %}
- {% endif %}
-    <div class="tabs">
-        <div class="tab active">Table View</div>
-        
-    </div>
-    <div class="button-container">
-        <a class="action-button" id="button1" href="{% url 'worker_assigned_tasks' %}">Total Tasks</a>
-         <a class="action-button" id="button2" href="{% url 'worker_in_progress_tasks' %}">In Progress</a>
-        <a class="action-button" id="button3" href="{% url 'worker_completed_tasks' %}">Resolved</a>
-        <a class="action-button" id="button4" href="{% url 'worker_escalated_tasks' %}">Escalated</a>
-        <a class="action-button" id="button4" href="{% url 'worker_extended_tasks' %}">Extended</a>
-        <a class="action-button" id="button4" href="{% url 'view_tasks' %}">Pending</a> 
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Assigned Works</title>
+      <!-- FullCalendar CSS -->
+      <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+      <!-- FullCalendar JS -->
+      <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+      <!-- General Styles -->
+      <style>
+         /* General Reset */
+         * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+         }
+         body {
+         font-family: 'Poppins', sans-serif;
+         color: #333;
+         }
+         /* Main container */
+         .container {
+         max-width: 1200px;
+         margin: 20px auto;
+         padding: 10px;
+         }
+         /* Tabs */
+         .tabs {
+         display: flex;
+         justify-content: space-between;
+         margin-bottom: 20px;
+         }
+         .tab {
+         flex: 1;
+         text-align: center;
+         cursor: pointer;
+         padding: 10px;
+         background: #45a049;
+         border: 1px solid #ddd;
+         color: #fff;
+         transition: background-color 0.3s ease;
+         }
+         .tab.active {
+         background: #286638;
+         }
+         .view.active {
+         display: block;
+         }
+         /* Calendar View */
+         #calendar-view {
+         max-width: 50%;
+         height:auto;
+         padding: 0px;
+         border-radius: 10px;
+         margin:auto;
+         }
+         /* Table View */
+         #table-view table {
+         width: 100%;
+         border-collapse: collapse;
+         }
+         #table-view table th,
+         #table-view table td {
+         border: 1px solid #ddd;
+         text-align: center;
+         padding: 8px;
+         }
+         #table-view table th {
+         background: #45a049;
+         color: white;
+         }
+         /* Responsive Styles */
+         @media (max-width: 768px) {
+         #calendar-view,
+         #table-view {
+         max-width: 100%;
+         height: auto;
+         }
+         }
+         @media (max-width: 480px) {
+         #calendar {
+         height: 400px !important;
+         }
+         }
+         /* Style for the button container */
+         .button-container {
+         display: flex;
+         gap: 15px;
+         flex-wrap: wrap;
+         justify-content: center;
+         margin-top: 20px;
+         }
+         /* Style for each button */
+         .action-button {
+         background-color: #4CAF50; /* Green */
+         color: white;
+         font-size: 16px;
+         padding: 10px 20px;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         transition: background-color 0.3s ease, transform 0.2s ease;
+         }
+         /* Hover effect for buttons */
+         .action-button:hover {
+         background-color: #45a049;
+         transform: scale(1.05);
+         }
+         /* Focus effect for buttons */
+         .action-button:focus {
+         outline: none;
+         border: 2px solid #2e7d32;
+         }
+         /* Active (clicked) effect for buttons */
+         .action-button:active {
+         background-color: #388e3c;
+         transform: scale(0.98);
+         }
+      </style>
+   </head>
+   <body>
+      {% if messages %}
+      {% for message in messages %}
+      {% if message.tags == 'success' %}
+      <div class="alert alert-danger text-center" role="alert">
+         {{ message }}
       </div>
-    <div class="container">
-        <!-- Tabs -->
-      
-
-        <!-- Table View Section -->
-        <div id="table-view" class="view active">
-            {% comment %} <button type="button" onclick="window.location.href='{% url '' %}'"> Pending Tasks </button>
-      <button type="button" onclick="window.location.href='{% url 'assigned_tasks' %}'"> In Progress Tasks </button>
-      
-      <button type="button" onclick="window.location.href='{% url 'completed_tasks' %}'">Completed </button> {% endcomment %}
-    </form>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      <div class="tabs">
+         <div class="tab active">Table View</div>
+      </div>
+      <div class="button-container">
+         <a class="action-button" id="button1" href="{% url 'worker_assigned_tasks' %}">Total Tasks</a>
+         <a class="action-button" id="button2" href="{% url 'worker_in_progress_tasks' %}">In Progress</a>
+         <a class="action-button" id="button3" href="{% url 'worker_completed_tasks' %}">Resolved</a>
+         <a class="action-button" id="button4" href="{% url 'worker_escalated_tasks' %}">Escalated</a>
+         <a class="action-button" id="button4" href="{% url 'worker_extended_tasks' %}">Extended</a>
+         <a class="action-button" id="button4" href="{% url 'view_tasks' %}">Pending</a> 
+      </div>
+      <div class="container">
+         <!-- Tabs -->
+         <!-- Table View Section -->
+         <div id="table-view" class="view active">
+            </form>
             <table>
-                <thead>
-                    <tr>
-                        <th>Task ID</th>
-                        <th>Issue Description</th>
-                        <th>Due Date</th>
-                        
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                    <tr>
-                        <td>{{ task.task_id }}</td>
-                        <td>{{ task.issue_id.issue_description }}</td>
-                        <td>{{ task.due_date|date:"Y-m-d" }}</td>
-                        <td>
-                            <span style="
-                                {% if task.issue_id.priority == 1 %} color: green; 
-                                {% elif task.issue_id.priority == 2 %} color: orange; 
-                                {% elif task.issue_id.priority == 3 %} color: red; 
-                                {% endif %}
-                            ">
-                                &#x273A;
-                                {% if task.issue_id.priority == 1 %} Low
-                                {% elif task.issue_id.priority == 2 %} Medium
-                                {% elif task.issue_id.priority == 3 %} High
-                                {% endif %}
-                            </span>
-                        </td>
-                        <td>{{ task.issue_id.status }}</td>
-                        <td>
-                            {% comment %} <a href="{% url 'assign_issue' pk=issue.issue_id %}">Assign</a> {% endcomment %}
-                            <a href="{% url 'details' pk=task.task_id %}">View Details</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+               <thead>
+                  <tr>
+                     <th>Task ID</th>
+                     <th>Issue Description</th>
+                     <th>Due Date</th>
+                     <th>Priority</th>
+                     <th>Status</th>
+                     <th>Actions</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for task in tasks %}
+                  <tr>
+                     <td>{{ task.task_id }}</td>
+                     <td>{{ task.issue_id.issue_description }}</td>
+                     <td>{{ task.due_date|date:"Y-m-d" }}</td>
+                     <td>
+                        <span style="
+                           {% if task.issue_id.priority == 1 %} color: green; 
+                           {% elif task.issue_id.priority == 2 %} color: orange; 
+                           {% elif task.issue_id.priority == 3 %} color: red; 
+                           {% endif %}
+                           ">
+                        &#x273A;
+                        {% if task.issue_id.priority == 1 %} Low
+                        {% elif task.issue_id.priority == 2 %} Medium
+                        {% elif task.issue_id.priority == 3 %} High
+                        {% endif %}
+                        </span>
+                     </td>
+                     <td>{{ task.issue_id.status }}</td>
+                     <td>
+                        {% comment %} <a href="{% url 'assign_issue' pk=issue.issue_id %}">Assign</a> {% endcomment %}
+                        <a href="{% url 'details' pk=task.task_id %}">View Details</a>
+                     </td>
+                  </tr>
+                  {% endfor %}
+               </tbody>
             </table>
-        </div>
-
-       
-    </div>
-
-    
-</body>
-
+         </div>
+      </div>
+   </body>
 </html>
 {% endblock %}

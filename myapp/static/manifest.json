@@ -1,0 +1,22 @@
+{
+    "name": "College Facility Maintenance Management System",
+    "short_name": "CFMMS",
+    "description": "Manage maintenance work and resources for college facilities.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#3b6ca1",
+    "icons": [
+      {
+        "src": "/static/icons/icon2.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/static/icons/icon1.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  

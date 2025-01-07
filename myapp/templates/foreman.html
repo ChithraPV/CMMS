@@ -1,530 +1,485 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Portfolio</title>
-    <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/mediaqueries.css' %}" />
-    <script src="{% static 'js/scripts.js' %}"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/mediaqueries.css' %}" /> 
-    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    a{
-        text-decoration:none;
-    }
-    .counter {
-        text-align: center;
-        padding: 1.5rem;
-        margin: 0.5rem;
-        border-radius: 8px;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .filter {
-        text-align: center;
-        padding-left: 1.5rem;
-      
-        border-radius: 8px;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .counter:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-    
-    .form-label {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-    
-    .chart-container {
-        margin-top: 1.5rem;
-        padding: 1rem;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .counter {
-        animation: fadeIn 1s ease-in-out;
-    }
-    
-    @keyframes fadeIn {
-        0% {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .btn-primary {
-        background: #007bff;
-        border: none;
-        border-radius: 5px;
-        padding: 0.75rem 1.5rem;
-        transition: background 0.3s ease;
-    }
-    
-    .btn-primary:hover {
-        background: #0056b3;
-    }
-    .chart-container {
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        text-align:center;
-    }
-       
-</style>    
-  </head>
-  <body>
-    <nav id="desktop-nav">
-      <div class="logo">CFMMS FOREMAN</div>
+   <head>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>My Portfolio</title>
+      <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}" />
+      <link rel="stylesheet" href="{% static 'css/mediaqueries.css' %}" />
+      <script src="{% static 'js/scripts.js' %}"></script>
+      <link
+         rel="stylesheet"
+         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+         />
+      <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}" />
+      <link rel="stylesheet" href="{% static 'css/mediaqueries.css' %}" />
+      <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+         a{
+         text-decoration:none;
+         }
+         .counter {
+         text-align: center;
+         padding: 1.5rem;
+         margin: 0.5rem;
+         border-radius: 8px;
+         transition: transform 0.2s, box-shadow 0.2s;
+         }
+         .filter {
+         text-align: center;
+         padding-left: 1.5rem;
+         border-radius: 8px;
+         transition: transform 0.2s, box-shadow 0.2s;
+         }
+         .counter:hover {
+         transform: scale(1.05);
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+         }
+         .form-label {
+         font-weight: 500;
+         margin-bottom: 0.5rem;
+         }
+         .chart-container {
+         margin-top: 1.5rem;
+         padding: 1rem;
+         background: white;
+         border-radius: 8px;
+         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+         }
+         .counter {
+         animation: fadeIn 1s ease-in-out;
+         }
+         @keyframes fadeIn {
+         0% {
+         opacity: 0;
+         transform: translateY(20px);
+         }
+         100% {
+         opacity: 1;
+         transform: translateY(0);
+         }
+         }
+         .btn-primary {
+         background: #007bff;
+         border: none;
+         border-radius: 5px;
+         padding: 0.75rem 1.5rem;
+         transition: background 0.3s ease;
+         }
+         .btn-primary:hover {
+         background: #0056b3;
+         }
+         .chart-container {
+         border: 1px solid #ddd;
+         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+         text-align:center;
+         }
+         /* Profile Dropdown */
+         .profile-dropdown {
+         position: relative;
+         display: inline-block;
+         }
+         .profile-icon {
+         width: 40px;
+         height: 40px;
+         border-radius: 50%;
+         cursor: pointer;
+         }
+         .dropdown-content {
+         display: none;
+         position: absolute;
+         background-color: #f9f9f9;
+         box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+         min-width: 150px;
+         right: 0; /* Align dropdown to the right */
+         z-index: 1;
+         }
+         .dropdown-content a {
+         display: block;
+         color: black;
+         padding: 8px 12px;
+         text-decoration: none;
+         }
+         .dropdown-content a:hover {
+         background-color: #f1f1f1;
+         }
+         /* Show dropdown on hover */
+         .profile-dropdown:hover .dropdown-content {
+         display: block;
+         } 
+      </style>
+   </head>
+   <body>
+      <nav id="desktop-nav">
+         <div class="logo">CFMMS FOREMAN</div>
+         <div>
+            <ul class="nav-links">
+               {% if user.is_authenticated %}
+               <li class="welcome-message">Welcome, {{ user.first_name }}</li>
+               <!-- Display username -->
+               {% endif %}
+               <li><a href="{% url 'foreman_dashboard' %}">Home </a></li>
+               <li><a href="{% url 'assign_tasks' %}"> Tasks</a></li>
+               <li><a href="#my_skills"> Reports</a></li>
+               <li>
+                  <div class="profile-dropdown">
+                     <img src="{% static 'icons/profile.png' %}" width="30px" height="30px" alt="Profile" class="profile-icon">
+                     <div class="dropdown-content" display="none">
+                        <a href="{% url 'logout' %}">Logout</a>
+                        <a href="{% url 'password_change' %}">Change Password</a>
+                     </div>
+                  </div>
+               </li>
+            </ul>
+         </div>
+      </nav>
+      <nav id="hamburger-nav">
+         <div class="logo">CFMMS FOREMAN</div>
+         <div class="hamburger-menu">
+            <div class="hamburger-icon" onclick="toggleMenu()">
+               <span></span>
+               <span></span>
+               <span></span>
+            </div>
+            <div class="menu-links">
+               <li><a href="#about" onclick="toggleMenu()">Manage Users</a></li>
+               <li><a href="#my_skills" onclick="toggleMenu()">Manage Assets</a></li>
+               <li><a href="#projects" onclick="toggleMenu()">Manage Assets</a></li>
+               <li><a href="#contact" onclick="toggleMenu()">Manage Assets</a></li>
+            </div>
+         </div>
+      </nav>
       <div>
-        <ul class="nav-links">
-          {% if user.is_authenticated %}
-          <li class="welcome-message">Welcome, {{ user.first_name }}</li>
-          <!-- Display username -->
-
-          {% endif %}
-          <li><a href="{% url 'foreman_dashboard' %}">Home </a></li>
-          <li><a href="{% url 'assign_tasks' %}"> Tasks</a></li>
-           <li><a href="#my_skills"> Reports</a></li>
-          
-          <li><a href="{% url 'logout' %}">Logout</a></li>
-        </ul>
-      </div>
-    </nav>
-    <nav id="hamburger-nav">
-      <div class="logo">CFMMS FOREMAN</div>
-      <div class="hamburger-menu">
-        <div class="hamburger-icon" onclick="toggleMenu()">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        <div class="menu-links">
-          <li><a href="#about" onclick="toggleMenu()">Manage Users</a></li>
-          <li><a href="#my_skills" onclick="toggleMenu()">Manage Assets</a></li>
-          <li><a href="#projects" onclick="toggleMenu()">Manage Assets</a></li>
-          <li><a href="#contact" onclick="toggleMenu()">Manage Assets</a></li>
-        </div>
-      </div>
-    </nav>
-    <div>
       {%block content%}
       <!-- Counters -->
-     <div class="row text-center mb-3">
-      <div class="col-6 col-md-3">
-          <div class="counter bg-danger">
-            <a href='{% url 'assign_tasks' %}'>
-                  <h3 style="color:white">{{ issues }}</h3>
-                  <h4 style="color:white">Total Issues </h4>
-            </a>
-          </div>
+      <div class="row text-center mb-3">
+         <div class="col-6 col-md-3">
+            <div class="counter bg-danger">
+               <a href='{% url 'assign_tasks' %}'>
+               <h3 style="color:white">{{ issues }}</h3>
+               <h4 style="color:white">Total Issues </h4>
+               </a>
+            </div>
+         </div>
+         <div class="col-6 col-md-3">
+            <div class="counter bg-warning">
+               <a href='{% url 'assigned_tasks' %}'>
+               <h3 id="ongoingIssues"style="color:white">{{in_progress}}</h3>
+               <h4 style="color:white">Ongoing Issues</h4>
+               </a>
+            </div>
+         </div>
+         <div class="col-6 col-md-3">
+            <div class="counter bg-success">
+               <a href='{% url 'completed_tasks' %}'>
+               <h3 id="resolvedWorks"style="color:white">{{completed}}</h3>
+               <h4 style="color:white">Resolved Works</h4>
+               </a>
+            </div>
+         </div>
+         <div class="col-6 col-md-3">
+            <div class="counter bg-info">
+               <a href='{% url 'escalated_tasks' %}'>
+               <h3 id="escalatedIssues" style="color:white">{{escalated}}</h3>
+               <h4 style="color:white">Escalated Issues</h4>
+               </a>
+            </div>
+         </div>
       </div>
-      <div class="col-6 col-md-3">
-          <div class="counter bg-warning">
-            <a href='{% url 'assigned_tasks' %}'>
-                  <h3 id="ongoingIssues"style="color:white">{{in_progress}}</h3>
-                  <h4 style="color:white">Ongoing Issues</h4>
-            </a>
-          </div>
+      <div class="row mb-3">
+         <div class="filter col-md-2">
+            <label for="timeFilter" class="form-label">Time Range</label>
+            <select id="timeFilter" class="form-select select-dropdown" onchange="handleTimeFilterChange()">
+               <option value="">All</option>
+               <option value="thisYear">This Year</option>
+               <option value="thisMonth">This Month</option>
+               <option value="thisWeek">This Week</option>
+               <option value="dateRange">Date Range</option>
+            </select>
+         </div>
+         <div class="filter col-md-2" id="startDateContainer" style="display: none;">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input type="date" id="startDate" class="form-control" onchange="checkDateRangeAndUpdateGraph()">
+         </div>
+         <div class="filter col-md-2" id="endDateContainer" style="display: none;">
+            <label for="endDate" class="form-label">End Date</label>
+            <input type="date" id="endDate" class="form-control" onchange="checkDateRangeAndUpdateGraph()">
+         </div>
+         <div class="filter col-md-2">
+            <label for="category" class="form-label">Category</label>
+            <select id="category" class="form-select select-dropdown" onchange="updateGraph()">
+               <option value="">All</option>
+               {% for label in category_labels %}
+               <option value="{{ label }}">{{ label }}</option>
+               {% endfor %}
+            </select>
+         </div>
+         <div class="filter col-md-2">
+            <label for="department" class="form-label">Department</label>
+            <select id="department" class="form-select select-dropdown" onchange="updateGraph()">
+               <option value="">All</option>
+               {% for label, dept_id in departments.items %}
+               <option value="{{ dept_id }}">{{ label }}</option>
+               {% endfor %}
+            </select>
+         </div>
+         <div class="filter col-md-2">
+            <label for="priority" class="form-label">Priority</label>
+            <select id="priority" class="form-select select-dropdown" onchange="updateGraph()">
+               <option value="">All</option>
+               <option value="3">High</option>
+               <option value="2">Medium</option>
+               <option value="1">Low</option>
+            </select>
+         </div>
       </div>
-      <div class="col-6 col-md-3">
-          <div class="counter bg-success">
-            <a href='{% url 'completed_tasks' %}'>
-                  <h3 id="resolvedWorks"style="color:white">{{completed}}</h3>
-                  <h4 style="color:white">Resolved Works</h4>
-            </a>
-          </div>
+      <!-- Graph Section -->
+      <div class="row mb-12">
+         <div class="col-md-6">
+            <div class="chart-container">
+               <canvas id="issuesChart"></canvas>
+            </div>
+         </div>
+         <div class="col-md-3">
+            <div class="chart-container">
+               ISSUE CATEGORIES<br>
+               <canvas id="taskPieChart"></canvas>
+            </div>
+         </div>
+         <div class="col-md-3">
+            <div class="chart-container">
+               ISSUES PRIORITIES<br>
+               <canvas id="priorityDonutChart"></canvas>
+            </div>
+         </div>
       </div>
-      {% comment %} <div class="col-6 col-md-2">
-          <div class="counter bg-danger">
-              <a href="/unresolved-works">
-                  <h4 id="unresolvedWorks" style="color:white">{{extended}}</h4>
-                  <p>Extended Works</p>
-              </a>
-          </div>
-      </div> {% endcomment %}
-      <div class="col-6 col-md-3">
-          <div class="counter bg-info">
-            <a href='{% url 'escalated_tasks' %}'>
-                  <h3 id="escalatedIssues" style="color:white">{{escalated}}</h3>
-                  <h4 style="color:white">Escalated Issues</h4>
-            </a>
-          </div>
-      </div>
-  </div>
-
-  <div class="row mb-3">
-      <!-- Input Filters -->
-      <div class="filter col-md-2">
-        <label for="timeFilter" class="form-label">Time Range</label>
-        <select id="timeFilter" class="form-select" onchange="handleTimeFilterChange()">
-            <option value="thisYear">This Year</option>
-            <option value="thisMonth">This Month</option>
-            <option value="thisWeek">This Week</option>
-            <option value="dateRange">Date Range</option>
-        </select>
-    </div>
-
-    <div class="filter col-md-2" id="startDateContainer" style="display: none;">
-        <label for="startDate" class="form-label">Start Date</label>
-        <input type="date" id="startDate" class="form-control">
-    </div>
-    <div class="col-md-2" id="endDateContainer" style="display: none;">
-        <label for="endDate" class="form-label">End Date</label>
-        <input type="date" id="endDate" class="form-control">
-    </div>
-      <div class="col-md-2">
-        <label for="category" class="form-label">Category</label>
-        <select id="category" class="form-select">
-          <option value="">All</option>
-          {% for label in category_labels %}
-          <option value="{{ label }}">{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-     
-    <div class="col-md-2">
-      <label for="department" class="form-label">Department</label>
-      <select id="department" class="form-select">
-        <option value="">All</option>
-        {% for label, dept_id in departments.items %}
-          <option value="{{ dept_id }}">{{ label }} </option>
-        {% endfor %}
-      </select>
-    </div>
-    
-      <div class="col-md-2">
-        <label for="priority" class="form-label">Priority</label>
-        <select id="priority" class="form-select">
-          <option value="">All</option>
-          <option value="3">High</option>
-          <option value="2">Medium</option>
-          <option value="1">Low</option>
-        </select>
-      </div>
-      <div class="col-md-2">
-        <button class="btn btn-primary mt-4" onclick="updateGraph()">Apply</button>
-      </div>
-    </div>
-
-    <!-- Graph Section -->
-    <div class="row mb-12">
-      <div class="col-md-6">
-        <div class="chart-container">
-          <canvas id="issuesChart"></canvas>
-        </div>
-      </div>
-    
-
-    
-      <div class="col-md-3">
-          <div class="chart-container">
-              ISSUE CATEGORIES<br>
-              <canvas id="taskPieChart"></canvas>
-          </div>
-      </div>
-
-      <div class="col-md-3">
-          <div class="chart-container">
-              ISSUES PRIORITIES<br>
-              <canvas id="priorityDonutChart"></canvas>
-          </div>
-      </div>
-
-    
-  </div>
-    
- 
-  <script src="{% static 'js/scripts.js' %}"></script>
-  <script>
-    function handleTimeFilterChange() {
-      const selectedFilter = document.getElementById('timeFilter').value;
-      const startDateContainer = document.getElementById('startDateContainer');
-      const endDateContainer = document.getElementById('endDateContainer');
-  
-      if (selectedFilter === 'dateRange') {
-          startDateContainer.style.display = 'block';
-          endDateContainer.style.display = 'block';
-      } else {
-          startDateContainer.style.display = 'none';
-          endDateContainer.style.display = 'none';
-      }
-  }
-      const issuesData = JSON.parse('{{ issues_data|safe }}');
-      console.log("Issues Data Loaded:", issuesData);
-    
-      let chart; 
-      function createGraph(filteredData) {
-        if (chart) {
-          chart.destroy(); // Clear old chart before creating new one
-        }
-  
-        const groupedData = filteredData.reduce((acc, item) => {
-          const date = new Date(item.reported_date).toISOString().split('T')[0];
-          acc[date] = acc[date] ? acc[date] + item.issues_count : item.issues_count;
-          return acc;
-        }, {});
-  
-        const dates = Object.keys(groupedData);
-        const counts = Object.values(groupedData);
-  
-       /* const ctx = document.getElementById('issuesChart').getContext('2d');
-        chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: dates,
-            datasets: [{
-              label: 'Number of Issues Reported',
-              data: counts,
-              borderColor: 'rgba(75, 192, 192, 1)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderWidth: 2,
-              tension: 0.3,
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              x: { 
-                title: { display: true, text: 'Date' } 
-              },
-              y: { 
-                title: { display: true, text: 'Number of Issues' }, 
-                beginAtZero: true,
-                ticks: {
-                  callback: function(value) {
-                    return Number.isInteger(value) ? value : null;
-                  }
-                }
-              }
-            }
-          }
-        });
-        
-  
-      
-      }*/
-      const ctx = document.getElementById('issuesChart').getContext('2d');
-      chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels: dates,
-              datasets: [{
-                  label: 'Number of Issues Reported',
-                  data: counts,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  borderWidth: 2,
-                  tension: 0.3,
-              }]
-          },
-          options: {
-              responsive: true,
-              scales: {
-                  x: {
-                      type: 'category', // Switch to a categorical x-axis for flexibility
-                      ticks: {
-                          autoSkip: dates.length > 8, // Skip labels if more than 10 dates
-                          maxTicksLimit: 9, // Maximum labels on large datasets
-                          callback: function(value, index) {
-                              // If fewer than 10 dates, show all labels
-                              if (dates.length <= 10) return this.getLabelForValue(value);
-                              // Otherwise, skip some labels for readability
-                              return index % Math.ceil(dates.length / 10) === 0 
-                                  ? this.getLabelForValue(value) 
-                                  : null;
-                          }
-                      },
-                      title: {
-                          display: true,
-                          text: 'Date',
-                      }
-                  },
-                  y: {
-                      title: {
-                          display: true,
-                          text: 'Number of Issues',
-                      },
-                      beginAtZero: true,
-                      ticks: {
-                          callback: function(value) {
-                              return Number.isInteger(value) ? value : null; // Show integer values only
-                          }
-                      }
-                  }
-              },
-              plugins: {
-                  tooltip: {
-                      callbacks: {
-                          label: function(tooltipItem) {
-                              return `Issues: ${tooltipItem.raw}`;
-                          }
-                      }
-                  }
-              }
-          }
-      });
-  }
-  
-     /* function updateGraph() {
-        const fromDate = new Date(document.getElementById('startDate').value);
-        const toDate = new Date(document.getElementById('endDate').value);
-        const priority = document.getElementById('priority').value;
-        const category = document.getElementById('category').value;
-        const department  = document.getElementById('department').value;
-
-        const filteredData = issuesData.filter(item => {
-          const itemDate = new Date(item.reported_date);
-      
-
-          return (
-            (!fromDate || itemDate >= fromDate) &&
-            (!toDate || itemDate <= toDate) &&
-            (!priority || item.priority === parseInt(priority)) &&
-            (!department || parseInt(item.reported_dept_id) === parseInt(department)) &&
+      <script src="{% static 'js/scripts.js' %}"></script>
+      <script>
+         function handleTimeFilterChange() {
+           const timeFilter = document.getElementById('timeFilter').value;
+           const startDateContainer = document.getElementById('startDateContainer');
+           const endDateContainer = document.getElementById('endDateContainer');
+           
+           if (timeFilter === 'dateRange') {
+               startDateContainer.style.display = 'block';
+               endDateContainer.style.display = 'block';
+           } else {
+               startDateContainer.style.display = 'none';
+               endDateContainer.style.display = 'none';
+               // Reset date inputs when not using date range
+               document.getElementById('startDate').value = '';
+               document.getElementById('endDate').value = '';
+               updateGraph(); // Update graph immediately for other filters
+           }
+         }
+         
+         function checkDateRangeAndUpdateGraph() {
+           const timeFilter = document.getElementById('timeFilter').value;
+           const startDate = document.getElementById('startDate').value;
+           const endDate = document.getElementById('endDate').value;
+         
+           if (timeFilter === 'dateRange') {
+               if (startDate && endDate) {
+                   updateGraph(); // Only update graph if both dates are selected
+               }
+           }
+         }
+           const issuesData = JSON.parse('{{ issues_data|safe }}');
+           console.log("Issues Data Loaded:", issuesData);
+         
+           let chart; 
+           function createGraph(filteredData) {
+             if (chart) {
+               chart.destroy(); // Clear old chart before creating new one
+             }
+         
+             const groupedData = filteredData.reduce((acc, item) => {
+               const date = new Date(item.reported_date).toISOString().split('T')[0];
+               acc[date] = acc[date] ? acc[date] + item.issues_count : item.issues_count;
+               return acc;
+             }, {});
+         
+             const dates = Object.keys(groupedData);
+             const counts = Object.values(groupedData);
+         
           
-            (!category || item.issue_category === category)
-          );
-        });
-  
-    
-  
-        console.log("Filtered Data:", filteredData);
-  
-        if (filteredData.length === 0) {
-          alert('No data matches the selected filters');
-          return;
-        }
-  
-        createGraph(filteredData);
-      }
-  
-      createGraph(issuesData);*/
-      function updateGraph() {
-        const timeFilter = document.getElementById('timeFilter').value;
-        const today = new Date();
-        let fromDate, toDate;
-    
-        if (timeFilter === 'thisYear') {
-            fromDate = new Date(today.getFullYear(), 0, 1);
-            toDate = new Date(today.getFullYear(), 11, 31);
-        } else if (timeFilter === 'thisMonth') {
-            fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            toDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        } else if (timeFilter === 'thisWeek') {
-            const day = today.getDay();
-            fromDate = new Date(today);
-            fromDate.setDate(today.getDate() - day); // Start of the week
-            toDate = new Date(today);
-            toDate.setDate(today.getDate() + (6 - day)); // End of the week
-        } else if (timeFilter === 'dateRange') {
-            fromDate = new Date(document.getElementById('startDate').value);
-            toDate = new Date(document.getElementById('endDate').value);
-        }
-    
-        const priority = document.getElementById('priority').value;
-        const category = document.getElementById('category').value;
-        const department = document.getElementById('department').value;
-    
-        const filteredData = issuesData.filter(item => {
-            const itemDate = new Date(item.reported_date);
-    
-            return (
-                (!fromDate || itemDate >= fromDate) &&
-                (!toDate || itemDate <= toDate) &&
-                (!priority || item.priority === parseInt(priority)) &&
-                (!department || parseInt(item.reported_dept_id) === parseInt(department)) &&
-                (!category || item.issue_category === category)
-            );
-        });
-    
-        console.log("Filtered Data:", filteredData);
-    
-        if (filteredData.length === 0) {
-            alert('No data matches the selected filters');
-            return;
-        }
-    
-        createGraph(filteredData);
-    }
-      createGraph(issuesData);
-
-      // Pass category data from Django context to JavaScript
-const categoryLabels = {{ category_labels|safe }};
-const categoryData = {{ category_data|safe }};
-
-// Create the pie chart
-const taskPieChart = new Chart(document.getElementById('taskPieChart').getContext('2d'), {
-  type: 'pie',
-  data: {
-      labels: categoryLabels,
-      datasets: [{
-          data: categoryData,
-          backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545', '#17a2b8', '#6c757d', '#28a745', '#343a40'], // Customize colors
-      }]
-  },
-  options: {
-      responsive: true,
-      plugins: {
-          legend: {
-              display: true
-          }
-      }
-  }
-});
-
-
-
-
-// Pass data from Django context to JS safely
-const highPriority = {{ high_priority }};
-const mediumPriority = {{ medium_priority }};
-const lowPriority = {{ low_priority }};
-
-
-
-// Create a Donut Chart with Chart.js
-const priorityDonutChart = new Chart(document.getElementById('priorityDonutChart').getContext('2d'), {
-type: 'doughnut',
-data: {
-  labels: ['High Priority', 'Medium Priority', 'Low Priority'], // Define the labels for the chart
-  datasets: [{
-    data: [highPriority, mediumPriority, lowPriority], // Pass the counts
-    backgroundColor: ['#ff0000', '#ffc107', '#28a745'], // Donut chart colors
-  }]
-},
-options: {
-  responsive: true,
-  plugins: {
-    legend: {
-      display: true,
-      position: 'top'
-    },
-    tooltip: {
-      enabled: true
-    }
-  }
-}
-});
-
-    </script>
-    {%endblock %}
-</body>
+           const ctx = document.getElementById('issuesChart').getContext('2d');
+           chart = new Chart(ctx, {
+               type: 'line',
+               data: {
+                   labels: dates,
+                   datasets: [{
+                       label: 'Number of Issues Reported',
+                       data: counts,
+                       borderColor: 'rgba(75, 192, 192, 1)',
+                       backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                       borderWidth: 2,
+                       tension: 0.3,
+                   }]
+               },
+               options: {
+                   responsive: true,
+                   scales: {
+                       x: {
+                           type: 'category', // Switch to a categorical x-axis for flexibility
+                           ticks: {
+                               autoSkip: dates.length > 8, // Skip labels if more than 10 dates
+                               maxTicksLimit: 9, // Maximum labels on large datasets
+                               callback: function(value, index) {
+                                   // If fewer than 10 dates, show all labels
+                                   if (dates.length <= 10) return this.getLabelForValue(value);
+                                   // Otherwise, skip some labels for readability
+                                   return index % Math.ceil(dates.length / 10) === 0 
+                                       ? this.getLabelForValue(value) 
+                                       : null;
+                               }
+                           },
+                           title: {
+                               display: true,
+                               text: 'Date',
+                           }
+                       },
+                       y: {
+                           title: {
+                               display: true,
+                               text: 'Number of Issues',
+                           },
+                           beginAtZero: true,
+                           ticks: {
+                               callback: function(value) {
+                                   return Number.isInteger(value) ? value : null; // Show integer values only
+                               }
+                           }
+                       }
+                   },
+                   plugins: {
+                       tooltip: {
+                           callbacks: {
+                               label: function(tooltipItem) {
+                                   return `Issues: ${tooltipItem.raw}`;
+                               }
+                           }
+                       }
+                   }
+               }
+           });
+         }
+         
+         
+           function updateGraph() {
+             const timeFilter = document.getElementById('timeFilter').value;
+             const today = new Date();
+             let fromDate, toDate;
+         
+             if (timeFilter === 'thisYear') {
+                 fromDate = new Date(today.getFullYear(), 0, 1);
+                 toDate = new Date(today.getFullYear(), 11, 31);
+             } else if (timeFilter === 'thisMonth') {
+                 fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                 toDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+             } else if (timeFilter === 'thisWeek') {
+                 const day = today.getDay();
+                 fromDate = new Date(today);
+                 fromDate.setDate(today.getDate() - day); // Start of the week
+                 toDate = new Date(today);
+                 toDate.setDate(today.getDate() + (6 - day)); // End of the week
+             } else if (timeFilter === 'dateRange') {
+                 fromDate = new Date(document.getElementById('startDate').value);
+                 toDate = new Date(document.getElementById('endDate').value);
+             }
+         
+             const priority = document.getElementById('priority').value;
+             const category = document.getElementById('category').value;
+             const department = document.getElementById('department').value;
+         
+             const filteredData = issuesData.filter(item => {
+                 const itemDate = new Date(item.reported_date);
+         
+                 return (
+                     (!fromDate || itemDate >= fromDate) &&
+                     (!toDate || itemDate <= toDate) &&
+                     (!priority || item.priority === parseInt(priority)) &&
+                     (!department || parseInt(item.reported_dept_id) === parseInt(department)) &&
+                     (!category || item.issue_category === category)
+                 );
+             });
+         
+             console.log("Filtered Data:", filteredData);
+         
+             if (filteredData.length === 0) {
+                 alert('No data matches the selected filters');
+                 return;
+             }
+         
+             createGraph(filteredData);
+         }
+           createGraph(issuesData);
+         
+           // Pass category data from Django context to JavaScript
+         const categoryLabels = {{ category_labels|safe }};
+         const categoryData = {{ category_data|safe }};
+         
+         // Create the pie chart
+         const taskPieChart = new Chart(document.getElementById('taskPieChart').getContext('2d'), {
+         type: 'pie',
+         data: {
+           labels: categoryLabels,
+           datasets: [{
+               data: categoryData,
+               backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545', '#17a2b8', '#6c757d', '#28a745', '#343a40'], // Customize colors
+           }]
+         },
+         options: {
+           responsive: true,
+           plugins: {
+               legend: {
+                   display: true
+               }
+           }
+         }
+         });
+         
+         
+         
+         
+         // Pass data from Django context to JS safely
+         const highPriority = {{ high_priority }};
+         const mediumPriority = {{ medium_priority }};
+         const lowPriority = {{ low_priority }};
+         
+         
+         
+         // Create a Donut Chart with Chart.js
+         const priorityDonutChart = new Chart(document.getElementById('priorityDonutChart').getContext('2d'), {
+         type: 'doughnut',
+         data: {
+         labels: ['High Priority', 'Medium Priority', 'Low Priority'], // Define the labels for the chart
+         datasets: [{
+         data: [highPriority, mediumPriority, lowPriority], // Pass the counts
+         backgroundColor: ['#ff0000', '#ffc107', '#28a745'], // Donut chart colors
+         }]
+         },
+         options: {
+         responsive: true,
+         plugins: {
+         legend: {
+           display: true,
+           position: 'top'
+         },
+         tooltip: {
+           enabled: true
+         }
+         }
+         }
+         });
+         
+      </script>
+      {%endblock %}
+   </body>
 </html>

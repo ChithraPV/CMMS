@@ -1,443 +1,399 @@
- {% extends 'admin.html' %}
- {% block content %}
+{% extends 'admin.html' %}
+{% block content %}
 <h2>Issue Management</h2>
 <style>
-  th.asc::after {
-    content: " ▲";
-  }
-  th.desc::after {
-    content: " ▼";
-  }
-
-  /* Container for buttons */
-.buttons {
-  display: flex; /* Use flexbox to align items */
-  justify-content: center; /* Center the buttons horizontally */
-  align-items: center; /* Align buttons vertically */
-  gap: 15px; /* Space between buttons */
-  flex-wrap: wrap; /* Allow buttons to wrap if there's not enough space */
-  margin: 20px 0; /* Add some margin around the button container */
-}
-
-/* Styling for each button */
-.buttons button {
-  padding: 10px 20px; /* Add padding for better size */
-  font-size: 16px; /* Adjust font size */
-  color: white; /* Text color */
-  background-color: #4CAF50; /* Button background color */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Rounded corners */
-  cursor: pointer; /* Change cursor to pointer on hover */
-  transition: background-color 0.3s ease; /* Smooth transition for background color */
-}
-
-/* Hover effect for buttons */
-.buttons button:hover {
-  background-color: #0056b3; /* Darken the button on hover */
-}
-.buttons button:active {
-  background-color:rgb(239, 36, 165); /* Darken the button on hover */
-}
-
-
-/* General form styling */
-.search-form {
-  max-width: 900px; /* Set a maximum width for the form */
-  margin: 0 auto; /* Center the form */
-  padding: 20px; /* Add padding for spacing */
-  border: 1px solid #ccc; /* Border for the form */
-  border-radius: 5px; /* Rounded corners */
-  background-color: #f9f9f9; /* Light background */
-}
-
-.form-group {
-  margin-bottom: 15px; /* Space between form elements */
-}
-
-label {
- /* Ensure the label takes up the full line */
-  margin-bottom: 5px; /* Add space below the label */
-}
-
-select, input,  {
-  width: 100%; /* Make input, select, and button fill the container */
-  padding: 8px; /* Add padding for better spacing */
-  font-size: 16px; /* Adjust font size for readability */
-  border: 1px solid #ccc; /* Border for input/select fields */
-  border-radius: 4px; /* Rounded corners */
-}
-
-.submit {
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text */
-  cursor: pointer; /* Change cursor to pointer on hover */
-  border: none; /* Remove border */
- 
-}
-
-.submit button:hover {
-  background-color: #0056b3; /* Darken button on hover */
-}
-/* Table Styles */
-
-.table-responsive {
-  max-width: 95%;
-  margin: 0 auto;
-}
-
-#issueTable {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-#issueTable th, #issueTable td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-#issueTable th {
-  background-color:rgb(73, 123, 232); /* Blue color for table headers */
-  color: #fff;
-  cursor: pointer;
-}
-
-#issueTable th:hover {
-  background-color:rgb(40, 17, 245); /* Darker blue color on hover */
-}
-
-#issueTable tr:nth-child(even) {
-  background-color: #f2f2f2; /* Light gray color for even rows */
-}
-
-#issueTable tr:hover {
-  background-color: #ddd; /* Light gray color on hover */
-}
-
-/* Priority Styles */
-
-.priority-low {
-  color: green;
-}
-
-.priority-medium {
-  color: orange;
-}
-
-.priority-high {
-  color: red;
-}
-
-/* Status Styles */
-
-.status-pending {
-  color: orange;
-}
-
-.status-in-progress {
-  color: blue;
-}
-
-.status-resolved {
-  color: green;
-}
-
-.status-closed {
-  color: gray;
-}
+   th.asc::after {
+   content: " ▲";
+   }
+   th.desc::after {
+   content: " ▼";
+   }
+   /* Container for buttons */
+   .buttons {
+   display: flex; /* Use flexbox to align items */
+   justify-content: center; /* Center the buttons horizontally */
+   align-items: center; /* Align buttons vertically */
+   gap: 15px; /* Space between buttons */
+   flex-wrap: wrap; /* Allow buttons to wrap if there's not enough space */
+   margin: 20px 0; /* Add some margin around the button container */
+   }
+   /* Styling for each button */
+   .buttons button {
+   padding: 10px 20px; /* Add padding for better size */
+   font-size: 16px; /* Adjust font size */
+   color: white; /* Text color */
+   background-color: #4CAF50; /* Button background color */
+   border: none; /* Remove border */
+   border-radius: 5px; /* Rounded corners */
+   cursor: pointer; /* Change cursor to pointer on hover */
+   transition: background-color 0.3s ease; /* Smooth transition for background color */
+   }
+   /* Hover effect for buttons */
+   .buttons button:hover {
+   background-color: #0056b3; /* Darken the button on hover */
+   }
+   .buttons button:active {
+   background-color:rgb(239, 36, 165); /* Darken the button on hover */
+   }
+   /* General form styling */
+   .search-form {
+   max-width: 900px; /* Set a maximum width for the form */
+   margin: 0 auto; /* Center the form */
+   padding: 20px; /* Add padding for spacing */
+   border: 1px solid #ccc; /* Border for the form */
+   border-radius: 5px; /* Rounded corners */
+   background-color: #f9f9f9; /* Light background */
+   }
+   .form-group {
+   margin-bottom: 15px; /* Space between form elements */
+   }
+   label {
+   /* Ensure the label takes up the full line */
+   margin-bottom: 5px; /* Add space below the label */
+   }
+   select, input,  {
+   width: 100%; /* Make input, select, and button fill the container */
+   padding: 8px; /* Add padding for better spacing */
+   font-size: 16px; /* Adjust font size for readability */
+   border: 1px solid #ccc; /* Border for input/select fields */
+   border-radius: 4px; /* Rounded corners */
+   }
+   .submit {
+   background-color: #007bff; /* Blue background */
+   color: white; /* White text */
+   cursor: pointer; /* Change cursor to pointer on hover */
+   border: none; /* Remove border */
+   }
+   .submit button:hover {
+   background-color: #0056b3; /* Darken button on hover */
+   }
+   /* Table Styles */
+   .table-responsive {
+   max-width: 95%;
+   margin: 0 auto;
+   }
+   #issueTable {
+   border-collapse: collapse;
+   width: 100%;
+   }
+   #issueTable th, #issueTable td {
+   border: 1px solid #ddd;
+   padding: 8px;
+   text-align: left;
+   }
+   #issueTable th {
+   background-color:rgb(73, 123, 232); /* Blue color for table headers */
+   color: #fff;
+   cursor: pointer;
+   }
+   #issueTable th:hover {
+   background-color:rgb(40, 17, 245); /* Darker blue color on hover */
+   }
+   #issueTable tr:nth-child(even) {
+   background-color: #f2f2f2; /* Light gray color for even rows */
+   }
+   #issueTable tr:hover {
+   background-color: #ddd; /* Light gray color on hover */
+   }
+   /* Priority Styles */
+   .priority-low {
+   color: green;
+   }
+   .priority-medium {
+   color: orange;
+   }
+   .priority-high {
+   color: red;
+   }
+   /* Status Styles */
+   .status-pending {
+   color: orange;
+   }
+   .status-in-progress {
+   color: blue;
+   }
+   .status-resolved {
+   color: green;
+   }
+   .status-closed {
+   color: gray;
+   }
 </style>
-
 <form method="get" action="{% url 'search_issue' %}" class="search-form">
-  <div class="form-group">
-    <label for="search_by">Search By:</label>
-    <select name="search_by" id="search_by" onchange="changeInputType()">
-      <option value="id">ID</option>
-      <option value="location">Location</option>
-      <option value="reporter">Reporter</option>
-      <option value="department">Department</option>
-      <option value="date">Date</option>
-    </select>
-  </div>
-  
-  <div class="form-group">
-    <label for="search">Search:</label>
-    <input type="text" name="q" id="search_input"  value="{{ request.GET.q }}"/>
-  </div>
-
-
-<div class="buttons">
-  <button type="submit" class="submit" style="background-color:red">Search</button>
-
-  
-    <select id="actionSelect" onchange="navigateToOption(this.value);">
-      <option value="" disabled>Select an Action</option>
-      <option value="{% url 'issue_management' %}">All</option>
-      <option value="{% url 'assigned_issues' %}">Assigned Issues</option>
-      <option value="{% url 'in_progress_issues' %}">In Progress</option>
-      <option value="{% url 'completed_issues' %}">Completed</option>
-      <option value="{% url 'escalated_issues' %}">Escalated</option>
-    </select>
-  
-</div>
-
+   <div class="form-group">
+      <label for="search_by">Search By:</label>
+      <select name="search_by" id="search_by" onchange="changeInputType()">
+         <option value="id">ID</option>
+         <option value="location">Location</option>
+         <option value="reporter">Reporter</option>
+         <option value="department">Department</option>
+         <option value="date">Date</option>
+      </select>
+   </div>
+   <div class="form-group">
+      <label for="search">Search:</label>
+      <input type="text" name="q" id="search_input"  value="{{ request.GET.q }}"/>
+   </div>
+   <div class="buttons">
+      <button type="submit" class="submit" style="background-color:red">Search</button>
+      <select id="actionSelect" onchange="navigateToOption(this.value);">
+         <option value="" disabled>Select an Action</option>
+         <option value="{% url 'issue_management' %}">All</option>
+         <option value="{% url 'assigned_issues' %}">Assigned Issues</option>
+         <option value="{% url 'in_progress_issues' %}">In Progress</option>
+         <option value="{% url 'completed_issues' %}">Completed</option>
+         <option value="{% url 'escalated_issues' %}">Escalated</option>
+      </select>
+   </div>
 </form>
 <div class="table-responsive" style="max-width: 95%; margin: 0 auto">
-  <table class="table table-bordered table-striped" id="issueTable">
-    <thead>
-      <tr>
-        
-        <th onclick="sortTable(0)">ID</th>
-        <th onclick="sortTable(1)">Category</th>
-        <th onclick="sortTable(2)">Location</th>
-        <th onclick="sortTable(3)">Reporter</th>
-        <th onclick="sortTable(4)">Description</th>
-        <th onclick="sortTable(5)">Department</th>
-        <th onclick="sortTable(6)">Priority</th>
-        <th onclick="sortTable(7)">Image</th>
-        <th onclick="sortTable(8)">Reported Date</th>
-        <th onclick="sortTable(9)">Status</th>
-     {% for issue in issues%}
-    {% if issues.status == 'Pending' or issues.status == 'Assigned to Foreman' %}
-           <th>Actions</th>
-        {% endif %}  
-     {% endfor%} 
-   
-        
-  
-      </tr>
-    </thead>
-    <tbody>
-      {% for issue in issues %}
-
-      <tr>
-        <td>{{ issue.issue_id }}</td>
-        <td>{{ issue.issue_category }} {% if issue.issue_category == 'Others' %} <a href={% url 'assign_issue' pk=issue.issue_id%} style="color:white; font-size: 20px; text-decoration: none;background-color:red">Assign</a>{%endif%} </td>
-        <td>{{ issue.location }}</td>
-        <td>
-          {% if issue.reporter %}
-          <strong>{{ issue.reporter.first_name|add:" "}}{{ issue.reporter.last_name }}</strong>
-          {% endif %}
-        </td>
-        <td>{{ issue.issue_description }}</td>
-        <td>
-          {% if issue.reporter.department %}{{ issue.reporter.department.dept_name }}{% endif %}
-        </td>
-        <td>
-          <span style="
-              {% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}
-            ">
-            &#x273A;
-            {% if issue.priority == 1 %} Low
-            {% elif issue.priority == 2 %} Medium
-            {% elif issue.priority == 3 %} High
-            {% endif %}
-          </span>
-        </td>
-        <td>
-          {% if issue.image %}
-          <a href="{{ issue.image.url }}" target="_blank">View Image</a>
-          {% else %} No Image {% endif %}
-        </td>
-        <td>{{ issue.reported_date }}</td>
-        <td>
-          <span
-            style="
-                {% if issue.status == 'Pending' %} color: orange;
-                {% elif issue.status == 'In Progress' %} color: blue;
-                {% elif issue.status == 'Resolved' %} color: green;
-                {% elif issue.status == 'Closed' %} color: gray;
-                {% endif %}
-            ">
-            &#x25CF; {{ issue.status }}
-          </span>
-        </td>
-        {% comment %} {% if issue.status == 'Pending' or  issue.status == 'Assigned to Foreman'%} {% endcomment %}
-        <td>
-          <button onclick="openPriorityModal('{{ issue.issue_id }}', '{{ issue.priority }}')">Set Priority</button>
-        </td>
-        {% comment %} {% endif %} {% endcomment %}
-      </tr>
-      <div id="priorityModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
-        <h2>Update Priority</h2>
-        <form id="updatePriorityForm" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="issue_id" id="issue_id">
-          <label for="priority">Priority:</label>
-          <select name="priority" id="priority">
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-          <button type="button" onclick="submitPriorityForm()">Update Priority</button>
-          <button type="button" onclick="closePriorityModal()">Close</button>
-        </form>
-      </div>
-      {% endfor %}
-    </tbody>
-  </table>
+   <table class="table table-bordered table-striped" id="issueTable">
+      <thead>
+         <tr>
+            <th onclick="sortTable(0)">ID</th>
+            <th onclick="sortTable(1)">Category</th>
+            <th onclick="sortTable(2)">Location</th>
+            <th onclick="sortTable(3)">Reporter</th>
+            <th onclick="sortTable(4)">Description</th>
+            <th onclick="sortTable(5)">Department</th>
+            <th onclick="sortTable(6)">Priority</th>
+            <th onclick="sortTable(7)">Image</th>
+            <th onclick="sortTable(8)">Reported Date</th>
+            <th onclick="sortTable(9)">Status</th>
+            {% for issue in issues%}
+            {% if issues.status == 'Pending' or issues.status == 'Assigned to Foreman' %}
+            <th>Actions</th>
+            {% endif %}  
+            {% endfor%} 
+         </tr>
+      </thead>
+      <tbody>
+         {% for issue in issues %}
+         <tr>
+            <td>{{ issue.issue_id }}</td>
+            <td>{{ issue.issue_category }} {% if issue.issue_category == 'Others' %} <a href={% url 'assign_issue' pk=issue.issue_id%} style="color:white; font-size: 20px; text-decoration: none;background-color:red">Assign</a>{%endif%} </td>
+            <td>{{ issue.location }}</td>
+            <td>
+               {% if issue.reporter %}
+               <strong>{{ issue.reporter.first_name|add:" "}}{{ issue.reporter.last_name }}</strong>
+               {% endif %}
+            </td>
+            <td>{{ issue.issue_description }}</td>
+            <td>
+               {% if issue.reporter.department %}{{ issue.reporter.department.dept_name }}{% endif %}
+            </td>
+            <td>
+               <span style="
+                  {% if issue.priority == 1 %} color: green; {% elif issue.priority == 2 %} color: orange; {% elif issue.priority == 3 %} color: red; {% endif %}
+                  ">
+               &#x273A;
+               {% if issue.priority == 1 %} Low
+               {% elif issue.priority == 2 %} Medium
+               {% elif issue.priority == 3 %} High
+               {% endif %}
+               </span>
+            </td>
+            <td>
+               {% if issue.image %}
+               <a href="{{ issue.image.url }}" target="_blank">View Image</a>
+               {% else %} No Image {% endif %}
+            </td>
+            <td>{{ issue.reported_date }}</td>
+            <td>
+               <span
+                  style="
+                  {% if issue.status == 'Pending' %} color: orange;
+                  {% elif issue.status == 'In Progress' %} color: blue;
+                  {% elif issue.status == 'Resolved' %} color: green;
+                  {% elif issue.status == 'Closed' %} color: gray;
+                  {% endif %}
+                  ">
+               &#x25CF; {{ issue.status }}
+               </span>
+            </td>
+            {% comment %} {% if issue.status == 'Pending' or  issue.status == 'Assigned to Foreman'%} {% endcomment %}
+            <td>
+               <button onclick="openPriorityModal('{{ issue.issue_id }}', '{{ issue.priority }}')">Set Priority</button>
+            </td>
+            {% comment %} {% endif %} {% endcomment %}
+         </tr>
+         <div id="priorityModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
+            <h2>Update Priority</h2>
+            <form id="updatePriorityForm" method="post">
+               {% csrf_token %}
+               <input type="hidden" name="issue_id" id="issue_id">
+               <label for="priority">Priority:</label>
+               <select name="priority" id="priority">
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+               </select>
+               <button type="button" onclick="submitPriorityForm()">Update Priority</button>
+               <button type="button" onclick="closePriorityModal()">Close</button>
+            </form>
+         </div>
+         {% endfor %}
+      </tbody>
+   </table>
 </div>
-
 <script>
-  function openPriorityModal(issueId, currentPriority) {
-    document.getElementById('priorityModal').style.display = 'block';
-    document.getElementById('issue_id').value = issueId; // Set the issue ID in the hidden input
-    document.getElementById('priority').value = currentPriority || "Medium"; // Set current priority or default
-  }
-  
-  function closePriorityModal() {
-    document.getElementById('priorityModal').style.display = 'none';
-  }
-  
-  function submitPriorityForm() {
-    const issueId = document.getElementById('issue_id').value;
-    const priority = document.getElementById('priority').value;
-  
-    fetch('/update-priority/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,  // Correctly pass CSRF token if necessary
-      },
-      body: JSON.stringify({ issue_id: issueId, priority }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to update priority');
-        }
-        return response.json();  // Parse JSON if the response is valid
-      })
-      .then(data => {
-        if (data.success) {
-          alert('Priority updated successfully!');
-          closePriorityModal();
-          // Optionally, refresh the row or page
-        } else {
-          alert('Failed to update priority: ' + data.error);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Something went wrong');
-      });
-  }
-  
-  
-  function navigateToOption(url) {
-    if (url) {
-      localStorage.setItem("selectedOption", url); // Save the selected option in localStorage
-      window.location.href = url;
-    }
-  }
-// Make Modal Draggable
-const modal = document.getElementById('priorityModal');
-let offsetX = 0, offsetY = 0, isDragging = false;
-
-modal.addEventListener('mousedown', (event) => {
-  isDragging = true;
-  offsetX = event.clientX - modal.offsetLeft;
-  offsetY = event.clientY - modal.offsetTop;
-  modal.style.cursor = "move";
-});
-
-document.addEventListener('mousemove', (event) => {
-  if (isDragging) {
-    modal.style.left = `${event.clientX - offsetX}px`;
-    modal.style.top = `${event.clientY - offsetY}px`;
-  }
-});
-
-document.addEventListener('mouseup', () => {
-  isDragging = false;
-  modal.style.cursor = "default";
-});
-
-  // Function to set the selected option on page load
-  window.onload = function () {
-    const savedOption = localStorage.getItem("selectedOption"); // Retrieve saved value
-    if (savedOption) {
-      const select = document.getElementById("actionSelect");
-      for (let option of select.options) {
-        if (option.value === savedOption) {
-          option.selected = true; // Set the selected option
-          break;
-        }
-      }
-    }
-  };
-  function sortTable(columnIndex) {
-    var table = document.getElementById("issueTable");
-    var rows = Array.from(table.rows).slice(1); // Exclude header row
-    var headers = table.rows[0].cells; // Access table headers
-    var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
-
-    // Remove sorting classes from all headers
-    Array.from(headers).forEach((header) => {
-      header.classList.remove("asc", "desc");
-    });
-
-    // Helper function to parse the custom date format
-    function parseCustomDate(dateStr) {
-      return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
-    }
-
-    // Sorting logic
-    rows.sort(function (a, b) {
-      var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
-      var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
-
-      // **Priority Column Sorting**
-      if (columnIndex === 6) {
-        // Remove decorative symbol and trim priority text
-        aText = aText
-          .replace(/\★|[\u273A]/g, "")
-          .trim()
-          .toLowerCase();
-        bText = bText
-          .replace(/\★|[\u273A]/g, "")
-          .trim()
-          .toLowerCase();
-
-        // Define priority mapping
-        var priorityOrder = { high: 1, medium: 2, low: 3 };
-        aText = priorityOrder[aText] || 0;
-        bText = priorityOrder[bText] || 0;
-      }
-
-      // **Reported Date Column Sorting**
-      else if (columnIndex === 8) {
-        aText = parseCustomDate(aText).getTime() || 0;
-        bText = parseCustomDate(bText).getTime() || 0;
-      }
-
-      // General sorting for other columns
-      if (isAscending) {
-        return aText > bText ? 1 : aText < bText ? -1 : 0;
-      } else {
-        return aText < bText ? 1 : aText > bText ? -1 : 0;
-      }
-    });
-
-    // Append sorted rows back to the table
-    var tbody = table.querySelector("tbody");
-    rows.forEach((row) => tbody.appendChild(row));
-
-    // Add sorting classes to the current header
-    headers[columnIndex].classList.toggle("asc", isAscending);
-    headers[columnIndex].classList.toggle("desc", !isAscending);
-  }
-function changeInputType() {
-    var searchBy = document.getElementById("search_by").value;
-    var searchInput = document.getElementById("search_input");
-    if (searchBy === "date") {
-      searchInput.type = "date";
-      searchInput.style.width = "200px";
-      searchInput.style.height = "40px";
-    } else {
-      searchInput.type = "text";
-    }
-  }
+   function openPriorityModal(issueId, currentPriority) {
+     document.getElementById('priorityModal').style.display = 'block';
+     document.getElementById('issue_id').value = issueId; // Set the issue ID in the hidden input
+     document.getElementById('priority').value = currentPriority || "Medium"; // Set current priority or default
+   }
+   
+   function closePriorityModal() {
+     document.getElementById('priorityModal').style.display = 'none';
+   }
+   
+   function submitPriorityForm() {
+     const issueId = document.getElementById('issue_id').value;
+     const priority = document.getElementById('priority').value;
+   
+     fetch('/update-priority/', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,  // Correctly pass CSRF token if necessary
+       },
+       body: JSON.stringify({ issue_id: issueId, priority }),
+     })
+       .then(response => {
+         if (!response.ok) {
+           throw new Error('Failed to update priority');
+         }
+         return response.json();  // Parse JSON if the response is valid
+       })
+       .then(data => {
+         if (data.success) {
+           alert('Priority updated successfully!');
+           closePriorityModal();
+           // Optionally, refresh the row or page
+         } else {
+           alert('Failed to update priority: ' + data.error);
+         }
+       })
+       .catch(error => {
+         console.error('Error:', error);
+         alert('Something went wrong');
+       });
+   }
+   
+   
+   function navigateToOption(url) {
+     if (url) {
+       localStorage.setItem("selectedOption", url); // Save the selected option in localStorage
+       window.location.href = url;
+     }
+   }
+   // Make Modal Draggable
+   const modal = document.getElementById('priorityModal');
+   let offsetX = 0, offsetY = 0, isDragging = false;
+   
+   modal.addEventListener('mousedown', (event) => {
+   isDragging = true;
+   offsetX = event.clientX - modal.offsetLeft;
+   offsetY = event.clientY - modal.offsetTop;
+   modal.style.cursor = "move";
+   });
+   
+   document.addEventListener('mousemove', (event) => {
+   if (isDragging) {
+     modal.style.left = `${event.clientX - offsetX}px`;
+     modal.style.top = `${event.clientY - offsetY}px`;
+   }
+   });
+   
+   document.addEventListener('mouseup', () => {
+   isDragging = false;
+   modal.style.cursor = "default";
+   });
+   
+   // Function to set the selected option on page load
+   window.onload = function () {
+     const savedOption = localStorage.getItem("selectedOption"); // Retrieve saved value
+     if (savedOption) {
+       const select = document.getElementById("actionSelect");
+       for (let option of select.options) {
+         if (option.value === savedOption) {
+           option.selected = true; // Set the selected option
+           break;
+         }
+       }
+     }
+   };
+   function sortTable(columnIndex) {
+     var table = document.getElementById("issueTable");
+     var rows = Array.from(table.rows).slice(1); // Exclude header row
+     var headers = table.rows[0].cells; // Access table headers
+     var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
+   
+     // Remove sorting classes from all headers
+     Array.from(headers).forEach((header) => {
+       header.classList.remove("asc", "desc");
+     });
+   
+     // Helper function to parse the custom date format
+     function parseCustomDate(dateStr) {
+       return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
+     }
+   
+     // Sorting logic
+     rows.sort(function (a, b) {
+       var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+       var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+   
+       // **Priority Column Sorting**
+       if (columnIndex === 6) {
+         // Remove decorative symbol and trim priority text
+         aText = aText
+           .replace(/\★|[\u273A]/g, "")
+           .trim()
+           .toLowerCase();
+         bText = bText
+           .replace(/\★|[\u273A]/g, "")
+           .trim()
+           .toLowerCase();
+   
+         // Define priority mapping
+         var priorityOrder = { high: 1, medium: 2, low: 3 };
+         aText = priorityOrder[aText] || 0;
+         bText = priorityOrder[bText] || 0;
+       }
+   
+       // **Reported Date Column Sorting**
+       else if (columnIndex === 8) {
+         aText = parseCustomDate(aText).getTime() || 0;
+         bText = parseCustomDate(bText).getTime() || 0;
+       }
+   
+       // General sorting for other columns
+       if (isAscending) {
+         return aText > bText ? 1 : aText < bText ? -1 : 0;
+       } else {
+         return aText < bText ? 1 : aText > bText ? -1 : 0;
+       }
+     });
+   
+     // Append sorted rows back to the table
+     var tbody = table.querySelector("tbody");
+     rows.forEach((row) => tbody.appendChild(row));
+   
+     // Add sorting classes to the current header
+     headers[columnIndex].classList.toggle("asc", isAscending);
+     headers[columnIndex].classList.toggle("desc", !isAscending);
+   }
+   function changeInputType() {
+     var searchBy = document.getElementById("search_by").value;
+     var searchInput = document.getElementById("search_input");
+     if (searchBy === "date") {
+       searchInput.type = "date";
+       searchInput.style.width = "200px";
+       searchInput.style.height = "40px";
+     } else {
+       searchInput.type = "text";
+     }
+   }
 </script>
 {% endblock %}
- 
-
-       

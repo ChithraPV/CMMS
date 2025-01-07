@@ -5,7 +5,8 @@ from .models import CustomUser, Role, Department,IssueDB,Task
 class UserForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'password','email', 'role', 'department']
+        # fields = ['username', 'first_name', 'last_name', 'password','email', 'role', 'department']
+        fields = ['username', 'first_name', 'last_name','email', 'role', 'department']
         widgets = {
             'role': forms.Select(),
             'department': forms.Select(),
@@ -36,6 +37,7 @@ class AssignIssueForm(forms.ModelForm):
         if dept_id:
             self.fields['worker'].queryset = CustomUser.objects.filter(department_id=dept_id,role_id=2)
             self.fields['worker'].label_from_instance = lambda obj: f'{obj.first_name} {obj.last_name}'  # Use custom worker's full name
+            
 class AssignDeptForm(forms.ModelForm):
     class Meta:
         model = IssueDB
