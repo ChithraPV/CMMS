@@ -1,24 +1,48 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import CustomUser, Role, Department,IssueDB,Task,ExtensionRequest,Escalation,TaskImage,IssueStatusChange,Asset,AssetStock,PreventiveMaintenanceSchedule,Location
-from .forms import UserForm,IssueForm,AssignIssueForm,AssignDeptForm,AssetStockForm,ExcelUploadForm,Assign_prev_Form,AssetForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
-from datetime import datetime,timedelta,date
 from django.db.models import Count
 from django.http import HttpResponse,JsonResponse
 from django.views.generic import UpdateView
-from django.urls import reverse_lazy 
+from django.urls import reverse_lazy,reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+from django.core.mail import send_mail
+from django.db import transaction
+from datetime import datetime,timedelta,date
+from .models import CustomUser, Role, Department,IssueDB,Task,ExtensionRequest,Escalation,TaskImage,IssueStatusChange,Asset,AssetStock,PreventiveMaintenanceSchedule,Location,Notification
+from .forms import UserForm,IssueForm,AssignIssueForm,AssignDeptForm,AssetStockForm,ExcelUploadForm,Assign_prev_Form,AssetForm
 import json
 import logging
 import random
 import string
+import random
 import pandas as pd
-from django.conf import settings
-from django.core.mail import send_mail
+from django.utils.safestring import mark_safe
+
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if user.role_id == 4:
+                return redirect('admin_dashboard')  
+            elif user.role_id == 3:
+                return redirect('foreman_dashboard')  
+            elif  user.role_id == 2:
+                return redirect('worker_dashboard')  
+            else:
+                return redirect('reporter_dashboard')  
+        else:
+            messages.error(request, 'Invalid username or password.')
+            return redirect('user_login')
+    return render(request, 'login.html')
 
 
 @login_required
@@ -310,33 +334,7 @@ def delete_user(request, user_id):
     messages.success(request, "User deleted successfully!")
     return redirect('user_management')
 
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        
-        user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            login(request, user)
-            # Redirect based on the user's role
-            if user.role_id == 4:
-                return redirect('admin_dashboard')  # Redirect to your custom admin dashboard
-            elif user.role_id == 3:
-                return redirect('foreman_dashboard')  # Redirect to your custom admin dashboard
-            elif  user.role_id == 2:
-                return redirect('worker_dashboard')  # Redirect to your custom admin dashboard
-            else:
-                return redirect('reporter_dashboard')  # Redirect to user dashboard (or another page)
-        else:
-            messages.error(request, 'Invalid username or password.')
-            return redirect('user_login')
-            
-
-        
-    return render(request, 'login.html')
-from django.urls import reverse
-from django.utils.safestring import mark_safe
 @login_required
 def report_issue(request):
     user_role=request.user.role_id
@@ -450,6 +448,18 @@ def issue_management(request):
         if issue.priority != adjusted_priority:  # Only update if the priority has changed
             issue.priority = adjusted_priority
             issue.save()  # Save the updated issue
+            # reporter_user = CustomUser.objects.filter(role_id=1,department_id=issue.reported_dept).first()  
+            # if reporter_user:
+            #     Notification.objects.create(
+            #                user=reporter_user,
+            #                message=(
+            #                   f"New issue assigned to your department: {issue.issue_category}. "
+            #                   f"Reported by: {request.user.username}. "
+            #                   f"Location: {issue.reported_dept_id}. "
+            #                   f"Status: {issue.status}. ",
+            #                   ),issue_link=issue_link
+            #                 )
+
     return render(request, 'issue_management.html', {'issues': issues})
 
 
@@ -777,6 +787,21 @@ def update_status(request, pk):
                 changed_by=request.user
             )
             status_updated = True
+            reporter_user = CustomUser.objects.filter(role_id=1,department_id=issue.reported_dept_id).first()
+            if reporter_user:
+                Notification.objects.create(
+                user=reporter_user,
+                message=(
+                    f"Status of issue {issue.issue_id} has been updated to {new_status}. "
+                    f"Please check the details for more information."
+                ),
+               issue_link = request.build_absolute_uri(
+    reverse('track_issue') + f"?issueId={issue.issue_id}"
+)
+
+            )
+        
+
 
         # Update the comment if provided
         new_comment = request.POST.get('comment')
@@ -1523,25 +1548,8 @@ def user_reports(request):
     return render(request, 'user_reports.html', {'users': users})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Function to generate a random password
-import string
-import random
-
 def generate_random_password(length=8):
-    chars = string.ascii_letters + string.digits  # Include only letters and numbers
+    chars = string.ascii_letters + string.digits  
     password = ''.join(random.choice(chars) for i in range(length))
     return password
 
@@ -1551,10 +1559,7 @@ def bulk_upload_users(request):
         excel_file = request.FILES['excelFile']
 
         try:
-            # Read the Excel file
             data = pd.read_excel(excel_file)
-
-            # Validate required columns
             required_columns = ['username', 'first_name', 'last_name', 'email', 'role', 'department']
             for column in required_columns:
                 if column not in data.columns:
@@ -1563,24 +1568,19 @@ def bulk_upload_users(request):
 
             for _, row in data.iterrows():
                 try:
-        # Generate a random password
                   password = generate_random_password()
-
-        # Retrieve the Role instance based on the name in the Excel file
                   role_instance = Role.objects.get(role_name=row['role'])
                   dept_instance = Department.objects.get(dept_name=row['department'])
 
-        # Create the user, assigning the role instance
                   user = CustomUser.objects.create(
-               username=row['username'],
-               first_name=row['first_name'],
-               last_name=row['last_name'],
-               email=row['email'],
-               role=role_instance,  # Use the Role instance here
-               department=dept_instance,
-        )
+                      username=row['username'],
+                      first_name=row['first_name'],
+                      last_name=row['last_name'],
+                      email=row['email'],
+                      role=role_instance,  
+                      department=dept_instance,
+                    )
 
-        # Set the password (hashed password)
                   user.set_password(password)
                   user.save()
                   send_password_email(user.email, password,user.username)
@@ -1590,18 +1590,14 @@ def bulk_upload_users(request):
         except Exception as e:
          print(f"An error occurred while creating the user: {e}")
 
-    users = CustomUser.objects.all()  # Fetch all users from the custom model
+    users = CustomUser.objects.all()  
     return render(request, 'user_management.html', {'users': users})
 
        
-
-    
-
-
 def send_password_email(to_email, password,username):
     subject = "Your CFMMS User Credentials"
     message = f"Hello,\n\nYour CFMMS account has been created.\nUsername : {username}\nPassword : {password}\n\nPlease login and change it immediately."
-    from_email = settings.DEFAULT_FROM_EMAIL  # Set up in settings.py
+    from_email = settings.DEFAULT_FROM_EMAIL  
     send_mail(subject, message, from_email, [to_email])
 
 @login_required
@@ -1612,70 +1608,47 @@ def password_change(request):
         new_password1 = request.POST.get('new_password1')
         new_password2 = request.POST.get('new_password2')
 
-        # Check if passwords match
         if new_password1 != new_password2:
             messages.error(request, "Passwords do not match. Please try again.")
-        elif len(new_password1) < 8:  # Optional password strength validation
+        elif len(new_password1) < 8:  
             messages.error(request, "Password must be at least 8 characters long.")
         else:
-            # Update user's password and hash it
             user.password = make_password(new_password1)
             user.save()
-
-          
             messages.success(request, "Your password has been successfully updated!")
             return redirect('user_login')  # Replace 'home' with your actual route name
-
     return render(request, 'reset_password.html')
 
 
 
 def asset_management(request):
-    assets = AssetStock.objects.all()  # Fetch all users from the custom model
-    # return render(request, 'asset_management.html', {'assets': assets})
-
-
-    #Get query parameters
+    assets = AssetStock.objects.all()  
     selected_location = request.GET.get('location', None)
     status = request.GET.get('status', None)
 
-    # Apply location filter if selected
     if selected_location:
         assets = assets.filter(location_id=selected_location)
     
-    # Apply status filter if selected
     if status:
         assets = assets.filter(status=status)
 
-
-
-
     next_due_dates = []
     today = date.today()
-    # Calculate the next maintenance date for each asset
+   
     for i in assets:
-        # Calculate the next maintenance date
         due_date = i.prev_maintenance_date + timedelta(days=i.maintenance_frequency)
         
-        # Append the calculated due date to the list
         next_due_dates.append(due_date)
         if due_date - timedelta(days=2) <= today and i.status != 'Maintenance Scheduled':
             i.status = 'Maintenance Due'
             i.save()
-    # Optional: Flag variable (set to 0 for now)
     flag = 0  
 
-
-
-
-
-        # Fetch location data correctly
     location_names = Location.objects.values_list('name', flat=True)
     location_ids = Location.objects.values_list('location_id', flat=True)
     location_floors = Location.objects.values_list('floor', flat=True)
     location_blocks = Location.objects.values_list('block', flat=True)
 
-    # Combine location details into a dictionary
     location_dict = {
         name: (loc_id, floor, block)
         for name, loc_id, floor, block in zip(location_names, location_ids, location_floors, location_blocks)
@@ -1684,28 +1657,23 @@ def asset_management(request):
     context = {
         'locations': location_dict,
         'assets_with_due_dates': zip(assets, next_due_dates),
-        'selected_location': selected_location,  # To retain selected value in the dropdown
-        'selected_status': status,  # To retain selected value in the dropdown
+        'selected_location': selected_location,  
+        'selected_status': status,  
         'flag': 0
     }
-
     return render(request, 'asset_management.html', context)
-
-
 
 
 def add_stock(request):
     if request.method == 'POST':
         form = AssetStockForm(request.POST)
         
-        # Handle new asset creation before form validation
         if request.POST.get('asset') == 'other' and request.POST.get('new_asset_name'):
             new_asset_name = request.POST.get('new_asset_name')
             new_asset, created = Asset.objects.get_or_create(asset_name=new_asset_name)
-            request.POST = request.POST.copy()  # Make POST data mutable
-            request.POST['asset'] = new_asset.asset_id  # Update form data with new asset ID
-        
-        # Handle new location creation before form validation
+            request.POST = request.POST.copy()  
+            request.POST['asset'] = new_asset.asset_id  
+       
         if request.POST.get('location') == 'other' and request.POST.get('new_location_name'):
             new_location_name = request.POST.get('new_location_name')
             new_block_name = request.POST.get('new_block_name')
@@ -1715,20 +1683,16 @@ def add_stock(request):
                 block=new_block_name,
                 floor=new_floor_name
             )
-            request.POST = request.POST.copy()  # Make POST data mutable
-            request.POST['location'] = new_location.location_id  # Update form data with new location ID
-
-        form = AssetStockForm(request.POST)  # Re-initialize form with updated POST data
-        
+            request.POST = request.POST.copy()  
+            request.POST['location'] = new_location.location_id  
+        form = AssetStockForm(request.POST) 
         if form.is_valid():
             
             form.save()
             return redirect('asset_management')
     else:
         form = AssetStockForm()
-    
     return render(request, 'add_asset.html', {'form': form})
-
 
 
 def upload_stock(request):
@@ -1736,21 +1700,16 @@ def upload_stock(request):
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
             excel_file = request.FILES['excel_file']
-            
-            # Read the Excel file using pandas
             df = pd.read_excel(excel_file)
 
             for index, row in df.iterrows():
-                # Get or create Asset
                 asset, created = Asset.objects.get_or_create(asset_name=row['Asset Name'])
-
-                # Get or create Location
                 location, created = Location.objects.get_or_create(
                     name=row['Location Name'],
                     defaults={'block': row.get('Block'), 'floor': row.get('Floor')}
                 )
                 dept_instance = Department.objects.get(dept_name=row['Maintenance Department'])
-                # Create AssetStock
+               
                 AssetStock.objects.create(
                     asset=asset,
                     location=location,
@@ -1766,30 +1725,25 @@ def upload_stock(request):
             return redirect('asset_management')
     else:
         form = ExcelUploadForm()
-
     return render(request, 'bulk_add_stock.html', {'form_stock': form})
 
 
 
 def maintenance_due(request):
     today = date.today()
-
-    assets = AssetStock.objects.all()  # Fetch all assets from the model
+    assets = AssetStock.objects.all()  
     assets_with_due_dates = [] 
 
     for asset in assets:
         due_date = asset.prev_maintenance_date + timedelta(days=asset.maintenance_frequency)
-
         if due_date - timedelta(days=2) <= today and asset.status != 'Maintenance Scheduled':
-            AssetStock.objects.filter(id=asset.id).update(status='Maintenance Due')  # Force DB update
-            asset.status = 'Maintenance Due'  # Update in memory
+            AssetStock.objects.filter(id=asset.id).update(status='Maintenance Due')  
+            asset.status = 'Maintenance Due'  
             assets_with_due_dates.append((asset, due_date))
 
     return render(request, 'asset_management.html', {
         'assets_with_due_dates': assets_with_due_dates,
     })
-
-
 
 
 def activeassets(request):
@@ -1798,43 +1752,21 @@ def activeassets(request):
     return render(request, 'asset_management.html', {'assets': assets})
 
 
-
-
 def inactiveassets(request):     
     assets = AssetStock.objects.filter(status='Inactive') 
     return render(request, 'asset_management.html', {'assets': assets})
 
 
-
-
-from django.shortcuts import redirect
-from django.contrib import messages
-from datetime import date, timedelta
-from .models import AssetStock, PreventiveMaintenanceSchedule
-from django.db import transaction
-
-
-
-from django.db import transaction
-
-from django.db import transaction
-from django.contrib import messages
-from datetime import date
-from .models import AssetStock, PreventiveMaintenanceSchedule
-
 def schedule_preventive(request):
     today = date.today()
-
-    # Get only assets with "Maintenance due" status
     due_assets = AssetStock.objects.filter(status="Maintenance Due")
 
-    if due_assets.exists():  # Ensure there are assets to process
-        with transaction.atomic():  # Ensure atomicity
+    if due_assets.exists(): 
+        with transaction.atomic():  
             for asset in due_assets:
               if asset.status!="Maintenance Scheduled":
-                print(f"Updating asset {asset.stock_id} from {asset.status} to 'Maintenance Scheduled'")  # Debugging
+                print(f"Updating asset {asset.stock_id} from {asset.status} to 'Maintenance Scheduled'")  
 
-                # Create a Preventive Maintenance Schedule entry
                 PreventiveMaintenanceSchedule.objects.create(
                     asset=asset.asset,
                     stock=asset,
@@ -1842,14 +1774,24 @@ def schedule_preventive(request):
                     status='Assigned to Foreman'
                 )
 
-                # Update the asset's status individually
                 asset.status = 'Maintenance Scheduled'
-                asset.save()  # Save only the status field
+                asset.save()  
                 print(f"Updating asset status: {asset.status}")
-  # 
+                issue_link = request.build_absolute_uri(reverse('preventive_foreman'))
+                foreman_user = CustomUser.objects.filter(role_id=3,department_id=asset.maintenance_dept).first()  
+                if foreman_user:
+                           Notification.objects.create(
+                           user=foreman_user,
+                           message=(
+                              f"New Asset Maintenance assigned to your department: {asset.asset}. "
+                              f"Stock ID: {asset}. "
+                              f"Please check the details and assign the work to a worker.",
+                              ),issue_link=issue_link
+                            )
+
+                
 
         messages.success(request, "Assets assigned successfully!")
-
     return redirect('asset_management')
 
 
@@ -1882,78 +1824,119 @@ def preventive_foreman(request):
     return render(request, 'prev_schedules_foreman.html', {'schedule_data': schedule_data})
 
 
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from myapp.models import PreventiveMaintenanceSchedule  # Ensure correct import
 
 def foreman_prev_assign(request, pk):
-    foreman = request.user  # Assuming the logged-in user is the foreman
-    dept_id = foreman.department_id  # Ensure 'dept_id' is available
-    assets = AssetStock.objects.all()  # Fetch all assets from the model
+    foreman = request.user  
+    dept_id = foreman.department_id  
+    assets = AssetStock.objects.all()  
     for i in assets:
         due_date = i.prev_maintenance_date + timedelta(days=i.maintenance_frequency)
-    # Retrieve the specific schedule instance
     schedule = get_object_or_404(PreventiveMaintenanceSchedule, pk=pk)
     
     if request.method == 'POST':
-        # Pass dept_id for filtering workers
         form = Assign_prev_Form(request.POST, dept_id=dept_id)
         if form.is_valid():
-            # Save the form and update schedule status
             worker = form.cleaned_data['worker']
             schedule.worker = worker
-            schedule.status = 'Assigned to Worker'  # Replace with your status constant if defined
+            schedule.status = 'Assigned to Worker'  
             schedule.save()
+            issue_link = request.build_absolute_uri(
+                reverse('prev_details', args=[schedule.schedule_id])
+            )
+            Notification.objects.create(
+                user=schedule.worker,  # Notify the assigned worker
+                message=f"You have been assigned a new task for asset {schedule.stock.asset.asset_name}."
+                f"Stock ID: {schedule.stock_id}."
+                f"Name: {schedule.stock.asset.asset_name}."
+                f"location: {schedule.stock.location}."
+                f"Please check the details and start working on it.",
+                issue_link=issue_link  # Use reverse-generated link
+            )
+            
+
+
 
             messages.success(request, 'Work assigned successfully!')
-            return redirect('preventive_foreman')  # Redirect to the desired page
+            return redirect('preventive_foreman')  
     else:
-        # Instantiate the form with dynamic worker options
         form = Assign_prev_Form(dept_id=dept_id)
-
     return render(request, 'prev_assign-foreman.html', {'form': form, 'schedule': schedule})
 
 
 def prev_task_worker(request):
+    flag=0
     worker = request.user
     schedules = PreventiveMaintenanceSchedule.objects.filter(worker_id=worker)
     schedule_data = []
     for schedule in schedules:
-        # Calculate due date based on stock and asset maintenance frequency
         due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
         schedule_data.append({
             'schedule': schedule,
             'due_date': due_date,
         })
+        if schedule.status == 'In progress ' or schedule.status == 'Assigned to Worker':
+            flag=1
+    return render(request, 'prev_task_worker.html', {'schedule_data': schedule_data,'flag':flag})
 
+    
+def prev_worker_in_progress_tasks(request):
+    worker = request.user
+    schedules = PreventiveMaintenanceSchedule.objects.filter(worker_id=worker,status="In Progress")
+    schedule_data = []
+    for schedule in schedules:
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+        })
     return render(request, 'prev_task_worker.html', {'schedule_data': schedule_data})
+
+def prev_worker_completed_tasks(request):
+    worker = request.user
+    schedules = PreventiveMaintenanceSchedule.objects.filter(worker_id=worker,status="Resolved")
+    schedule_data = []
+    for schedule in schedules:
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+        })
+    return render(request, 'prev_task_worker.html', {'schedule_data': schedule_data})
+
+def prev_worker_pending_tasks(request):
+    worker = request.user
+    schedules = PreventiveMaintenanceSchedule.objects.filter(worker_id=worker,status="Assigned to Worker")
+    schedule_data = []
+    for schedule in schedules:
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+        })
+    return render(request, 'prev_task_worker.html', {'schedule_data': schedule_data})
+
+
+
 
 
 def prev_details(request, pk):
     schedules = PreventiveMaintenanceSchedule.objects.filter(schedule_id=pk).select_related('stock', 'asset')
     schedule_data = []
-
     for schedule in schedules:
-        # Calculate the due date
         due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
-        
-        # Add data to the schedule_data list
         schedule_data.append({
             'schedule': schedule,
             'due_date': due_date,
-            'asset': schedule.stock,  # Directly use the stock relation
+            'asset': schedule.stock,  
         })
-
     return render(request, 'prev_task_details.html', {'schedule_data': schedule_data})
+
 
 def update_status_prev(request, pk):
     if request.method == 'POST':
-        # Fetch the issue only once to reduce overhead
         schedule = get_object_or_404(PreventiveMaintenanceSchedule, pk=pk)
-        status_updated = False  # Track if status was updated
+        status_updated = False  
         stock_id = schedule.stock_id
-
-        # Update task status if provided
         new_status = request.POST.get('status')
         if new_status:
             schedule.status = new_status
@@ -1963,10 +1946,6 @@ def update_status_prev(request, pk):
             schedule.completed_date = datetime.now()
             schedule.save()
             status_updated = True
-            #asset_stock = AssetStock.objects.filter(stock_id=schedule.stock_id)
-            # asset_stock= get_object_or_404(AssetStock, stock_id=stock_id)
-            # asset_stock.prev_maintenance_date = datetime.now()
-            # asset_stock.save()
             asset_stock = AssetStock.objects.filter(stock_id=stock_id).first()
             if asset_stock:
               asset_stock.status = 'Active'
@@ -1974,30 +1953,18 @@ def update_status_prev(request, pk):
               asset_stock.save()
             else:
               messages.error(request, f"No AssetStock found with stock_id: {stock_id}.")
-
-
-
-
-        # Feedback messages for status and comment updates
         if status_updated:
             messages.success(request, "Status updated successfully.")
-       
-
-        # If no valid inputs, show error
         if not (new_status  or 'image' in request.FILES):
             messages.error(request, "No changes detected. Please provide status, comment, or image.")
 
         return redirect('prev_details',pk=pk)
-
-    # Optional: Handle GET request fallback
     messages.error(request, "Invalid request method.")
     return redirect('prev_details',pk=pk)
 
 
 def edit_asset(request,stock_id):
-    
-    asset = get_object_or_404(AssetStock, stock_id=stock_id)  # Fetch the asset using the provided stock_id
-
+    asset = get_object_or_404(AssetStock, stock_id=stock_id)  
     if request.method == 'POST':
         form = AssetForm(request.POST, instance=asset)
         if form.is_valid():
@@ -2006,8 +1973,6 @@ def edit_asset(request,stock_id):
             return redirect('asset_management')
     else:
         form = AssetForm(instance=asset)
-
-    # Provide asset details to populate the modal
     return render(request, 'edit_asset.html', {'form_stock': form, 'asset': asset})
 
 
@@ -2016,23 +1981,6 @@ def delete_asset(request, stock_id):
     asset.delete()
     messages.success(request, "Asset deleted successfully!")
     return redirect('asset_management')
-
-
-
-
-
-
-
-
-from .models import Notification
-
-
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Notification
-
 
 
 def notifications(request):

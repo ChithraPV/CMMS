@@ -104,7 +104,9 @@ urlpatterns = [
     path('generate_report/', views.generate_pdf_report, name='generate_pdf_report'),
     path('bulk_upload_users/', views.bulk_upload_users, name='bulk_upload_users'),
     path('password_change/',views.password_change,name='password_change'),
-
+    path('prev_worker_in_progress_tasks/', views.prev_worker_in_progress_tasks, name='prev_worker_in_progress_tasks'),
+    path('prev_worker_completed_tasks/', views.prev_worker_completed_tasks, name='prev_worker_completed_tasks'),
+    path('prev_worker_pending_tasks/', views.prev_worker_pending_tasks, name='prev_worker_pending_tasks'),
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
     

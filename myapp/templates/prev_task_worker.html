@@ -134,25 +134,23 @@
       <div class="tabs">
          <div class="tab active">Table View</div>
       </div>
-      {% comment %} <div class="button-container">
-         <a class="action-button" id="button1" href="{% url 'worker_assigned_tasks' %}">Total Tasks</a>
-         <a class="action-button" id="button2" href="{% url 'worker_in_progress_tasks' %}">In Progress</a>
-         <a class="action-button" id="button3" href="{% url 'worker_completed_tasks' %}">Resolved</a>
-         <a class="action-button" id="button4" href="{% url 'worker_escalated_tasks' %}">Escalated</a>
-         <a class="action-button" id="button4" href="{% url 'worker_extended_tasks' %}">Extended</a>
-         <a class="action-button" id="button4" href="{% url 'view_tasks' %}">Pending</a> 
-      </div> {% endcomment %}
+       <div class="button-container">
+         <a class="action-button" id="button1" href="{% url 'prev_task_worker' %}">Total Tasks</a>
+         <a class="action-button" id="button2" href="{% url 'prev_worker_in_progress_tasks' %}">In Progress</a>
+         <a class="action-button" id="button3" href="{% url 'prev_worker_completed_tasks' %}">Resolved</a>
+         <a class="action-button" id="button4" href="{% url 'prev_worker_pending_tasks' %}">Pending</a> 
+      </div> 
       <div class="container">
-         <!-- Tabs -->
-         <!-- Table View Section -->
-         {% with show_actions=False %}
-         {% for item in schedule_data %}
-             {% if item.schedule.status == 'Assigned to Worker' %}
-                 {% with show_actions=True %}
-                 {% endwith %}
-             {% endif %}
-         {% endfor %}
-     {% endwith %}
+      
+    {% comment %} {% with show_actions=False %}
+     {% if flag %}
+         {% with show_actions=True %}
+         {% endwith %}
+       {% endif %} {% endcomment %}
+
+   
+
+
          <div id="table-view" class="view active">
             </form>
             <table>
@@ -167,9 +165,10 @@
                     <th>Scheduled Date</th>
                     <th>Due Date</th>
                     <th>Completed Date</th>
-                    {% if show_actions %}
+                    {% comment %} {% if show_actions %}
                     <th>Actions</th>
-                    {% endif %}
+                    {% endif %} {% endcomment %}
+                    <th>Actions</th>
                     {% comment %} {% for item  in schedule_data %}
                     {% if item.schedule.status == 'Assigned to Worker'%}
                     <th>Actions</th>
@@ -205,14 +204,14 @@
                     </td>
         
              
-                
-                {% if item.schedule.status == 'Assigned to Worker' %}
+{% comment %}                 
+                {% if item.schedule.status == 'Assigned to Worker' %} {% endcomment %}
                     <td>
                        
                        <a href="{% url 'prev_details' pk=item.schedule.schedule_id %}" class="btn btn-danger">View Details</a>
                        
                     <td>
-                        {%endif%}
+                        {% comment %} {%endif%} {% endcomment %}
                         {% endfor %}
                      </tr>
                
