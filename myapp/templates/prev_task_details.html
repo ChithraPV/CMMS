@@ -1,0 +1,729 @@
+{% extends 'worker.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Task Details</title>
+      <style>
+         body {
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+         background-color: #f4f7fc;
+         }
+         .container {
+         max-width: 900px;
+         margin: 20px auto;
+         background: #fff;
+         padding: 30px;
+         border-radius: 10px;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+         }
+         .task-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin-bottom: 30px;
+         }
+         .task-header h1 {
+         font-size: 30px;
+         color: #333;
+         }
+         .task-details p {
+         font-size: 16px;
+         color: #555;
+         margin: 10px 0;
+         }
+         .status {
+         font-size: 18px;
+         font-weight: bold;
+         color: #007bff;
+         }
+         .button-group {
+         display: flex;
+         gap: 10px;
+         margin-top: 20px;
+         }
+         .button {
+         padding: 12px 25px;
+         font-size: 16px;
+         color: #fff;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         transition: all 0.3s;
+         }
+         .start {
+         background-color: #007bff;
+         }
+         .start:hover {
+         background-color: #0056b3;
+         }
+         .update {
+         background-color: #28a745;
+         }
+         .update:hover {
+         background-color: #1e7e34;
+         }
+         .complete {
+         background-color: #dc3545;
+         }
+         .complete:hover {
+         background-color: #b02a37;
+         }
+         .escalate {
+         background-color:rgb(7, 129, 229);
+         }
+         .escalate:hover {
+         background-color:rgb(65, 34, 217);
+         }
+         .extend {
+         background-color:rgb(227, 207, 25);
+         }
+         .extend:hover {
+         background-color:rgb(176, 167, 42);
+         }
+         .modal {
+         display: none;
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5);
+         justify-content: center;
+         align-items: center;
+         z-index: 1000;
+         }
+         .modal-content {
+         background-color: white;
+         padding: 20px;
+         border-radius: 10px;
+         text-align: center;
+         }
+         input[type="file"] {
+         display: none;
+         }
+         /* The Modal */
+         .modal {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.4);
+         display: none;
+         z-index: 1;
+         }
+         /* Modal Content */
+         .modal-content {
+         background-color: white;
+         padding: 20px;
+         margin: 10% auto;
+         width: 50%;
+         border-radius: 5px;
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+         }
+         /* Close Button (optional) */
+         .modal-content button {
+         background-color: #4CAF50;
+         color: white;
+         padding: 10px 20px;
+         border: none;
+         cursor: pointer;
+         border-radius: 5px;
+         font-size: 16px;
+         }
+         .modal-content button:hover {
+         background-color: #45a049;
+         }
+         /* Textarea Styling */
+         textarea {
+         width: 100%;
+         padding: 10px;
+         margin: 10px 0;
+         border: 1px solid #ccc;
+         border-radius: 5px;
+         resize: vertical;
+         }
+         /* Input Styling */
+         input[type="date"], select {
+         width: 100%;
+         padding: 10px;
+         margin: 10px 0;
+         border: 1px solid #ccc;
+         border-radius: 5px;
+         }
+         /* Button Styling */
+         .button.extend {
+         background-color: #4CAF50;
+         color: white;
+         padding: 10px 20px;
+         border: none;
+         cursor: pointer;
+         border-radius: 5px;
+         font-size: 16px;
+         }
+         .button.extend:hover {
+         background-color: #45a049;
+         }
+         /* Modal Styles */
+         #extensionModal {
+         display: none; /* Hidden by default */
+         position: fixed; /* Fixed at the top */
+         z-index: 1000; /* Sit on top */
+         left: 0;
+         top: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5); /* Background with some transparency */
+         justify-content: center;
+         align-items: center;
+         font-family: Arial, sans-serif;
+         }
+         /* Modal Content Styling */
+         .modal-content {
+         background-color: white;
+         padding: 20px;
+         border-radius: 10px;
+         width: 800px;
+         box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+         display: flex;
+         flex-direction: column;
+         gap: 15px;
+         position: relative;
+         }
+         /* Close Icon */
+         .close {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         cursor: pointer;
+         font-size: 25px;
+         color: #aaa;
+         }
+         .close:hover {
+         color: #333;
+         }
+         /* Form elements */
+         #extensionModal label {
+         font-size: 14px;
+         font-weight: bold;
+         }
+         #extensionModal input, #extensionModal select, #extensionModal textarea {
+         padding: 8px;
+         font-size: 14px;
+         border-radius: 5px;
+         border: 1px solid #ccc;
+         }
+         #extensionModal button {
+         padding: 10px 15px;
+         background-color: #4CAF50;
+         color: white;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         font-size: 16px;
+         transition: background-color 0.3s;
+         }
+         #extensionModal button:hover {
+         background-color: #45a049;
+         }
+         /* Optional: Make 'Other' reason textarea visible when selected */
+         #otherExtensionReason {
+         display: none;
+         width: 100%;
+         height: 80px;
+         resize: vertical;
+         }
+         /* Optional: Close the modal when clicking outside */
+         #extensionModal::before {
+         content: '';
+         position: absolute;
+         left: 0;
+         top: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.4);
+         z-index: -1;
+         }
+         /* Modal Styles */
+         #escalationModal {
+         display: none; /* Hidden by default */
+         position: fixed; /* Fixed at the top */
+         z-index: 1000; /* Sit on top */
+         left: 0;
+         top: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5); /* Background with some transparency */
+         justify-content: center;
+         align-items: center;
+         font-family: Arial, sans-serif;
+         }
+         /* Modal Content Styling */
+         .modal-content {
+         background-color: white;
+         padding: 20px;
+         border-radius: 10px;
+         width: 700px;
+         box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+         display: flex;
+         flex-direction: column;
+         gap: 15px;
+         position: relative;
+         }
+         /* Close Icon */
+         .close {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         cursor: pointer;
+         font-size: 25px;
+         color: #aaa;
+         }
+         .close:hover {
+         color: #333;
+         }
+         /* Form elements */
+         #escalationModal label {
+         font-size: 14px;
+         font-weight: bold;
+         }
+         #escalationModal input, #escalationModal select, #escalationModal textarea {
+         padding: 8px;
+         font-size: 14px;
+         border-radius: 5px;
+         border: 1px solid #ccc;
+         }
+         #escalationModal button {
+         padding: 10px 15px;
+         background-color: #007BFF;
+         color: white;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         font-size: 16px;
+         transition: background-color 0.3s;
+         }
+         #escalationModal button:hover {
+         background-color: #0056b3;
+         }
+         /* Optional: Make 'Other' reason textarea visible when selected */
+         #escalationOtherReason {
+         display: none;
+         width: 100%;
+         height: 80px;
+         resize: vertical;
+         }
+         /* Optional: Close the modal when clicking outside */
+         #escalationModal::before {
+         content: '';
+         position: absolute;
+         left: 0;
+         top: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.4);
+         z-index: -1;
+         }
+         /* Modal Overlay Styling */
+         #statusUpdateModal {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         z-index: 1000; /* Ensures modal appears above other elements */
+         }
+         /* Modal Content Styling */
+         /* Close Button Styling */
+         .close {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         font-size: 18px;
+         color: #aaa;
+         cursor: pointer;
+         }
+         .close:hover {
+         color: #333; /* Darker shade when hovered */
+         }
+         /* Label Styling */
+         #statusUpdateModal label {
+         display: block;
+         font-size: 14px;
+         color: #333;
+         margin-bottom: 8px;
+         font-weight: bold;
+         width: 100%;
+         }
+         /* Textarea Styling */
+         #statusUpdateModal textarea {
+         width: 100%;
+         height: 80px;
+         padding: 10px;
+         margin-bottom: 15px;
+         font-size: 14px;
+         border: 1px solid #ccc;
+         border-radius: 4px;
+         resize: none; /* Prevent resizing for consistency */
+         }
+         /* File Input Button */
+         #statusUpdateModal .button {
+         width: 100%;
+         display: inline-block;
+         padding: 8px 15px;
+         background-color: #007bff;
+         color: #fff;
+         text-align: center;
+         border-radius: 4px;
+         cursor: pointer;
+         font-size: 14px;
+         margin-bottom: 10px;
+         }
+         #statusUpdateModal .button:hover {
+         background-color: #0056b3; /* Darker blue on hover */
+         }
+         /* File Name Display */
+         #statusUpdateModal #fileName {
+         display: inline-block;
+         margin-top: 8px;
+         font-size: 12px;
+         color: #555;
+         }
+         /* Submit Button */
+         #statusUpdateModal button[type="submit"] {
+         display: block;
+         width: 100%;
+         padding: 10px;
+         background-color: #28a745;
+         color: #fff;
+         font-size: 14px;
+         font-weight: bold;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         }
+         #statusUpdateModal button[type="submit"]:hover {
+         background-color: #218838; /* Darker green on hover */
+         }
+         #statusUpdateModal {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         z-index: 1000; /* Ensures modal appears above other elements */
+         }
+         /* Modal Content Styling */
+         /* Close Button Styling */
+         .close {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         font-size: 18px;
+         color: #aaa;
+         cursor: pointer;
+         }
+         .close:hover {
+         color: #333; /* Darker shade when hovered */
+         }
+         /* Label Styling */
+         label {
+         display: block;
+         font-size: 14px;
+         color: #333;
+         margin-bottom: 8px;
+         font-weight: bold;
+         width: 100%;
+         }
+         /* Textarea Styling */
+         textarea {
+         width: 100%;
+         height: 80px;
+         padding: 10px;
+         margin-bottom: 15px;
+         font-size: 14px;
+         border: 1px solid #ccc;
+         border-radius: 4px;
+         resize: none; /* Prevent resizing for consistency */
+         }
+         /* File Input Button */
+         .button {
+         width: 100%;
+         display: inline-block;
+         padding: 8px 15px;
+         background-color: #007bff;
+         color: #fff;
+         text-align: center;
+         border-radius: 4px;
+         cursor: pointer;
+         font-size: 14px;
+         margin-bottom: 10px;
+         }
+         .button:hover {
+         background-color: #0056b3; /* Darker blue on hover */
+         }
+         /* File Name Display */
+         #fileName {
+         display: inline-block;
+         margin-top: 8px;
+         font-size: 12px;
+         color: #555;
+         }
+         /* Submit Button */
+         button[type="submit"] {
+         display: block;
+         width: 100%;
+         padding: 10px;
+         background-color: #28a745;
+         color: #fff;
+         font-size: 14px;
+         font-weight: bold;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         }
+         button:disabled {
+         background-color: #ccc; /* Greyed-out background */
+         cursor: not-allowed;
+         position: relative; /* To allow positioning of the tooltip */
+         }
+         /* Custom Tooltip */
+         button:disabled[title]:hover::after {
+         content: attr(title);  /* Display the title text */
+         position: absolute;
+         top: -25px;  /* Position it above the button */
+         left: 50%;  /* Center it horizontally */
+         transform: translateX(-50%);
+         background-color: rgba(0, 0, 0, 0.7);
+         color: #fff;
+         padding: 5px;
+         border-radius: 3px;
+         font-size: 12px;
+         white-space: nowrap;
+         z-index: 10; /* Ensure it's above other elements */
+         }
+      </style>
+   </head>
+   <body>
+    <div class="container">
+       <div class="task-header">
+          <h1>Task Details</h1>
+       </div>
+ 
+       {% for item in schedule_data %}
+       <div class="task-details">
+          <div class="status">Status: <strong>{{ item.schedule.status|title }}</strong></div>
+          <p><strong>Schedule ID:</strong> {{ item.schedule.schedule_id }}</p>
+          <p><strong>Asset ID:</strong> {{ item.asset.stock_id }}</p>
+          <p><strong>Asset Name:</strong> {{ item.schedule.asset.asset_name }}</p>
+          <p><strong>Location:</strong> {{ item.asset.location }}</p>
+          <p><strong>Assigned On:</strong> {{ item.schedule.scheduled_date|date:"Y-m-d H:i" }}</p>
+          <p><strong>Due Date:</strong> {{ item.due_date|date:"Y-m-d" }}</p>
+          <p><strong>Completed Date:</strong> {{ item.schedule.completed_date|date:"Y-m-d" }}</p>
+ 
+          <div class="button-group">
+             <button 
+                class="button start"
+                {% if item.schedule.status == "In Progress" or item.schedule.status == "Resolved"  %}
+                disabled title="This task has already been started"
+                {% endif %}
+                onclick="handleStart({{ item.schedule.schedule_id }})">
+                Start Task
+             </button>
+ 
+             <button 
+                class="button complete"
+                {% if item.schedule.status == "Resolved"%}
+                disabled title="This task is already complete"
+                {% endif %}
+                {% if item.schedule.status == "Assigned to Worker"%}
+                disabled title="Please start this task first"
+                {% endif %}
+                onclick="handleComplete({{ item.schedule.schedule_id }})">
+                Mark as Complete
+             </button>
+          </div>
+       </div>
+       {% endfor %}
+ 
+       <!-- Start Task Modal -->
+       <div id="startModal" style="display: none;">
+          <div class="modal-content">
+             <span class="close" onclick="closeStartModal()">&#10006;</span>
+             <form method="POST" action="" id="startForm">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="In Progress">
+                <button type="submit">Confirm Start</button>
+             </form>
+          </div>
+       </div>
+ 
+       <!-- Complete Task Modal -->
+       <div id="stopModal" style="display: none;">
+          <div class="modal-content">
+             <span class="close" onclick="closeStopModal()">&#10006;</span>
+             <form method="POST" action="" id="completeForm">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="Resolved">
+                <button type="submit">Confirm Completion</button>
+             </form>
+          </div>
+       </div>
+    </div>
+ 
+    <script>
+       function handleStart(scheduleId) {
+          const startForm = document.getElementById('startForm');
+          startForm.action = `/update_status_prev/${scheduleId}/`;
+          document.getElementById('startModal').style.display = 'flex';
+       }
+ 
+       function closeStartModal() {
+          document.getElementById('startModal').style.display = 'none';
+       }
+ 
+       {% comment %} function handleComplete(scheduleId) {
+          const completeForm = document.getElementById('completeForm');
+          completeForm.action = `{% url 'update_status_prev' pk=item.schedule.schedule_id %}`;
+          document.getElementById('stopModal').style.display = 'flex';
+       } {% endcomment %}
+
+       function handleComplete(scheduleId) {
+        const completeForm = document.getElementById('completeForm');
+        completeForm.action = `/update_status_prev/${scheduleId}/`;
+        document.getElementById('stopModal').style.display = 'flex';
+    }
+    
+ 
+       function closeStopModal() {
+          document.getElementById('stopModal').style.display = 'none';
+       }
+    </script>
+ </body>
+ </html>
+{% endblock %}
+   {% comment %} <body>
+      <div class="container">
+         <div class="task-header">
+            <h1>Task Details</h1>
+            {% for item in schedule_data %}
+            <div class="status">Status: <strong>{{ item.schedule.status|title  }}</strong></div>
+         </div>
+         <div class="task-details">
+            <p><strong>Schedule ID:</strong> {{ item.schedule.schedule_id }}</p>
+            <p><strong>Asset ID:</strong> {{ item.schedule.asset_id }}</p>
+            <p><strong>Asset Name:</strong> {{ item.schedule.asset }}</p>
+            <p><strong>Location:</strong> {{ item.asset.location }}</p>
+            <p><strong>Assigned On:</strong> {{ item.schedule.scheduled_date|date:"Y-m-d H:i" }}</p>
+            <p><strong>Due Date:</strong> {{ item.due_date|date:"Y-m-d" }}</p>
+            {%endfor%}
+          
+         {%for item in schedule_data %}
+         <div class="button-group">
+            <button class="button start" 
+            {% if item.schedule.schedule_id  == "In Progress"%}
+            disabled
+            title="This task has already been started"
+            {% endif %}>
+            Start Task
+            
+            </button>
+           
+            <button class="button complete" onclick="handleComplete({{ item.schedule.schedule_id  }})"
+            {% if item.schedule.schedule_id == "Resolved"%}
+            disabled
+            title="This task has already completed"
+            {% endif %}>Mark as Complete</button>
+           
+         </div>
+         <div id="startModal" style="display: none;">
+            <div class="modal-content">
+               <span class="close" onclick="closeStartModal()">&#10006;</span>
+               <!-- Confirmation Step (First Step) -->
+
+
+               <div id="fileUploadStep" style="display: none;">
+                <form method="POST" action="{% url 'update_status_prev' pk=item.schedule.schedule_id %}">
+                   {% csrf_token %}
+                   <input type="hidden" name="status" value="In Progress">
+                </form>
+             </div>
+             
+            </div>
+         </div>
+         <!-- Stop Modal -->
+         <div id="stopModal" style="display: none;">
+            <div class="modal-content">
+               <span class="close" onclick="closeStopModal()">&#10006;</span>
+               <div id="confirmationStep2">
+                  <p>Are you sure you want to complete this task?</p>
+                  <button type="button" onclick="showFileUpload2()">Yes</button>
+                  <button type="button" onclick="closeStopModal()">No</button>
+               </div>
+               
+            </div>
+         </div>
+         
+         
+         
+      {%endfor%}
+      <script>
+         function handleComplete(IssueId) {
+             document.getElementById('stopModal').style.display = 'flex';
+           }
+           function closeStopModal() {
+             document.getElementById('stopModal').style.display = 'none';
+         }
+         function handleStart(issueId) {
+         
+             document.getElementById('startModal').style.display = 'flex';
+           }
+         
+         function closeStartModal() {
+             document.getElementById('startModal').style.display = 'none';
+         }
+         
+       
+         
+       
+        
+         
+         function handleUpdate(taskId) {
+         document.getElementById('statusUpdateModal').style.display = 'flex';
+         }
+         
+         // Function to close the modal
+         function closeStatusModal() {
+         document.getElementById('statusUpdateModal').style.display = 'none';
+         }
+         
+         
+         
+         function updateStatus() {
+             alert("Status update functionality here.");
+         }
+         
+         function completeTask() {
+             alert("Task marked as complete.");
+         }
+         
+         function closeStatusModal() {
+           document.getElementById('statusUpdateModal').style.display = 'none';
+         }
+        </script>
+   </body>
+</html>
+{% endblock %} {% endcomment %}

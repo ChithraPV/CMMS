@@ -136,7 +136,7 @@
             <p><strong>Requested Time:</strong> {{ ext.updated_at }}</p>
             {% endif %}
             {% endfor %}
-         </div>
+         </div>                              
          <form method="POST" action="{% url 'extension_update_status' pk=task.issue_id.pk %}">
             {% csrf_token %}
             <button type="submit" name="status" value="Extension Approved">Approve</button>

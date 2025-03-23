@@ -1,18 +1,34 @@
 {% extends 'admin.html' %}
 {% block content %}
 <style>
-   form{
-   width:80%;
+   /* General form styles */
+   form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      
+      border-radius: 8px
+
    }
+   
+   
 </style>
+{% comment %} {% if flag == 'True' %}
+    <div class="alert alert-danger">
+        No issues found for the selected filters.
+    </div>
+{% endif %} {% endcomment %}
+{% if flag == 'True' %}
+<script type="text/javascript">
+    alert('No issues found for the specified filters.');
+</script>
+ {% endif %}
 <form action="{% url 'generate_pdf_report' %}" method="GET">
    {% comment %} <div class="text-end mb-3">
       <a href="{% url 'generate_pdf_report' %}" id="importButton" class="btn btn-success">Export as Excel</a>
    </div> {% endcomment %}
-   <div class="text-end mb-3">
-      <input type="hidden" name="export_excel" id="exportExcelFlag" value="false">
-      <button type="submit" id="exportButton" class="btn btn-success">Export as Excel</button>
-  </div>
+   
    <div class="row mb-4 screen">
       <div class="filter col-md-2">
          <label for="timeFilter" class="form-label">Time Range</label>
@@ -59,9 +75,13 @@
             <option value="1">Low</option>
          </select>
       </div>
-      <div class="filter col-md-2">
+      <div class=" col-md-2">
          <button class="btn btn-primary mt-4">Generate</button>
       </div>
+      <div class="col-md-2">
+         <input type="hidden" name="export_excel" id="exportExcelFlag" value="false">
+         <button type="submit" id="exportButton" class="btn btn-primary mt-4">Export as Excel</button>
+     </div>
    </div>
 </form>
 <script>

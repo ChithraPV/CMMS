@@ -37,6 +37,56 @@
    width: 100%;
    }
    }
+
+   /* Styling for forms and buttons (unchanged from your original) */
+   form {
+   max-width: 500px;
+   margin: 0 auto;
+   padding: 20px;
+   background-color: #f9f9f9;
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   }
+   label {
+   display: block;
+   margin-bottom: 5px;
+   font-weight: bold;
+   color: #333;
+   }
+   input, select, textarea {
+   width: 100%;
+   padding: 8px;
+   margin-bottom: 10px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   }
+   button {
+   padding: 10px 15px;
+   background-color: #007bff;
+   color: white;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   }
+   button:hover {
+   background-color: #0056b3;
+   }
+   @media screen and (max-width: 600px) {
+   form {
+   width: 80%;
+   padding: 10px;
+   }
+   input, select, textarea {
+   width: 100%;
+   }
+   }
+   /* Hide the bulk upload by default */
+   .excel {
+   display: none;
+   }
+   a{
+   text-decoration:none;
+   }
 </style>
 <div class="container mt-4">
    <h2 class="text-center mb-4">User Management</h2>
@@ -59,6 +109,16 @@
    </form>
    <div class="text-end mb-3">
       <a href="{% url 'add_user' %}" class="btn btn-success">Add New User</a>
+      <a href="#" id="importButton" class="btn btn-success">Import From Excel</a>
+   </div>
+
+   <div class="col-6 col-md-12 excel">
+      <form method="post" enctype="multipart/form-data" action="{% url 'bulk_upload_users' %}">
+         {% csrf_token %}
+         <label for="excelFile">Upload Excel File</label>
+         <input type="file" id="excelFile" name="excelFile" accept=".xlsx, .xls">
+         <button type="submit">Upload</button>
+      </form>
    </div>
    <div class="table-responsive">
       <table class="table table-bordered table-striped text-center">
@@ -92,4 +152,14 @@
       </table>
    </div>
 </div>
+<script>
+   $(document).ready(function() {
+      $('#importButton').click(function() {
+        
+        $('.excel').show();   // Show the bulk upload form
+      });
+    });
+   
+    
+</script>
 {% endblock %}

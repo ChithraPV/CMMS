@@ -1,4 +1,10 @@
 {% extends 'reporter.html' %}{% block content %}
+<style>
+      /* General form styles */
+      form {
+          width: 50%;
+      }
+  </style>
 <h2>Report an Issue</h2>
 <form method="post" enctype="multipart/form-data">
       {% csrf_token %} {{ form.as_p }}

@@ -1,0 +1,226 @@
+{% extends 'worker.html' %}{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Assigned Works</title>
+      <!-- FullCalendar CSS -->
+      <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+      <!-- FullCalendar JS -->
+      <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+      <!-- General Styles -->
+      <style>
+         /* General Reset */
+         * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+         }
+         body {
+         font-family: 'Poppins', sans-serif;
+         color: #333;
+         }
+         /* Main container */
+         .container {
+         max-width: 1200px;
+         margin: 20px auto;
+         padding: 10px;
+         }
+         /* Tabs */
+         .tabs {
+         display: flex;
+         justify-content: space-between;
+         margin-bottom: 20px;
+         }
+         .tab {
+         flex: 1;
+         text-align: center;
+         cursor: pointer;
+         padding: 10px;
+         background: #45a049;
+         border: 1px solid #ddd;
+         color: #fff;
+         transition: background-color 0.3s ease;
+         }
+         .tab.active {
+         background: #286638;
+         }
+         .view.active {
+         display: block;
+         }
+         /* Calendar View */
+         #calendar-view {
+         max-width: 50%;
+         height:auto;
+         padding: 0px;
+         border-radius: 10px;
+         margin:auto;
+         }
+         /* Table View */
+         #table-view table {
+         width: 100%;
+         border-collapse: collapse;
+         }
+         #table-view table th,
+         #table-view table td {
+         border: 1px solid #ddd;
+         text-align: center;
+         padding: 8px;
+         }
+         #table-view table th {
+         background: #45a049;
+         color: white;
+         }
+         /* Responsive Styles */
+         @media (max-width: 768px) {
+         #calendar-view,
+         #table-view {
+         max-width: 100%;
+         height: auto;
+         }
+         }
+         @media (max-width: 480px) {
+         #calendar {
+         height: 400px !important;
+         }
+         }
+         /* Style for the button container */
+         .button-container {
+         display: flex;
+         gap: 15px;
+         flex-wrap: wrap;
+         justify-content: center;
+         margin-top: 20px;
+         }
+         /* Style for each button */
+         .action-button {
+         background-color: #4CAF50; /* Green */
+         color: white;
+         font-size: 16px;
+         padding: 10px 20px;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         transition: background-color 0.3s ease, transform 0.2s ease;
+         }
+         /* Hover effect for buttons */
+         .action-button:hover {
+         background-color: #45a049;
+         transform: scale(1.05);
+         }
+         /* Focus effect for buttons */
+         .action-button:focus {
+         outline: none;
+         border: 2px solid #2e7d32;
+         }
+         /* Active (clicked) effect for buttons */
+         .action-button:active {
+         background-color: #388e3c;
+         transform: scale(0.98);
+         }
+      </style>
+   </head>
+   <body>
+      {% if messages %}
+      {% for message in messages %}
+      {% if message.tags == 'success' %}
+      <div class="alert alert-danger text-center" role="alert">
+         {{ message }}
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      <div class="tabs">
+         <div class="tab active">Table View</div>
+      </div>
+      {% comment %} <div class="button-container">
+         <a class="action-button" id="button1" href="{% url 'worker_assigned_tasks' %}">Total Tasks</a>
+         <a class="action-button" id="button2" href="{% url 'worker_in_progress_tasks' %}">In Progress</a>
+         <a class="action-button" id="button3" href="{% url 'worker_completed_tasks' %}">Resolved</a>
+         <a class="action-button" id="button4" href="{% url 'worker_escalated_tasks' %}">Escalated</a>
+         <a class="action-button" id="button4" href="{% url 'worker_extended_tasks' %}">Extended</a>
+         <a class="action-button" id="button4" href="{% url 'view_tasks' %}">Pending</a> 
+      </div> {% endcomment %}
+      <div class="container">
+         <!-- Tabs -->
+         <!-- Table View Section -->
+         {% with show_actions=False %}
+         {% for item in schedule_data %}
+             {% if item.schedule.status == 'Assigned to Worker' %}
+                 {% with show_actions=True %}
+                 {% endwith %}
+             {% endif %}
+         {% endfor %}
+     {% endwith %}
+         <div id="table-view" class="view active">
+            </form>
+            <table>
+               <thead>
+                  <tr>
+                    <th onclick="sortTable(0)">ID</th>
+                    <th>Asset Name</th>
+                    <th>Stock ID</th>
+                    <th>Assigned Department</th>
+                    <th>Worker</th>
+                    <th>Status</th>
+                    <th>Scheduled Date</th>
+                    <th>Due Date</th>
+                    <th>Completed Date</th>
+                    {% if show_actions %}
+                    <th>Actions</th>
+                    {% endif %}
+                    {% comment %} {% for item  in schedule_data %}
+                    {% if item.schedule.status == 'Assigned to Worker'%}
+                    <th>Actions</th>
+                    {% endif %}  
+                    {% endfor%}  {% endcomment %}
+               
+                 
+                  </tr>
+               </thead>
+               <tbody>
+                {% for item in schedule_data %}
+                <tr>
+                    <td>{{ item.schedule.schedule_id }}</td>
+                    <td>{{ item.schedule.asset.asset_name }}</td>
+                    <td>{{ item.schedule.stock.stock_id }}</td>
+                    <td>{{ item.schedule.assigned_dept }}</td>
+                    <td>
+                        {% if item.schedule.worker %}
+                        {{ item.schedule.worker.first_name|add:" "}}{{item.schedule.worker.last_name }}</td>
+                        {% else %}
+                            None
+                        {% endif %}
+        
+                    <td>{{ item.schedule.status|title }}</td>
+                    <td>{{ item.schedule.scheduled_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ item.due_date|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if item.schedule.completed_date %}
+                            {{ item.schedule.completed_date|date:"Y-m-d H:i" }}
+                        {% else %}
+                            Not Completed
+                        {% endif %}
+                    </td>
+        
+             
+                
+                {% if item.schedule.status == 'Assigned to Worker' %}
+                    <td>
+                       
+                       <a href="{% url 'prev_details' pk=item.schedule.schedule_id %}" class="btn btn-danger">View Details</a>
+                       
+                    <td>
+                        {%endif%}
+                        {% endfor %}
+                     </tr>
+               
+              
+               </tbody>
+            </table>
+         </div>
+      </div>
+   </body>
+</html>
+{% endblock %}

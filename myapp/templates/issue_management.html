@@ -143,6 +143,7 @@
          <option value="{% url 'in_progress_issues' %}">In Progress</option>
          <option value="{% url 'completed_issues' %}">Completed</option>
          <option value="{% url 'escalated_issues' %}">Escalated</option>
+         <option value="{% url 'extended_issues' %}">Extended</option>
       </select>
    </div>
 </form>
@@ -171,7 +172,7 @@
          {% for issue in issues %}
          <tr>
             <td>{{ issue.issue_id }}</td>
-            <td>{{ issue.issue_category }} {% if issue.issue_category == 'Others' %} <a href={% url 'assign_issue' pk=issue.issue_id%} style="color:white; font-size: 20px; text-decoration: none;background-color:red">Assign</a>{%endif%} </td>
+            <td>{{ issue.issue_category }} </td>
             <td>{{ issue.location }}</td>
             <td>
                {% if issue.reporter %}
@@ -215,6 +216,18 @@
             <td>
                <button onclick="openPriorityModal('{{ issue.issue_id }}', '{{ issue.priority }}')">Set Priority</button>
             </td>
+            {% comment %} <td>
+            {% if issue.issue_category == 'Others' %} <a href={% url 'assign_issue' pk=issue.issue_id%} style="color:white; font-size: 20px; text-decoration: none;background-color:red">Assign</a>{%endif%} </td> {% endcomment %}
+
+            <td>
+              {% if issue.issue_category == 'Others' %}
+                  <a href="{% url 'assign_issue' pk=issue.issue_id %}" 
+                     style="color:white; font-size: 20px; text-decoration: none; background-color:red; padding: 10px 20px; border-radius: 5px; display: inline-block;">
+                      Assign
+                  </a>
+              {% endif %}
+          </td>
+          
             {% comment %} {% endif %} {% endcomment %}
          </tr>
          <div id="priorityModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">

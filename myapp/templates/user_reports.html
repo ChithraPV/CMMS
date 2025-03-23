@@ -1,0 +1,96 @@
+<!-- templates/admin/user_management.html -->
+{% extends 'admin.html' %} {% block content %}
+<style>
+  
+   /* Mobile styling */
+   @media (max-width: 480px) {
+   .search-form {
+   flex-direction: column; /* Stacks the input and button */
+   align-items: stretch; /* Makes them fill the width */
+   }
+   .search-input,
+   .search-button {
+   width: 100%;
+   }
+   }
+
+   /* Styling for forms and buttons (unchanged from your original) */
+  
+   label {
+   display: block;
+   margin-bottom: 5px;
+   font-weight: bold;
+   color: #333;
+   }
+   input, select, textarea {
+   width: 100%;
+   padding: 8px;
+   margin-bottom: 10px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   }
+ 
+   button:hover {
+   background-color: #0056b3;
+   }
+   @media screen and (max-width: 600px) {
+   form {
+   width: 80%;
+   padding: 10px;
+   }
+   input, select, textarea {
+   width: 100%;
+   }
+   }
+   
+   a{
+   text-decoration:none;
+   }
+</style>
+<div class="container mt-4">
+   <h2 class="text-center mb-4">User Report</h2>
+  
+   <form action="{% url 'user_reports' %}" method="GET">
+    <div class="filter col-md-2">
+      <input type="hidden" name="export_excel" id="exportExcelFlag" value="false">
+      <button type="submit" id="exportButton" class="btn btn-primary mt-4">Export as Excel</button>
+  </div>
+</form>
+   
+   <div class="table-responsive">
+      <table class="table table-bordered table-striped text-center">
+         <thead class="table-dark">
+            <tr>
+               <th>Username</th>
+               <th> Name</th>
+               
+               <th>Email</th>
+               <th>Role</th>
+               <th>Department</th>
+               <th>Date Joined</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for user in users %}
+            <tr>
+               <td>{{ user.username }}</td>
+               <td>{{ user.first_name }} {{ user.last_name }} </td>
+               
+               <td>{{ user.email }}</td>
+               <td>{{ user.role }}</td>
+               <td>{{ user.department }}</td>
+               <td>{{ user.date_joined }}</td>
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+     
+   </div>
+</div>
+<script>
+    document.getElementById("exportButton").addEventListener("click", function () {
+        document.getElementById("exportExcelFlag").value = "true";
+    });
+    
+</script>
+{% endblock %}

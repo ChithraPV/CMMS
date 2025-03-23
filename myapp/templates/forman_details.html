@@ -140,6 +140,24 @@
                   <div class="status-step">{{i.status}} - {{i.changed_at }}</div>
                   {% endfor %}
                </div>
+
+
+               <div class="status-section">
+                  <h2>  Progress Images</h2>
+                  {% for i in images %}
+                  <img src="{{i.image.url}}" alt="Image" style="width:150px;height:150px;">
+                  <div> {{i.uploaded_at }}</div>
+                  <a href="{{ i.image.url }}" target="_blank">View Image</a>
+                  {% endfor %}
+
+                 
+               </div>
+               <form method="POST" action="{% url 'verify_status' pk=issue.issue_id %}">
+                  {% csrf_token %}
+                  <button type="submit" name="status" value="Resolved">Approve</button>
+                  <button type="submit" name="status" value="Pending">Reject</button>
+               </form>
+               
                <div class="timeline-line"></div>
             </div>
          </div>
@@ -180,6 +198,7 @@
             <p><strong>In Charge:</strong> {{ task.worker.first_name|add:" "}}{{task.worker.last_name }} </p>
             <br>
             {% endif %}
+           
          </div>
       </div>
    </main>

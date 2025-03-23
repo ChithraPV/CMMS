@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import CustomUser, Role, Department,IssueDB,Task,ExtensionRequest,Escalation,TaskImage,IssueStatusChange
-from .forms import UserForm,IssueForm,AssignIssueForm,AssignDeptForm
+from .models import CustomUser, Role, Department,IssueDB,Task,ExtensionRequest,Escalation,TaskImage,IssueStatusChange,Asset,AssetStock,PreventiveMaintenanceSchedule,Location
+from .forms import UserForm,IssueForm,AssignIssueForm,AssignDeptForm,AssetStockForm,ExcelUploadForm,Assign_prev_Form,AssetForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
@@ -25,7 +25,7 @@ from django.core.mail import send_mail
 def admin_dashboard(request):
     user_name = request.user.first_name  # Get the first name of the user
     total_issues = IssueDB.objects.count()
-    in_progress = IssueDB.objects.filter(status__in=["Assigned to Worker","In Progress"]).count()
+    in_progress = IssueDB.objects.filter(status__in=["Assigned to Worker","In Progress","Assigned to Foreman"]).count()
     completed = IssueDB.objects.filter(status="Completed").count()
     extended = IssueDB.objects.filter(status__in=["Extension Approved","Extension Rejected","Extension Pending"]).count()
     escalated = IssueDB.objects.filter(status__in=['Escalation Pending','Escalation Approved','Escalation Rejected']).count()
@@ -84,7 +84,7 @@ def admin_dashboard(request):
 def reporter_dashboard(request):
     user_role=request.user.role_id
     total_issues=IssueDB.objects.filter(reported_dept_id=request.user.department).count()
-    in_progress = IssueDB.objects.filter(status__in=["Assigned to Worker","In Progress","Escalation Rejected","Extension Rejected"],reported_dept_id=request.user.department).count()
+    in_progress = IssueDB.objects.filter(status__in=["Assigned to Worker","In Progress","Escalation Rejected","Extension Rejected","Assigned to Foreman"],reported_dept_id=request.user.department).count()
     completed = IssueDB.objects.filter(status="Completed",reported_dept_id=request.user.department).count()
     extended = IssueDB.objects.filter(status__in=["Extension Approved","Extension Pending"],reported_dept_id=request.user.department).count()
     escalated = IssueDB.objects.filter(status__in=["Escalation Approved","Escalation Pending"],reported_dept_id=request.user.department).count()
@@ -331,9 +331,12 @@ def user_login(request):
         else:
             messages.error(request, 'Invalid username or password.')
             return redirect('user_login')
+            
+
         
     return render(request, 'login.html')
-
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 @login_required
 def report_issue(request):
     user_role=request.user.role_id
@@ -363,6 +366,29 @@ def report_issue(request):
                         department = Department.objects.get(dept_name=department_name)
                         issue.assigned_dept = department
                         issue.status = 'Assigned to Foreman' 
+                        issue.save()
+                       
+                        issue_link = request.build_absolute_uri(reverse('issue_details', args=[issue.issue_id]))
+                        admin_user = CustomUser.objects.filter(id=6).first()  
+                        if admin_user:
+                           Notification.objects.create(
+                           user=admin_user,
+                           message=f"New issue reported by {request.user.username}: {issue.issue_category}. "
+                                        f"Location: {issue.reported_dept_id}. "
+                                        f"Status: {issue.status}. "
+                                        f"Priority: {issue.priority}. "
+                                        )
+                        foreman_user = CustomUser.objects.filter(role_id=3,department_id=issue.assigned_dept).first()  
+                        if foreman_user:
+                           Notification.objects.create(
+                           user=foreman_user,
+                           message=(
+                              f"New issue assigned to your department: {issue.issue_category}. "
+                              f"Reported by: {request.user.username}. "
+                              f"Location: {issue.reported_dept_id}. "
+                              f"Status: {issue.status}. ",
+                              ),issue_link=issue_link
+                            )
                         
 
                     except Department.DoesNotExist:
@@ -400,11 +426,17 @@ def assigned_issues(request):
 def in_progress_issues(request):
     issues = IssueDB.objects.filter(status__in=['Assigned to Worker','In Progress'])
     return render(request, 'issue_management.html', {'issues': issues})
+def total_in_progress_issues(request):
+    issues = IssueDB.objects.filter(status__in=['Assigned to Worker','In Progress','Assigned to Foreman'])
+    return render(request, 'issue_management.html', {'issues': issues})
 def completed_issues(request):
     issues = IssueDB.objects.filter(status='Completed')
     return render(request, 'issue_management.html', {'issues': issues})
 def escalated_issues(request):
     issues = IssueDB.objects.filter(status__in=['Escalation Pending','Escalation Approved','Escalation Rejected'])
+    return render(request, 'issue_management.html', {'issues': issues})
+def extended_issues(request):
+    issues = IssueDB.objects.filter(status__in=['Extension Pending','Extension Approved','Extension Rejected'])
     return render(request, 'issue_management.html', {'issues': issues})
 
 # List all issues by admin
@@ -587,10 +619,31 @@ def escalated_tasks(request):
      dept = request.user.department
      issues = IssueDB.objects.filter(assigned_dept_id=dept,status__in=['Escalation Pending', 'Escalation Approved'])
      return render(request, 'assign_tasks.html', {'issues': issues})
+from django.utils.timezone import now
+
+
+def overdue_tasks(request):
+     # = IssueDB.objects.filter(status='Escalation Pending' or 'Escalation Rejected')
+     dept = request.user.department
+     today = now().date()
+     issues = IssueDB.objects.filter(status="Assigned to Worker")
+     for i in issues:
+         tasks = Task.objects.filter(issue_id=i.issue_id)
+         for task in tasks:
+            if task.due_date and task.due_date < today:
+                i.status = "Overdue"
+                i.save()
+     issues = IssueDB.objects.filter(assigned_dept_id=dept,status='Overdue')
+     return render(request, 'assign_tasks.html', {'issues': issues})
 
 def extended_tasks(request):
       dept = request.user.department
       issues = IssueDB.objects.filter(assigned_dept_id=dept,status='Extension Pending')
+      return render(request, 'assign_tasks.html', {'issues': issues})
+
+def verified_tasks(request):
+      dept = request.user.department
+      issues = IssueDB.objects.filter(assigned_dept_id=dept,status='Resolved')
       return render(request, 'assign_tasks.html', {'issues': issues})
 
 def foreman_assign(request,pk):
@@ -611,6 +664,15 @@ def foreman_assign(request,pk):
                 status='Assigned to Worker',
                 changed_by=request.user
             )
+            issue_link = request.build_absolute_uri(
+                reverse('details', args=[Task.task_id])
+            )
+            Notification.objects.create(
+                user=Task.worker,  # Notify the assigned worker
+                message=f"You have been assigned a new task for issue {Task.issue_id.issue_id}.",
+                issue_link=issue_link  # Use reverse-generated link
+            )
+
             messages.success(request, 'Issue reported successfully!')
             return redirect('assign_tasks')  # Redirect to user dashboard or another page
     else:
@@ -669,6 +731,30 @@ def extension_update_status(request, pk):
             TaskImage.objects.create(task=task, image=image_file)
             messages.success(request, "Image uploaded successfully!")
         return redirect('extended_tasks')
+   
+
+def verify_status(request, pk):
+   if request.method == 'POST':
+        # Get the new status and progress description
+        new_status = request.POST.get('status')
+        issue = get_object_or_404(IssueDB, pk=pk)
+        # Update task status and progress
+        issue.status = new_status
+        issue.save()
+        IssueStatusChange.objects.create(
+            issue=issue,
+            status=new_status,
+            changed_by=request.user  # Assumes request.user is the one updating the status
+        )
+        messages.success(request, "Status updated successfully!")
+        
+       # Handle image upload if present
+        if request.FILES.get('image'):
+            image_file = request.FILES['image']
+            task = Task.objects.filter(issue_id=pk).first()
+            TaskImage.objects.create(task=task, image=image_file)
+            messages.success(request, "Image uploaded successfully!")
+        return redirect('issue_details', pk=pk)
 from django.http import JsonResponse
 
 
@@ -850,25 +936,36 @@ def track_issue(request):
 
     return render(request, 'track_issues.html', context)
 
-def issue_details(request,pk):
-    issue_id_query=pk
+
+
+def issue_details(request, pk):
+    issue_id_query = pk
+    task_images = []  # Initialize task_images to an empty list
+
     if issue_id_query:
         # Query for the issue
-            issue = IssueDB.objects.filter(issue_id=issue_id_query).first()
-
+        issue = IssueDB.objects.filter(issue_id=issue_id_query).first()
+        task = Task.objects.filter(issue_id=issue_id_query).first()  # Fetch related task
         
-            task = Task.objects.filter(issue_id=issue_id_query).first()
-            # Fetch status change history for the issue
-            status_history = IssueStatusChange.objects.filter(issue_id=issue_id_query).order_by('changed_at')
-            
-            context = {
-                'issue': issue,
-                'issue_status': issue.status,
-                'task': task if task else None,
-                'status_history': status_history,  # Pass the timeline data
-                'error': None
-            }
-    return render(request, 'forman_details.html', context)
+        if task:
+            task_images = TaskImage.objects.filter(task=task).order_by('uploaded_at')
+
+        # Fetch status change history for the issue
+        status_history = IssueStatusChange.objects.filter(issue_id=issue_id_query).order_by('changed_at')
+
+        context = {
+            'issue': issue,
+            'issue_status': issue.status if issue else None,
+            'task': task if task else None,
+            'status_history': status_history,  # Pass the timeline data
+            'error': None,
+            'images': task_images  # Now task_images is always defined
+        }
+
+        return render(request, 'forman_details.html', context)
+    
+    return render(request, 'forman_details.html', {'error': 'Invalid issue ID'})
+
 
 
 def issue_history(request):
@@ -932,7 +1029,7 @@ def reporter_assigned_tasks(request):
 
 def reporter_pending_tasks(request):
      dept = request.user.department
-     issues = IssueDB.objects.filter(reported_dept_id_id=dept,status__in=["Assigned to Worker","In Progress",'Escalation Rejected'])
+     issues = IssueDB.objects.filter(reported_dept_id_id=dept,status__in=["Assigned to Worker","In Progress",'Escalation Rejected',"Assigned to Foreman"])
      return render(request, 'issue_history.html', {'issues': issues})
 
 def reporter_completed_tasks(request):
@@ -945,22 +1042,80 @@ def reporter_escalated_tasks(request):
 
      return render(request, 'issue_history.html', {'issues': issues})
 
+# def worker_assigned_tasks(request):
+#     worker = request.user
+#     tasks = Task.objects.select_related('issue_id').filter(worker=worker)
+#     tasks_json = [
+#         {
+            
+#             "due_date": task.due_date.strftime('%Y-%m-%d') if task.due_date else None
+#         }
+#         for task in tasks if task.due_date
+#     ]  
+#     context = {
+#         'tasks': tasks, 
+#         'tasks_json': json.dumps(tasks_json)  # Convert the list to JSON string
+#     }
+   
+#     return render(request, 'view_tasks.html', context)
+
+
+from django.db.models import Q
+from datetime import date, timedelta
+import json
+
 def worker_assigned_tasks(request):
     worker = request.user
     tasks = Task.objects.select_related('issue_id').filter(worker=worker)
+
+    # Get filter values from request
+    time_filter = request.GET.get('timeFilter', '')
+    department_id = request.GET.get('department', '')
+    priority = request.GET.get('priority', '')
+    # start_date = request.GET.get('startDate', '')
+    # end_date = request.GET.get('endDate', '')
+    # start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    # end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+    department_names = Department.objects.filter(dept_id__range=(100, 200)).values_list('dept_name', flat=True)
+    department_ids = Department.objects.filter(dept_id__range=(100, 200)).values_list('dept_id', flat=True)
+
+    department_dict = dict(zip(department_names, department_ids))
+    # Apply Time Range Filter
+    if time_filter == 'thisYear':
+        tasks = tasks.filter(due_date__year=date.today().year)
+    elif time_filter == 'thisMonth':
+        tasks = tasks.filter(due_date__month=date.today().month)
+    elif time_filter == 'thisWeek':
+        start_of_week = date.today() - timedelta(days=date.today().weekday())
+        tasks = tasks.filter(due_date__gte=start_of_week)
+    # elif time_filter == 'dateRange' and start_date and end_date:
+    #     tasks = tasks.filter(due_date__range=[start_date, end_date])
+    #     print (tasks)
+
+    # Apply Department Filter
+    if department_id:
+        tasks = Task.objects.filter(issue_id__reported_dept_id=department_id)
+        print (tasks)
+    # Apply Priority Filter
+    if priority:
+        tasks = tasks.filter(issue_id__priority=priority)
+
     tasks_json = [
-        {
-            
-            "due_date": task.due_date.strftime('%Y-%m-%d') if task.due_date else None
-        }
+        {"due_date": task.due_date.strftime('%Y-%m-%d') if task.due_date else None}
         for task in tasks if task.due_date
-    ]  
+    ]
+
     context = {
-        'tasks': tasks, 
-        'tasks_json': json.dumps(tasks_json)  # Convert the list to JSON string
+        'tasks': tasks,
+        
+        'tasks_json': json.dumps(tasks_json),
+        # 'departments': {d.dept_name: d.dept_id for d in Department.objects.all()},
+        'departments': department_dict,
     }
-   
+
     return render(request, 'view_tasks.html', context)
+
 def worker_extended_tasks(request):
     worker = request.user
     tasks = Task.objects.select_related('issue_id').filter(worker=worker,issue_id__status='Extension Approved')
@@ -1126,15 +1281,7 @@ def generate_pdf_report(request):
     # Using timezone-aware start of the week for comparison
             issue_query = issue_query.filter(reported_date__gte=start_of_week_ist)
 
-    #     elif time_filter == 'dateRange' and start_date and end_date:
-    # # Convert start_date and end_date to timezone-aware datetimes (IST)
-    #        start_datetime_ist = timezone.make_aware(datetime.combine(start_date, datetime.min.time()), timezone_offset)
-    #        end_datetime_ist = timezone.make_aware(datetime.combine(end_date, datetime.min.time()) + timedelta(days=1), timezone_offset)
-
-    # # Using timezone-aware date range for filtering
-    #        issue_query = issue_query.filter(reported_date__range=[start_datetime_ist, end_datetime_ist])
-    #     logging.info(f"Filtered by time: {time_filter}, start_date: {start_date}, end_date: {end_date}")
-    #     logging.info(f"Generated query: {issue_query.query}")
+  
 
     
 
@@ -1155,6 +1302,11 @@ def generate_pdf_report(request):
           except Exception as e:
                logging.error(f"Error while processing date range: {e}")
                return HttpResponse(f"Invalid date range: {e}", status=400)
+
+
+        if not issue_query.exists():
+            return render(request, 'admin_reports.html', {'flag': 'True'})
+        
 
 
         total_issues = issue_query.count()
@@ -1194,8 +1346,8 @@ def generate_pdf_report(request):
         for issue in issues_data:
             issue['reported_date'] = issue['reported_date'].isoformat()
 
-        department_names = Department.objects.filter(dept_id__range=(100, 200)).values_list('dept_name', flat=True)
-        department_ids = Department.objects.filter(dept_id__range=(100, 200)).values_list('dept_id', flat=True)
+        department_names = Department.objects.filter(dept_id__range=(200, 300)).values_list('dept_name', flat=True)
+        department_ids = Department.objects.filter(dept_id__range=(200, 300)).values_list('dept_id', flat=True)
         department_dict = dict(zip(department_names, department_ids))
         task_queryset=Task.objects.all()
 
@@ -1294,7 +1446,8 @@ def generate_pdf_report(request):
             'low_priority': low_priority,
             'departments': department_dict,
             'issues_data': issue_query,
-            'task':task_queryset,
+            'task':task_queryset
+            
         }
 
         return render(request, 'report_template.html', context)
@@ -1305,12 +1458,93 @@ def generate_pdf_report(request):
     
 
 
- 
+
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Font
+from openpyxl.utils import get_column_letter
+
+def user_reports(request):
+    users = CustomUser.objects.all()
+    export_excel = request.GET.get('export_excel', 'false') == 'true'
+
+    if export_excel:
+        # Initialize workbook and sheet
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "User_Report"
+
+        # Define headers
+        headers = [
+            'SI.No', 'User Name', 'Full Name', 'Department', 'Role', 'Email', 'Date Joined'
+        ]
+
+        # Set header style (bold, uppercase, background color)
+        header_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+        header_font = Font(bold=True, color="000000")
+
+        # Add headers to the first row with styles
+        for col_num, heading in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            cell = sheet[f"{col_letter}1"]
+            cell.value = heading.upper()  # Uppercase the header text
+            cell.fill = header_fill
+            cell.font = header_font
+
+        # Add user data to the sheet
+        for index, user in enumerate(users, start=1):
+            sheet.append([
+                index,
+                user.username,
+                user.get_full_name(),
+                str(user.department),  # Assuming `department` is a field in CustomUser
+                str(user.role),        # Assuming `role` is a field in CustomUser
+                user.email, 
+                user.date_joined.strftime('%Y-%m-%d')
+            ])
+
+        # Set column widths for readability
+        for col_num in range(1, len(headers) + 1):
+            col_letter = get_column_letter(col_num)
+            sheet.column_dimensions[col_letter].width = 20
+
+        # Prepare response with the Excel file
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename="user_report.xlsx"'
+        workbook.save(response)
+        return response
+
+    # Render HTML template if not exporting Excel
+    return render(request, 'user_reports.html', {'users': users})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Function to generate a random password
+import string
+import random
+
 def generate_random_password(length=8):
-    chars = string.ascii_letters + string.digits + string.punctuation
+    chars = string.ascii_letters + string.digits  # Include only letters and numbers
     password = ''.join(random.choice(chars) for i in range(length))
     return password
+
 
 def bulk_upload_users(request):
     if request.method == 'POST' and request.FILES.get('excelFile'):
@@ -1356,10 +1590,12 @@ def bulk_upload_users(request):
         except Exception as e:
          print(f"An error occurred while creating the user: {e}")
 
+    users = CustomUser.objects.all()  # Fetch all users from the custom model
+    return render(request, 'user_management.html', {'users': users})
+
        
 
-    return render(request, 'add_user.html')  # Fallback if GET request
-
+    
 
 
 def send_password_email(to_email, password,username):
@@ -1394,6 +1630,422 @@ def password_change(request):
 
 
 
+def asset_management(request):
+    assets = AssetStock.objects.all()  # Fetch all users from the custom model
+    # return render(request, 'asset_management.html', {'assets': assets})
+
+
+    #Get query parameters
+    selected_location = request.GET.get('location', None)
+    status = request.GET.get('status', None)
+
+    # Apply location filter if selected
+    if selected_location:
+        assets = assets.filter(location_id=selected_location)
     
+    # Apply status filter if selected
+    if status:
+        assets = assets.filter(status=status)
+
+
+
+
+    next_due_dates = []
+    today = date.today()
+    # Calculate the next maintenance date for each asset
+    for i in assets:
+        # Calculate the next maintenance date
+        due_date = i.prev_maintenance_date + timedelta(days=i.maintenance_frequency)
+        
+        # Append the calculated due date to the list
+        next_due_dates.append(due_date)
+        if due_date - timedelta(days=2) <= today and i.status != 'Maintenance Scheduled':
+            i.status = 'Maintenance Due'
+            i.save()
+    # Optional: Flag variable (set to 0 for now)
+    flag = 0  
+
+
+
+
+
+        # Fetch location data correctly
+    location_names = Location.objects.values_list('name', flat=True)
+    location_ids = Location.objects.values_list('location_id', flat=True)
+    location_floors = Location.objects.values_list('floor', flat=True)
+    location_blocks = Location.objects.values_list('block', flat=True)
+
+    # Combine location details into a dictionary
+    location_dict = {
+        name: (loc_id, floor, block)
+        for name, loc_id, floor, block in zip(location_names, location_ids, location_floors, location_blocks)
+    }
+
+    context = {
+        'locations': location_dict,
+        'assets_with_due_dates': zip(assets, next_due_dates),
+        'selected_location': selected_location,  # To retain selected value in the dropdown
+        'selected_status': status,  # To retain selected value in the dropdown
+        'flag': 0
+    }
+
+    return render(request, 'asset_management.html', context)
+
+
+
+
+def add_stock(request):
+    if request.method == 'POST':
+        form = AssetStockForm(request.POST)
+        
+        # Handle new asset creation before form validation
+        if request.POST.get('asset') == 'other' and request.POST.get('new_asset_name'):
+            new_asset_name = request.POST.get('new_asset_name')
+            new_asset, created = Asset.objects.get_or_create(asset_name=new_asset_name)
+            request.POST = request.POST.copy()  # Make POST data mutable
+            request.POST['asset'] = new_asset.asset_id  # Update form data with new asset ID
+        
+        # Handle new location creation before form validation
+        if request.POST.get('location') == 'other' and request.POST.get('new_location_name'):
+            new_location_name = request.POST.get('new_location_name')
+            new_block_name = request.POST.get('new_block_name')
+            new_floor_name = request.POST.get('new_floor_name')
+            new_location, created = Location.objects.get_or_create(
+                name=new_location_name,
+                block=new_block_name,
+                floor=new_floor_name
+            )
+            request.POST = request.POST.copy()  # Make POST data mutable
+            request.POST['location'] = new_location.location_id  # Update form data with new location ID
+
+        form = AssetStockForm(request.POST)  # Re-initialize form with updated POST data
+        
+        if form.is_valid():
+            
+            form.save()
+            return redirect('asset_management')
+    else:
+        form = AssetStockForm()
+    
+    return render(request, 'add_asset.html', {'form': form})
+
+
+
+def upload_stock(request):
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            excel_file = request.FILES['excel_file']
+            
+            # Read the Excel file using pandas
+            df = pd.read_excel(excel_file)
+
+            for index, row in df.iterrows():
+                # Get or create Asset
+                asset, created = Asset.objects.get_or_create(asset_name=row['Asset Name'])
+
+                # Get or create Location
+                location, created = Location.objects.get_or_create(
+                    name=row['Location Name'],
+                    defaults={'block': row.get('Block'), 'floor': row.get('Floor')}
+                )
+                dept_instance = Department.objects.get(dept_name=row['Maintenance Department'])
+                # Create AssetStock
+                AssetStock.objects.create(
+                    asset=asset,
+                    location=location,
+                    purchase_date=row['Purchase Date'],
+                    cost=row['Cost'],
+                    maintenance_frequency=row['Maintenance Frequency'],
+                    status=row['Status'],
+                    prev_maintenance_date=row['Prev Maintenance Date'],
+                    maintenance_dept=dept_instance
+                )
+
+            messages.success(request, "Stock data uploaded successfully!")
+            return redirect('asset_management')
+    else:
+        form = ExcelUploadForm()
+
+    return render(request, 'bulk_add_stock.html', {'form_stock': form})
+
+
+
+def maintenance_due(request):
+    today = date.today()
+
+    assets = AssetStock.objects.all()  # Fetch all assets from the model
+    assets_with_due_dates = [] 
+
+    for asset in assets:
+        due_date = asset.prev_maintenance_date + timedelta(days=asset.maintenance_frequency)
+
+        if due_date - timedelta(days=2) <= today and asset.status != 'Maintenance Scheduled':
+            AssetStock.objects.filter(id=asset.id).update(status='Maintenance Due')  # Force DB update
+            asset.status = 'Maintenance Due'  # Update in memory
+            assets_with_due_dates.append((asset, due_date))
+
+    return render(request, 'asset_management.html', {
+        'assets_with_due_dates': assets_with_due_dates,
+    })
+
+
+
+
+def activeassets(request):
+    today = date.today()
+    assets = AssetStock.objects.filter(status='Active')
+    return render(request, 'asset_management.html', {'assets': assets})
+
+
+
+
+def inactiveassets(request):     
+    assets = AssetStock.objects.filter(status='Inactive') 
+    return render(request, 'asset_management.html', {'assets': assets})
+
+
+
+
+from django.shortcuts import redirect
+from django.contrib import messages
+from datetime import date, timedelta
+from .models import AssetStock, PreventiveMaintenanceSchedule
+from django.db import transaction
+
+
+
+from django.db import transaction
+
+from django.db import transaction
+from django.contrib import messages
+from datetime import date
+from .models import AssetStock, PreventiveMaintenanceSchedule
+
+def schedule_preventive(request):
+    today = date.today()
+
+    # Get only assets with "Maintenance due" status
+    due_assets = AssetStock.objects.filter(status="Maintenance Due")
+
+    if due_assets.exists():  # Ensure there are assets to process
+        with transaction.atomic():  # Ensure atomicity
+            for asset in due_assets:
+              if asset.status!="Maintenance Scheduled":
+                print(f"Updating asset {asset.stock_id} from {asset.status} to 'Maintenance Scheduled'")  # Debugging
+
+                # Create a Preventive Maintenance Schedule entry
+                PreventiveMaintenanceSchedule.objects.create(
+                    asset=asset.asset,
+                    stock=asset,
+                    assigned_dept=asset.maintenance_dept,
+                    status='Assigned to Foreman'
+                )
+
+                # Update the asset's status individually
+                asset.status = 'Maintenance Scheduled'
+                asset.save()  # Save only the status field
+                print(f"Updating asset status: {asset.status}")
+  # 
+
+        messages.success(request, "Assets assigned successfully!")
+
+    return redirect('asset_management')
+
+
+
+    
+def prev_schedules_admin(request):
+    schedules = PreventiveMaintenanceSchedule.objects.all()
+    schedule_data = []
+    for schedule in schedules:
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+        })
+
+    return render(request, 'prev_schedules_admin.html', {'schedule_data': schedule_data})
+#
+
+def preventive_foreman(request):
+    schedules = PreventiveMaintenanceSchedule.objects.filter(assigned_dept=request.user.department)
+   
+    schedule_data = []
+    for schedule in schedules:
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+        })
+
+    return render(request, 'prev_schedules_foreman.html', {'schedule_data': schedule_data})
+
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from myapp.models import PreventiveMaintenanceSchedule  # Ensure correct import
+
+def foreman_prev_assign(request, pk):
+    foreman = request.user  # Assuming the logged-in user is the foreman
+    dept_id = foreman.department_id  # Ensure 'dept_id' is available
+    assets = AssetStock.objects.all()  # Fetch all assets from the model
+    for i in assets:
+        due_date = i.prev_maintenance_date + timedelta(days=i.maintenance_frequency)
+    # Retrieve the specific schedule instance
+    schedule = get_object_or_404(PreventiveMaintenanceSchedule, pk=pk)
+    
+    if request.method == 'POST':
+        # Pass dept_id for filtering workers
+        form = Assign_prev_Form(request.POST, dept_id=dept_id)
+        if form.is_valid():
+            # Save the form and update schedule status
+            worker = form.cleaned_data['worker']
+            schedule.worker = worker
+            schedule.status = 'Assigned to Worker'  # Replace with your status constant if defined
+            schedule.save()
+
+            messages.success(request, 'Work assigned successfully!')
+            return redirect('preventive_foreman')  # Redirect to the desired page
+    else:
+        # Instantiate the form with dynamic worker options
+        form = Assign_prev_Form(dept_id=dept_id)
+
+    return render(request, 'prev_assign-foreman.html', {'form': form, 'schedule': schedule})
+
+
+def prev_task_worker(request):
+    worker = request.user
+    schedules = PreventiveMaintenanceSchedule.objects.filter(worker_id=worker)
+    schedule_data = []
+    for schedule in schedules:
+        # Calculate due date based on stock and asset maintenance frequency
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+        })
+
+    return render(request, 'prev_task_worker.html', {'schedule_data': schedule_data})
+
+
+def prev_details(request, pk):
+    schedules = PreventiveMaintenanceSchedule.objects.filter(schedule_id=pk).select_related('stock', 'asset')
+    schedule_data = []
+
+    for schedule in schedules:
+        # Calculate the due date
+        due_date = schedule.stock.prev_maintenance_date + timedelta(days=schedule.stock.maintenance_frequency)
+        
+        # Add data to the schedule_data list
+        schedule_data.append({
+            'schedule': schedule,
+            'due_date': due_date,
+            'asset': schedule.stock,  # Directly use the stock relation
+        })
+
+    return render(request, 'prev_task_details.html', {'schedule_data': schedule_data})
+
+def update_status_prev(request, pk):
+    if request.method == 'POST':
+        # Fetch the issue only once to reduce overhead
+        schedule = get_object_or_404(PreventiveMaintenanceSchedule, pk=pk)
+        status_updated = False  # Track if status was updated
+        stock_id = schedule.stock_id
+
+        # Update task status if provided
+        new_status = request.POST.get('status')
+        if new_status:
+            schedule.status = new_status
+            schedule.save()
+            status_updated = True
+        if new_status =="Resolved":
+            schedule.completed_date = datetime.now()
+            schedule.save()
+            status_updated = True
+            #asset_stock = AssetStock.objects.filter(stock_id=schedule.stock_id)
+            # asset_stock= get_object_or_404(AssetStock, stock_id=stock_id)
+            # asset_stock.prev_maintenance_date = datetime.now()
+            # asset_stock.save()
+            asset_stock = AssetStock.objects.filter(stock_id=stock_id).first()
+            if asset_stock:
+              asset_stock.status = 'Active'
+              asset_stock.prev_maintenance_date = datetime.now()
+              asset_stock.save()
+            else:
+              messages.error(request, f"No AssetStock found with stock_id: {stock_id}.")
+
+
+
+
+        # Feedback messages for status and comment updates
+        if status_updated:
+            messages.success(request, "Status updated successfully.")
+       
+
+        # If no valid inputs, show error
+        if not (new_status  or 'image' in request.FILES):
+            messages.error(request, "No changes detected. Please provide status, comment, or image.")
+
+        return redirect('prev_details',pk=pk)
+
+    # Optional: Handle GET request fallback
+    messages.error(request, "Invalid request method.")
+    return redirect('prev_details',pk=pk)
+
+
+def edit_asset(request,stock_id):
+    
+    asset = get_object_or_404(AssetStock, stock_id=stock_id)  # Fetch the asset using the provided stock_id
+
+    if request.method == 'POST':
+        form = AssetForm(request.POST, instance=asset)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Asset updated successfully!")
+            return redirect('asset_management')
+    else:
+        form = AssetForm(instance=asset)
+
+    # Provide asset details to populate the modal
+    return render(request, 'edit_asset.html', {'form_stock': form, 'asset': asset})
+
+
+def delete_asset(request, stock_id):
+    asset = get_object_or_404(AssetStock, stock_id=stock_id)
+    asset.delete()
+    messages.success(request, "Asset deleted successfully!")
+    return redirect('asset_management')
+
+
+
+
+
+
+
+
+from .models import Notification
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Notification
+
+
+
+def notifications(request):
+    notifications = Notification.objects.filter(is_read=False, user=request.user)
+    print(notifications)  
+    return render(request, 'notifications.html', {'notifications': notifications})
+
+
+def mark_notification_as_read(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id)
+    notification.is_read = True
+    notification.save()
+    return redirect('notifications')
+
 
 

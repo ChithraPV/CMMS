@@ -63,6 +63,7 @@ class IssueDB(models.Model):
         ('Extension Pending', 'Extension Pending'),
         ('Extension Approved', 'Extension Approved'),
         ('Extension Rejected', 'Extension Rejected'),
+        ('Overdue', 'Overdue'),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     comment = models.CharField(max_length=100,null=True, blank=True)
@@ -163,3 +164,88 @@ class IssueStatusChange(models.Model):
     def __str__(self):
         return f"Issue {self.issue.issue_id} - {self.status} on {self.changed_at}"
     
+
+class Location(models.Model):
+    location_id = models.AutoField(primary_key=True)  # Auto-increment ID
+    name = models.CharField(max_length=100, unique=True)  # Location name (e.g., "Library", "Lab A")
+    # Choices for buildings and floors
+    block = models.CharField(max_length=100, blank=True, null=True)
+    floor = models.CharField(max_length=50, blank=True, null=True)
+    def __str__(self):
+        return self.name
+
+    
+# Asset type (e.g., Computer, Printer)
+class Asset(models.Model):
+    asset_id = models.AutoField(unique=True, primary_key=True)  # Unique ID for asset type
+    asset_name = models.CharField(max_length=100)  # Name of the asset type (e.g., Computer)
+   
+    def __str__(self):
+        return self.asset_name
+    
+# Individual asset instance (e.g., a specific computer, printer)
+class AssetStock(models.Model):
+    stock_id = models.AutoField(unique=True, primary_key=True)  # Unique ID for each individual asset
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE)  # Asset type reference
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)  # ForeignKey to Location    prev_maintenance_date = models.DateField()  # Last maintenance date for this specific asset
+    prev_maintenance_date = models.DateField(default=timezone.now)    
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+        ('Maintenance Due', 'Maintenance Due'),
+        ('Maintenance Scheduled', 'Maintenance Scheduled'),
+    
+    ]
+    status = models.CharField(max_length=50,choices=STATUS_CHOICES,default='Active')  # Status of the asset
+    purchase_date = models.DateField(default=timezone.now)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Cost of the asset
+    maintenance_frequency = models.IntegerField(default=30)  # Frequency of maintenance (in days)
+    maintenance_dept = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)  
+
+    
+    
+    def __str__(self):
+        return f'{self.asset.asset_name} ({self.stock_id})'
+    
+
+
+
+
+
+# Preventive maintenance schedule
+class PreventiveMaintenanceSchedule(models.Model):
+    schedule_id = models.AutoField(primary_key=True) # Primary Key
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="maintenance_schedules")
+    stock = models.ForeignKey(AssetStock, on_delete=models.CASCADE, related_name="maintenance_schedules")
+    assigned_dept = models.ForeignKey(Department,  null=True, blank=True,related_name='prev_issues', on_delete=models.CASCADE)
+    worker = models.ForeignKey(CustomUser,null=True, blank=True,on_delete=models.CASCADE)  # Foreign key to Worker table
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Assigned to Foreman', 'Assigned to Foreman'),
+        ('Assigned to Worker', 'Assigned to Worker'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+    ]
+    status = models.CharField(max_length=20,choices=STATUS_CHOICES,default='pending')
+    scheduled_date = models.DateTimeField(auto_now_add=True)
+    completed_date = models.DateTimeField(null=True, blank=True)
+    class Meta:
+        ordering = ['scheduled_date']
+        verbose_name = "Preventive Maintenance Schedule"
+        verbose_name_plural = "Preventive Maintenance Schedules"
+    def __str__(self):
+        return f"Schedule {self.schedule_id} - Asset {self.asset.asset_name} (Stock: {self.stock.stock_id}) - Status: {self.status}"
+
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    issue_link = models.URLField(blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.message[:50]}"
+
+

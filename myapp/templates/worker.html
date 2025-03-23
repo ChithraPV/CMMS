@@ -124,7 +124,13 @@
                {% endif %}
                <li><a href="{% url 'worker_dashboard' %}">Home</a></li>
                <li><a href="{% url 'worker_assigned_tasks' %}">Tasks</a></li>
+               <li><a href="{% url 'prev_task_worker' %}">Preventive</a></li>
                <li><a href="{% url 'calendar'%}">Calendar</a></li>
+               <div class="notification">
+                  <a href="{% url 'notifications' %}">
+                  <i class="fa fa-bell"></i>
+                  <span class="badge" id="notificationCount"></span></a>
+              </div>
                <li>
                   <div class="profile-dropdown">
                      <img src="{% static 'icons/profile.png' %}" width="30px" height="30px" alt="Profile" class="profile-icon">

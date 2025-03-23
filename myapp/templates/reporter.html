@@ -114,7 +114,7 @@
    <body>
       <nav id="desktop-nav">
          {% if role == 1 %}
-         {{role}}
+         {% comment %} {{role}} {% endcomment %}
          <div class="logo">CFMMS ISSUE REPORTER</div>
          {% else %}
          {{role}}
@@ -131,6 +131,11 @@
                <li><a href="{% url 'report_issue' %}">Report Issues</a></li>
                <li><a href="{%url 'track_issue' %} ">Track issues</a></li>
                <li><a href="{%url 'issue_history' %}">Issue History</a></li>
+               <div class="notification">
+                  <a href="{% url 'notifications' %}">
+                  <i class="fa fa-bell"></i>
+                  <span class="badge" id="notificationCount"></span></a>
+              </div>
                <li>
                   <div class="profile-dropdown">
                      <img src="{% static 'icons/profile.png' %}" width="30px" height="30px" alt="Profile" class="profile-icon">

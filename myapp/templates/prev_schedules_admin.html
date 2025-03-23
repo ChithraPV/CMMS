@@ -1,0 +1,65 @@
+{% extends 'admin.html' %}
+{% block content %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preventive Maintenance Schedules</title>
+  
+</head>
+<body>
+    <div class="container">
+        
+        
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped text-center">
+                       <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Asset Name</th>
+                    <th>Stock ID</th>
+                    <th>Assigned Department</th>
+                    <th>Status</th>
+                    <th>Scheduled Date</th>
+                    <th>Due Date</th>
+                    <th>Completed Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in schedule_data %}
+                <tr>
+                    <td>{{ item.schedule.schedule_id }}</td>
+                    <td>{{ item.schedule.asset.asset_name }}</td>
+                    <td>{{ item.schedule.stock.stock_id }}</td>
+                    <td>{{ item.schedule.assigned_dept }}</td>
+                    <td>{{ item.schedule.status|title }}</td>
+                    <td>{{ item.schedule.scheduled_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ item.due_date|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if item.schedule.completed_date %}
+                            {{ item.schedule.completed_date|date:"Y-m-d H:i" }}
+                        {% else %}
+                            Not Completed
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No preventive maintenance schedules found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    $(document).ready(function() {
+        $('#importButton').click(function() {
+          
+          $('.excel').show();   // Show the bulk upload form
+        });
+      });
+      </script>
+</html>
+{% endblock %}

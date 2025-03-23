@@ -119,6 +119,19 @@
          background-color: #388e3c;
          transform: scale(0.98);
          }
+     
+
+            .filter-container {
+               display: flex;
+               flex-wrap: wrap; /* Ensures responsiveness */
+               gap: 1rem; /* Space between filters */
+               align-items: flex-end; /* Aligns fields properly */
+           }
+       
+           .filter {
+               flex: 1; /* Distributes space evenly */
+               min-width: 150px; /* Ensures proper sizing on small screens */
+           }
       </style>
    </head>
    <body>
@@ -131,6 +144,71 @@
       {% endif %}
       {% endfor %}
       {% endif %}
+      
+
+      <div class="row mb-3">
+         <form id="filterForm" method="GET" action="">
+             <div class="filter-container">
+                 <!-- Time Range Filter -->
+                 <div class="filter">
+                     <label for="timeFilter" class="form-label">Time Range</label>
+                     <select id="timeFilter" name="timeFilter" class="form-select select-dropdown" onchange="handleTimeFilterChange()">
+                         <option value="">All</option>
+                         <option value="thisYear" {% if request.GET.timeFilter == 'thisYear' %}selected{% endif %}>This Year</option>
+                         <option value="thisMonth" {% if request.GET.timeFilter == 'thisMonth' %}selected{% endif %}>This Month</option>
+                         <option value="thisWeek" {% if request.GET.timeFilter == 'thisWeek' %}selected{% endif %}>This Week</option>
+                         {% comment %} <option value="dateRange" {% if request.GET.timeFilter == 'dateRange' %}selected{% endif %}>Date Range</option> {% endcomment %}
+                     </select>
+                 </div>
+     
+                 <!-- Start Date -->
+                 {% comment %} <div class="filter" id="startDateContainer" style="display: none;">
+                     <label for="startDate" class="form-label">Start Date</label>
+                     <input type="date" id="startDate" name="startDate" class="form-control" value="{{ request.GET.startDate|default:'' }}">
+                 </div>
+     
+                 <!-- End Date -->
+                 <div class="filter" id="endDateContainer" style="display: none;">
+                     <label for="endDate" class="form-label">End Date</label>
+                     <input type="date" id="endDate" name="endDate" class="form-control" value="{{ request.GET.endDate|default:'' }}">
+                 </div> {% endcomment %}
+     
+                 <!-- Department Filter -->
+                 {% comment %} <div class="filter">
+                     <label for="department" class="form-label">Department</label>
+                     <select id="department" name="department" class="form-select select-dropdown" onchange="submitForm()">
+                         <option value="">All</option>
+                         {% for label, dept_id in departments.items %}
+                             <option value="{{ dept_id }}">{{ label }}</option>
+                         {% endfor %}
+                     </select>
+                 </div> {% endcomment %}
+
+                 <div class="filter col-md-2">
+                  <label for="department" class="form-label">Department</label>
+                  <select id="department" name="department" class="form-select select-dropdown" onchange="submitForm()">
+                      <option value="">All</option>
+                      {% for label, dept_id in departments.items %}
+                      <option value="{{ dept_id }}" {% if request.GET.department == dept_id|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+     
+                 <!-- Priority Filter -->
+                 <div class="filter">
+                     <label for="priority" class="form-label">Priority</label>
+                     <select id="priority" name="priority" class="form-select select-dropdown" onchange="submitForm()">
+                         <option value="">All</option>
+                         <option value="3" {% if request.GET.priority == '3' %}selected{% endif %}>High</option>
+                         <option value="2" {% if request.GET.priority == '2' %}selected{% endif %}>Medium</option>
+                         <option value="1" {% if request.GET.priority == '1' %}selected{% endif %}>Low</option>
+                     </select>
+                 </div>
+             </div>
+         </form>
+     </div>
+     
+      
       <div class="tabs">
          <div class="tab active">Table View</div>
       </div>
@@ -189,6 +267,39 @@
             </table>
          </div>
       </div>
+      <script>
+         // Ensure correct display of date range on load
+         document.addEventListener("DOMContentLoaded", function() {
+            // Ensure correct display without submitting on load
+            handleTimeFilterChange(false);
+        });
+        
+        // Toggle Date Range visibility
+        function handleTimeFilterChange(submit = true) {
+            const timeFilter = document.getElementById('timeFilter').value;
+            const startDateContainer = document.getElementById('startDateContainer');
+            const endDateContainer = document.getElementById('endDateContainer');
+        
+            // Show/Hide date inputs based on selection
+            /*const isDateRange = timeFilter === 'dateRange';
+            startDateContainer.style.display = isDateRange ? 'block' : 'none';
+            endDateContainer.style.display = isDateRange ? 'block' : 'none';*/
+        
+            // Only submit if requested (skip on page load)
+            if (submit) submitForm();
+        }
+        
+        // Debounce function to avoid rapid submissions
+        let submitTimeout;
+        function submitForm() {
+            clearTimeout(submitTimeout);
+            submitTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 300); // Delays submission by 300ms to prevent rapid calls
+        }
+        
+      </script>
    </body>
+  
 </html>
 {% endblock %}

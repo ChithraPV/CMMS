@@ -1,11 +1,11 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
    <head>
       <meta charset="UTF-8" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>My Portfolio</title>
+      <title>CFMMS</title>
       <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}" />
       <link rel="stylesheet" href="{% static 'css/mediaqueries.css' %}" />
@@ -46,6 +46,32 @@
          border-radius: 8px;
          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
          }
+         .notification {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            font-size: 25px; /* Increase the bell icon size */
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px; /* Adjust position */
+            right: -5px; /* Adjust position */
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;  /* Circle size */
+            height: 20px; /* Circle size */
+            font-size: 14px; /* Number size */
+            font-weight: bold;
+            text-align: center;
+            line-height: 20px; /* Center the number */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
          .counter {
          animation: fadeIn 1s ease-in-out;
          }
@@ -163,7 +189,7 @@
                {% endif %}
                <li><a href="{% url 'admin_dashboard' %}" onclick="toggleMenu()">Home</a></li>
                <li><a href="{% url 'user_management' %}"> Users</a></li>
-               <li><a href="#my_skills"> Assets</a></li>
+               <li><a href="{% url 'asset_management' %}"> Assets</a></li>
                <li><a href="{% url 'issue_management' %}"> Issues</a></li>
                <li>
                   <div class="profile-dropdown">
@@ -171,9 +197,14 @@
                      <div class="dropdown-content" display="none">
                         <a href="{% url 'reports' %}">Issue Reports</a>
                         <a href="">Users Reports</a>
-                        <a href="">Yearly Reports</a>
+                       
                      </div>
                   </div>
+                  <div class="notification">
+                     <a href="{% url 'notifications' %}">
+                     <i class="fa fa-bell"></i>
+                     <span class="badge" id="notificationCount"></span></a>
+                 </div>
                </li>
                <li>
                   <div class="profile-dropdown">
@@ -187,7 +218,7 @@
             </ul>
          </div>
       </nav>
-      <nav id="hamburger-nav">
+       <nav id="hamburger-nav">
          <div class="logo">CFMMS ADMIN</div>
          <div class="hamburger-menu">
             <div class="hamburger-icon" onclick="toggleMenu()" aria-label="Toggle Menu">
@@ -204,7 +235,43 @@
                <li><a href="{% url 'logout' %}" onclick="toggleMenu()"> Logout</a></li>
             </div>
          </div>
-      </nav>
+      </nav> 
+      <nav id="hamburger-nav">
+         <div class="logo">CFMMS ADMIN</div>
+         <div class="hamburger-menu">
+            <div class="hamburger-icon" onclick="toggleMenu()" aria-label="Toggle Menu">
+               <span></span>
+               <span></span>
+               <span></span>
+            </div>
+      <div class="menu-links">
+         <li><a href="{% url 'admin_dashboard' %}" onclick="toggleMenu()">Home</a></li>
+         <li><a href="{% url 'user_management' %}" onclick="toggleMenu()">Users</a></li>
+         <li><a href="#my_skills" onclick="toggleMenu()">Assets</a></li>
+         <li><a href="{% url 'issue_management' %}" onclick="toggleMenu()">Issues</a></li>
+      
+         <!-- Reports Dropdown -->
+         <li class="mobile-dropdown">
+            <a href="#" onclick="toggleDropdown('reports-dropdown')">Reports</a>
+            <ul id="reports-dropdown" class="dropdown-content mobile-dropdown-content">
+               <li><a href="{% url 'reports' %}" onclick="toggleMenu()">Issue Reports</a></li>
+               <li><a href="#" onclick="toggleMenu()">User Reports</a></li>
+               <li><a href="#" onclick="toggleMenu()">Yearly Reports</a></li>
+            </ul>
+         </li>
+      
+         <!-- Profile Dropdown -->
+         <li class="mobile-dropdown">
+            <a href="#" onclick="toggleDropdown('profile-dropdown')">
+               <img src="{% static 'icons/profile.png' %}" width="30px" height="30px" alt="Profile" class="profile-icon">
+            </a>
+            <ul id="profile-dropdown" class="dropdown-content mobile-dropdown-content">
+               <li><a href="{% url 'logout' %}" onclick="toggleMenu()">Logout</a></li>
+               <li><a href="{% url 'password_change' %}" onclick="toggleMenu()">Change Password</a></li>
+            </ul>
+         </li>
+      </div>
+          </nav>
       <div>
       {% block content%}
       <!-- Counters -->
@@ -219,7 +286,7 @@
          </div>
          <div class="col-6 col-md-3">
             <div class="counter bg-warning">
-               <a href='{% url 'in_progress_issues' %}'>
+               <a href='{% url 'total_in_progress_issues' %}'>
                <h3 id="ongoingIssues"style="color:white" >{{in_progress}}</h3>
                <h4 style="color:white">Ongoing Issues</h4>
                </a>
@@ -242,6 +309,8 @@
             </div>
          </div>
       </div>
+
+      
       <div class="row mb-3">
          <div class="filter col-md-2">
             <label for="timeFilter" class="form-label">Time Range</label>

@@ -1,0 +1,82 @@
+<!-- add_stock.html -->
+{% extends 'admin.html' %}
+{% block content %}
+
+<style>
+    #new-asset-name-container{
+        display: none;
+    }
+    #new_location_name_container{
+        display: none;
+    }
+</style>
+<!-- add_stock.html -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+  
+    <div id="new-asset-name-container">
+      <label for="id_new_asset_name">New Asset Name</label>
+      <input type="text" name="new_asset_name" id="id_new_asset_name" />
+    </div>
+
+
+   
+
+    <div id="new_location_name_container">
+
+
+
+        <label for="new_location_name">New Location Name</label>
+        <input type="text" name="new_location_name" id="new_location_name"  />
+        <label for="new_block_name">Block</label>
+        <select name="new_block_name" id="new_block_name">
+            <option value="" disabled selected>Select a block</option>
+            <option value="Academic Block">Academic Block </option>
+            <option value="Administrative Block">Administrative Block</option>
+            <option value="Jubilee Block">Jubilee Block </option>
+        </select>
+        
+        <label for="new_floor_name">Floor</label>
+        <select name="new_floor_name" id="new_floor_name">
+            <option value="" disabled selected>Select a floor</option>
+            <option value="Ground Floor">Ground Floor </option>
+            <option value="First Floor">First Floor</option>
+            <option value="Second Floor">Second Floor </option>
+            <option value="Third Floor">Third Floor </option>
+            <option value="Fourth Floor">Fourth Floor </option>
+        </select>
+        
+    </div>
+  
+    <button type="submit">Add Stock</button>
+  </form>
+  
+  <script>
+    const assetSelect = document.getElementById('id_asset');
+    const locationSelect = document.getElementById('id_location');
+    const newAssetNameContainer = document.getElementById('new-asset-name-container');
+    const newLocationNameContainer = document.getElementById('new_location_name_container');
+  
+    // Show the 'New Asset Name' input field if 'Other' is selected
+    assetSelect.addEventListener('change', function() {
+        if (assetSelect.value === 'other') {  // 'Other' option selected
+            newAssetNameContainer.style.display = 'block';
+        } else {
+            newAssetNameContainer.style.display = 'none';
+        }
+    });
+
+    // Show the 'New Location Name' input field if 'Other' is selected
+    locationSelect.addEventListener('change', function() {
+        if (locationSelect.value === 'other') {  // 'Other' option selected
+            newLocationNameContainer.style.display = 'block';
+        } else {
+            newLocationNameContainer.style.display = 'none';
+        }
+    });
+</script>
+
+  
+{% endblock %}
+  

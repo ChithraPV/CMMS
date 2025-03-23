@@ -545,7 +545,7 @@
          <div class="button-group">
             <button class="button start" 
             onclick="handleStart({{ task.issue_id.issue_id }})" 
-            {% if task.issue_id.status == "In Progress"  or  task.issue_id.status == "Completed" or task.issue_id.status == "Escalation Pending" or task.issue_id.status == "Escalation Approved" or task.issue_id.status == "Escalation Rejected" or task.issue_id.status == "Extension Pending" or task.issue_id.status == "Extension Rejected" or task.issue_id.status == "Extension Approved"%}
+            {% if task.issue_id.status == "In Progress"  or task.issue_id.status == "Overdue" or task.issue_id.status == "Completed" or task.issue_id.status == "Escalation Pending" or task.issue_id.status == "Escalation Approved" or task.issue_id.status == "Escalation Rejected" or task.issue_id.status == "Extension Pending" or task.issue_id.status == "Extension Rejected" or task.issue_id.status == "Extension Approved"%}
             disabled
             title="This task has already been started"
             {% endif %}>
@@ -568,7 +568,7 @@
             disabled
             title="This task has already completed"
             {% endif %}>Escalate Task</button>
-            <button class="button extend" onclick="openExtensionModal()"{% if task.issue_id.status == "Completed"%}
+            <button class="button escalate" onclick="openExtensionModal()"{% if task.issue_id.status == "Completed"%}
             disabled
             title="This task has already completed"
             {% endif %}>Extend Due Date</button>

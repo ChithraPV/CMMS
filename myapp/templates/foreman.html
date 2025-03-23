@@ -124,9 +124,18 @@
                <li class="welcome-message">Welcome, {{ user.first_name }}</li>
                <!-- Display username -->
                {% endif %}
+               {% comment %} <div>
+                  <a href="{% url 'notifications' %}">Notifications</a>
+               </div> {% endcomment %}
                <li><a href="{% url 'foreman_dashboard' %}">Home </a></li>
                <li><a href="{% url 'assign_tasks' %}"> Tasks</a></li>
-               <li><a href="#my_skills"> Reports</a></li>
+               <li><a href="{% url 'preventive_foreman' %}">Preventive</a></li>
+               {% comment %} <li><a href="#my_skills"> Reports</a></li> {% endcomment %}
+               <div class="notification">
+                  <a href="{% url 'notifications' %}">
+                  <i class="fa fa-bell"></i>
+                  <span class="badge" id="notificationCount"></span></a>
+              </div>
                <li>
                   <div class="profile-dropdown">
                      <img src="{% static 'icons/profile.png' %}" width="30px" height="30px" alt="Profile" class="profile-icon">

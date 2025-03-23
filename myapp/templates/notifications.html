@@ -1,0 +1,146 @@
+{% comment %} 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        li {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Notifications</h1>
+    <ul>
+        {% if notifications %}
+    <ul>
+        {% for notification in notifications %}
+            <li>
+                {{ notification.message }}
+                <br>
+                <small>{{ notification.created_at }}</small>
+                {% if notification.issue_link %}
+                    <a href="{{ notification.issue_link }}" target="_blank">View Issue</a>
+                {% else %}
+                    N/A
+                {% endif %}
+                {% if not notification.is_read %}
+                    <a href="{% url 'mark_notification_as_read' notification.id %}">Mark as Read</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No new notifications.</p>
+{% endif %}
+
+    </ul>
+    
+    <script>
+        const ws = new WebSocket('ws://localhost:8000/ws/notifications/');
+
+        ws.onmessage = function(event) {
+            const notification = JSON.parse(event.data);
+            alert(`New Notification: ${notification.message}`);
+            location.reload(); // Refresh page on new notification
+        };
+    </script>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        .notification {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timestamp {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-top: 5px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Notifications</h1>
+    
+    {% if notifications %}
+        {% for notification in notifications %}
+            <div class="notification">
+                <p>{{ notification.message }}</p>
+                <small class="timestamp">{{ notification.created_at }}</small>
+                <br>
+                {% comment %} {% if notification.issue_link %}
+                    <a href="{{ notification.issue_link }}" target="_blank">View Issue</a>
+                {% endif %} {% endcomment %}
+                {% if notification.issue_link %}
+                <a href="{{ notification.issue_link }}" target="_blank"><button class="btn"> View Issue</button></a>
+            {% endif %}
+                   {% if not notification.is_read %}
+                    <form method="POST" action="{% url 'mark_notification_as_read' notification.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn">Mark as Read</button>
+                    </form>
+                   
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No new notifications.</p>
+    {% endif %}
+</body>
+</html>

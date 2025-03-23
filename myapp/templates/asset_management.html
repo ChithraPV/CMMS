@@ -1,0 +1,279 @@
+<!-- templates/admin/user_management.html -->
+{% extends 'admin.html' %}
+ {% block content %} 
+<style>
+   /* General styling for search form */
+   .search-form {
+   display: flex;
+   justify-content: center;
+   gap: 10px; /* Adds some spacing between the input and button */
+   }
+   .search-input {
+   flex-grow: 1;
+   padding: 8px;
+   font-size: 16px;
+   border: 1px solid #ccc;
+   border-radius: 4px;
+   }
+   .search-button {
+   padding: 8px 16px;
+   font-size: 16px;
+   background-color: #007bff;
+   color: white;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   }
+   .search-button:hover {
+   background-color: #0056b3;
+   }
+   /* Mobile styling */
+   @media (max-width: 480px) {
+   .search-form {
+   flex-direction: column; /* Stacks the input and button */
+   align-items: stretch; /* Makes them fill the width */
+   }
+   .search-input,
+   .search-button {
+   width: 100%;
+   }
+   }
+
+   /* Style for the button container */
+   .button-container {
+   display: flex;
+   gap: 15px;
+   flex-wrap: wrap;
+   justify-content: center;
+   margin-top: 20px;
+   }
+   /* Style for each button */
+   .action-button {
+   background-color: #4CAF50; /* Green */
+   color: white;
+   font-size: 16px;
+   padding: 10px 20px;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   transition: background-color 0.3s ease, transform 0.2s ease;
+   }
+   /* Hover effect for buttons */
+   .action-button:hover {
+   background-color: #45a049;
+   transform: scale(1.05);
+   }
+   /* Focus effect for buttons */
+   .action-button:focus {
+   outline: none;
+   border: 2px solid #2e7d32;
+   }
+   /* Active (clicked) effect for buttons */
+   .action-button:active {
+   background-color: #388e3c;
+   transform: scale(0.98);
+   }
+
+   /* Modal Background */
+   /* Modal Background */
+   #scheduleModal {
+       display: none; 
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       background-color: rgba(0, 0, 0, 0.5);
+       z-index: 1000;
+       display: none;
+       justify-content: center;
+       align-items: center;
+   }
+   #editModal {
+      display: none; 
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+  }
+   
+   /* Modal Content */
+   .modal-content {
+       background-color: #fff;
+       padding: 20px;
+       border-radius: 8px;
+       width: 400px;
+       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+       text-align: center;
+       position: relative;
+   }
+   
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+}
+
+/* Style the Select Dropdown */
+.form-group {
+    margin-top: 20px;
+    width:auto;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+</style>
+<div class="row mb-4 screen">
+
+<div class="filter col-md-2">
+   <label for="locFilter" class="form-label">Location</label>
+   <select id="locFilter" class="form-select select-dropdown" onchange="handleTimeFilterChange()">
+      <option value="">All</option>
+      {% for name, details in locations.items %}
+      <option value="{{ details.0 }}">
+         {{ details.2 }} , {{ details.1 }} , {{ name}}
+      </option>
+      {% endfor %}
+   </select>
+</div>
+
+
+ 
+   <div class="filter col-md-2">
+      <label for="status" class="form-label">Status</label>
+      <select id="status" class="form-select select-dropdown" onchange="handlestatusFilterChange()">
+         <option value="">All</option>
+         <option value="Active" {% if selected_status == "Active" %}selected{% endif %}>Active</option>
+         <option value="Inactive" {% if selected_status == "Inactive" %}selected{% endif %}>Inactive</option>
+         <option value="Maintenance Due" {% if selected_status == "Maintenance Due" %}selected{% endif %}>Maintenance Due</option>
+         <option value="Maintenance Scheduled" {% if selected_status == "Maintenance Scheduled" %}selected{% endif %}>Maintenance Scheduled</option>
+      </select>
+      
+   </div>
+   <div class="text-end mb-3">
+      <a href="{% url 'add_stock' %}" class="btn btn-success">Add New Asset</a>
+      <a href="{% url 'prev_schedules_admin' %}" class="btn btn-success">View schedules</a> 
+      <a href="{% url 'upload_stock' %}" id="importButton" class="btn btn-success">Import from excel</a> 
+      <a href="{% url 'schedule_preventive' %}" id="importButton" class="btn btn-success">Schedule</a> 
+   </div>
+   
+</div>
+   
+
+
+   <div class="table-responsive" id="asset-results">
+      <table class="table table-bordered table-striped text-center">
+         <thead class="table-dark">
+            <tr>
+               <th>Asset ID</th>
+               <th>Asset Name</th>
+               <th>Stock ID</th>
+               <th>Location</th>
+               <th>Maintenance Frequency</th>
+               <th>Last Maintenance Date</th>
+               <th>Next Maintenance Date</th>
+               <th>Status</th>
+               <th>Cost</th>
+               <th>Maintenance Department</th>
+               <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for asset, due_date in assets_with_due_dates %}
+            <tr>
+               <td>{{ asset.asset.asset_id }}</td>
+               <td>{{ asset.asset.asset_name }}</td>
+               <td>{{ asset.stock_id }}</td>
+               <td>{{ asset.location }}</td>
+               <td>{{ asset.maintenance_frequency }}</td>
+               <td>{{ asset.prev_maintenance_date }}</td>
+               <td>{{ due_date }}</td>
+               <td>{{ asset.status }}</td>
+               <td>{{ asset.cost }}</td>
+               <td>{{ asset.maintenance_dept }}</td>
+             
+              
+               <td class="d-flex justify-content-center gap-2">
+                
+                  
+                  <a href="{% url 'edit_asset' asset.stock_id %}"> 
+                     <button type="button" class="btn btn-warning btn-sm">Edit</button>
+                  </a>
+                  <a href="{% url 'delete_asset' asset.stock_id %}" onclick="return confirm('Are you sure?')" class="btn btn-danger btn-sm">Delete</a>
+                  
+                 
+
+   
+                
+               </td>
+               
+            </tr>
+            {% endfor %}
+
+            
+         </tbody>
+      </table>
+   </div>
+
+
+
+</div>
+<script>
+
+   function handleTimeFilterChange() {
+      var selectedValue = document.getElementById('locFilter').value;
+      window.location.href = window.location.pathname + '?location=' + selectedValue;
+   }
+   function handlestatusFilterChange() {
+      var status = document.getElementById('status').value;
+      window.location.href = window.location.pathname + '?status=' + status;
+   }
+   const status = document.getElementById('status').value;
+   const floor = document.getElementById('floor').value;
+   const block = document.getElementById('block').value;
+   const room = document.getElementById('room').value;
+   const asset = document.getElementById('asset').value;
+   
+
+// Function to show the modal
+function showModal(assetId) {
+   document.getElementById('scheduleModal').style.display = 'block';
+   document.getElementById('assetId').value = assetId; // Dynamically set the asset_id
+}
+
+// Function to hide the modal
+ function hideModal() {
+   document.getElementById('scheduleModal').style.display = 'none';
+} 
+
+function showeditModal(assetId) {
+   document.getElementById('editModal').style.display = 'block';
+   // Fetch data dynamically (if required) and populate fields
+   document.getElementById('stockId').value = assetId; // Example field ID
+}
+
+
+// Function to hide the modal
+ function hideeditModal() {
+   document.getElementById('editModal').style.display = 'none';
+} 
+</script>
+{% endblock %}

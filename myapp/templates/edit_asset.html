@@ -1,0 +1,8 @@
+<!-- templates/admin/edit_user.html -->
+{% extends 'admin.html' %} {% block content %}
+<h2>Edit Asset: </h2>
+<form method="post">
+  {% csrf_token %} {{ form_stock.as_p }}
+  <button type="submit">Update Asset</button>
+</form>
+{% endblock %}

@@ -148,7 +148,7 @@ a:hover {
 
 /* Form container styling */
 form {
-  width: 50%; /* Set a width for the form */
+  width: 70%; /* Set a width for the form */
   margin: 20px auto; /* Center the form horizontally */
   padding: 20px;
   background-color: #f9f9f9;
@@ -222,7 +222,7 @@ h2 {
 
 
 /* Table styles */
- table {
+ table  {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;

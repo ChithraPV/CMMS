@@ -97,10 +97,12 @@
          <option value="" disabled>Select an Action</option>
          <option value="{% url 'assign_tasks' %}">All</option>
          <option value="{% url 'assigned_tasks' %}">In Progress</option>
+         <option value="{% url 'overdue_tasks' %}">Overdue</option>
          <option value="{% url 'extended_tasks' %}">Extended</option>
          <option value="{% url 'completed_tasks' %}">Completed</option>
          <option value="{% url 'escalated_tasks' %}">Escalated</option>
          <option value="{% url 'pending_tasks' %}">Pending</option>
+         <option value="{% url 'verified_tasks' %}">Verified</option> 
       </select>
    </div>
 </form>
@@ -184,14 +186,15 @@
             {% endif %}
             {% if issue.status == 'Extension Pending' %}
             <!-- Button for updating priority -->
-            <td> <a href="{% url 'extension_details' pk=issue.issue_id %}" class="btn btn-danger">Extend</a></td>
+            <td> <a href="{% url 'extension_details' pk=issue.issue_id %}" class="btn btn-danger">Review Extension</a></td>
             {% comment %} <a href="{% url 'update_priority' issue.issue_id %}">Set Priority</a> {% endcomment %}
             {% endif %}
             {% if issue.status == 'Escalation Pending' %}
             <!-- Button for updating priority -->
-            <td> <a href="{% url 'escalation_details' pk=issue.issue_id %}" class="btn btn-danger">Escalate</a></td>
+            <td> <a href="{% url 'escalation_details' pk=issue.issue_id %}" class="btn btn-danger">Review Escalation</a></td>
             {% comment %} <a href="{% url 'update_priority' issue.issue_id %}">Set Priority</a> {% endcomment %}
             {% endif %}
+           
          </tr>
          <div id="priorityModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
             <h2>Update Priority</h2>

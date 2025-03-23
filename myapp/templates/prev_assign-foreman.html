@@ -1,0 +1,16 @@
+{% extends 'foreman.html' %}
+
+{% block content %}
+<style>
+    /* General form styles */
+    form {
+        width: 50%;
+    }
+</style>
+<h2>Assign Work</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Assign</button>
+</form>
+{% endblock %}

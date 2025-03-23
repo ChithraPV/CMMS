@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'push_notifications',
+   
 ]
 
 MIDDLEWARE = [
@@ -182,9 +183,9 @@ EMAIL_HOST_PASSWORD = 'idxt tvla opwx gpnf'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
 
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: store sessions in the database
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 3600  # 1 hour
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: store sessions in the database
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# SESSION_COOKIE_AGE = 3600  # 1 hour
 
 LOGIN_URL = '/'
 

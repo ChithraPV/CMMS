@@ -1,0 +1,25 @@
+<!-- add_stock.html -->
+{% extends 'admin.html' %}
+{% block content %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Stock</title>
+</head>
+<body>
+    <h4 style="text-align:center">Upload Asset Stock via Excel</h4>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form_stock.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+{% endblock %}
