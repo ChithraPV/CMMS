@@ -318,7 +318,7 @@ def edit_user(request, user_id):
         form = UserForm(request.POST, instance=user)
         if form.is_valid():
             user = form.save(commit=False)  # Don't save the user just yet
-            user.password = make_password(user.password)  # Hash the password
+            # user.password = make_password(user.password)  # Hash the password
             form.save()
             messages.success(request, "User updated successfully!")
             return redirect('user_management')
@@ -348,20 +348,23 @@ def report_issue(request):
             # Check for categories that map to departments
             category_to_dept_map = {
                 'Electrical Maintenance': 'ELECTRONICS',
-                'Plumbing Maintenance': 'Plumbing Department',
-                'HVAC': 'HVAC Department',
-                'Building Maintenance': 'Building Department',
+                'Plumbing Maintenance': 'PLUMBING',
+                'HVAC (Heating, Ventilation, and Air Conditioning)': 'HVAC',
+                'Building & Structural Maintenance': 'BUILDING',
                 'Furniture Maintenance': 'CARPENTRY',
-                'IT & Computer Equipment Maintenance': 'IT Department',
-                'Landscape & Groundskeeping': 'Groundskeeping Department',
+                'IT & Computer Equipment Maintenance': 'IT',
+                'Landscape & Groundskeeping': 'GROUNDSKEEPING',
             }
 
             # If it's "Others," leave unassigned for admin to assign
             if issue.issue_category != 'Others':
                 department_name = category_to_dept_map.get(issue.issue_category)
+                
+
                 if department_name:
                     try:
-                        department = Department.objects.get(dept_name=department_name)
+                        # department = Department.objects.get(dept_name=department_name)
+                        department = Department.objects.get(dept_name__iexact=department_name)
                         issue.assigned_dept = department
                         issue.status = 'Assigned to Foreman' 
                         issue.save()
@@ -1579,6 +1582,7 @@ def bulk_upload_users(request):
                       email=row['email'],
                       role=role_instance,  
                       department=dept_instance,
+                      
                     )
 
                   user.set_password(password)
@@ -1596,7 +1600,9 @@ def bulk_upload_users(request):
        
 def send_password_email(to_email, password,username):
     subject = "Your CFMMS User Credentials"
+    # message = f"Hello,\n\nYour CFMMS account has been created.\nUsername : {username}\nPassword : {password}\n\nPlease login and change it immediately."
     message = f"Hello,\n\nYour CFMMS account has been created.\nUsername : {username}\nPassword : {password}\n\nPlease login and change it immediately."
+
     from_email = settings.DEFAULT_FROM_EMAIL  
     send_mail(subject, message, from_email, [to_email])
 

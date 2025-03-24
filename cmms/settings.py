@@ -173,19 +173,30 @@ PUSH_NOTIFICATIONS_SETTINGS = {
 
 # settings.py
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use SMTP backend
-EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
-EMAIL_PORT = 587  # Use 587 for TLS, 465 for SSL
-EMAIL_USE_TLS = True  # Enable TLS for secure connection
-EMAIL_USE_SSL = False  # Disable SSL since TLS is enabled
-EMAIL_HOST_USER = 'cfmms07@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'idxt tvla opwx gpnf'  
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
-
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use SMTP backend
+# EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
+# EMAIL_PORT = 587  # Use 587 for TLS, 465 for SSL
+# EMAIL_USE_TLS = True  # Enable TLS for secure connection
+# EMAIL_USE_SSL = False  # Disable SSL since TLS is enabled
+# # EMAIL_HOST_USER = 'cfmms07@gmail.com'  # Replace with your email
+# EMAIL_HOST_USER = 'chithramohandas2004@gmail.com' 
+# # EMAIL_HOST_PASSWORD = 'idxt tvla opwx gpnf'  
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
+# EMAIL_HOST_PASSWORD = '12password@#'
 
 # SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: store sessions in the database
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 3600  # 1 hour
 
 LOGIN_URL = '/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use SMTP backend
+EMAIL_HOST = 'smtp.gmail.com'  # Gmail SMTP server
+EMAIL_PORT = 587  # Use 587 for TLS, 465 for SSL
+EMAIL_USE_TLS = True  # Enable TLS for secure connection
+EMAIL_USE_SSL = False  # Disable SSL since TLS is enabled
+EMAIL_HOST_USER = 'cmmsnew3@gmail.com' 
+EMAIL_HOST_PASSWORD = 'edlp gozx lijn zwoj'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
+
 
