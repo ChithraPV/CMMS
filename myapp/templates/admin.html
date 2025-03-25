@@ -175,12 +175,43 @@
          .profile-dropdown:hover .dropdown-content {
          display: block;
          }
+         .back-button {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 2px solid #4CAF50; 
+            border-radius: 8px;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .back-button i {
+            margin-right: 8px; /* Space between icon and text */
+            font-size: 18px; /* Adjust icon size */
+        }
+        
+        .back-button:hover {
+            background: #4CAF50; 
+            color: white;
+        }
+        
+        .back-button:active {
+            background: #388E3C; /* Darker shade on click */
+        }
+        
       </style>
       <!-- Other meta tags, CSS links, etc. -->
       <link rel="manifest" href="/static/manifest.json">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
    </head>
    <body>
       <nav id="desktop-nav">
+         <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
          <div class="logo">CFMMS ADMIN</div>
          <div>
             <ul class="nav-links">
@@ -196,7 +227,7 @@
                      <a href="">Reports</a>
                      <div class="dropdown-content" display="none">
                         <a href="{% url 'reports' %}">Issue Reports</a>
-                        <a href="">Users Reports</a>
+                        <a href="{% url 'user_reports' %}">Users Reports</a>
                        
                      </div>
                   </div>
@@ -237,6 +268,9 @@
          </div>
       </nav> 
       <nav id="hamburger-nav">
+         <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
          <div class="logo">CFMMS ADMIN</div>
          <div class="hamburger-menu">
             <div class="hamburger-icon" onclick="toggleMenu()" aria-label="Toggle Menu">

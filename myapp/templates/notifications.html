@@ -113,11 +113,42 @@
         .btn:hover {
             background: #0056b3;
         }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 2px solid #4CAF50; 
+            border-radius: 8px;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .back-button i {
+            margin-right: 8px; /* Space between icon and text */
+            font-size: 18px; /* Adjust icon size */
+        }
+        
+        .back-button:hover {
+            background: #4CAF50; 
+            color: white;
+        }
+        
+        .back-button:active {
+            background: #388E3C; /* Darker shade on click */
+        }
+      
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     </style>
 </head>
 <body>
     <h1>Notifications</h1>
-    
+    <a href="javascript:history.back()" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
     {% if notifications %}
         {% for notification in notifications %}
             <div class="notification">

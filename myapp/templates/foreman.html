@@ -113,10 +113,40 @@
          .profile-dropdown:hover .dropdown-content {
          display: block;
          } 
+         .back-button {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 2px solid #4CAF50; 
+            border-radius: 8px;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .back-button i {
+            margin-right: 8px; /* Space between icon and text */
+            font-size: 18px; /* Adjust icon size */
+        }
+        
+        .back-button:hover {
+            background: #4CAF50; 
+            color: white;
+        }
+        
+        .back-button:active {
+            background: #388E3C; /* Darker shade on click */
+        }
       </style>
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
    </head>
    <body>
       <nav id="desktop-nav">
+         <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
          <div class="logo">CFMMS FOREMAN</div>
          <div>
             <ul class="nav-links">
@@ -220,7 +250,7 @@
             <label for="endDate" class="form-label">End Date</label>
             <input type="date" id="endDate" class="form-control" onchange="checkDateRangeAndUpdateGraph()">
          </div>
-         <div class="filter col-md-2">
+         {% comment %} <div class="filter col-md-2">
             <label for="category" class="form-label">Category</label>
             <select id="category" class="form-select select-dropdown" onchange="updateGraph()">
                <option value="">All</option>
@@ -228,7 +258,7 @@
                <option value="{{ label }}">{{ label }}</option>
                {% endfor %}
             </select>
-         </div>
+         </div>  {% endcomment %}
          <div class="filter col-md-2">
             <label for="department" class="form-label">Department</label>
             <select id="department" class="form-select select-dropdown" onchange="updateGraph()">
@@ -381,7 +411,7 @@
          }
          
          
-           function updateGraph() {
+           {% comment %} function updateGraph() {
              const timeFilter = document.getElementById('timeFilter').value;
              const today = new Date();
              let fromDate, toDate;
@@ -427,7 +457,59 @@
              }
          
              createGraph(filteredData);
-         }
+         } {% endcomment %}
+
+         function updateGraph() {
+            const timeFilter = document.getElementById('timeFilter').value;
+            const today = new Date();
+            let fromDate, toDate;
+        
+            if (timeFilter === 'thisYear') {
+                fromDate = new Date(today.getFullYear(), 0, 1);
+                toDate = new Date(today.getFullYear(), 11, 31);
+            } else if (timeFilter === 'thisMonth') {
+                fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                toDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            } else if (timeFilter === 'thisWeek') {
+                const day = today.getDay();
+                fromDate = new Date(today);
+                fromDate.setDate(today.getDate() - day); // Start of the week
+                toDate = new Date(today);
+                toDate.setDate(today.getDate() + (6 - day)); // End of the week
+            } else if (timeFilter === 'dateRange') {
+                fromDate = new Date(document.getElementById('startDate').value);
+                toDate = new Date(document.getElementById('endDate').value);
+            }
+        
+            const priority = document.getElementById('priority').value;
+            const department = document.getElementById('department').value;
+        
+            // Ensure no errors if category dropdown is removed
+            const categoryDropdown = document.getElementById('category');
+            const category = categoryDropdown ? categoryDropdown.value : null;
+        
+            const filteredData = issuesData.filter(item => {
+                const itemDate = new Date(item.reported_date);
+        
+                return (
+                    (!fromDate || itemDate >= fromDate) &&
+                    (!toDate || itemDate <= toDate) &&
+                    (!priority || item.priority === parseInt(priority)) &&
+                    (!department || parseInt(item.reported_dept_id) === parseInt(department)) &&
+                    (!category || item.issue_category === category)
+                );
+            });
+        
+            console.log("Filtered Data:", filteredData);
+        
+            if (filteredData.length === 0) {
+                alert('No data matches the selected filters');
+                return;
+            }
+        
+            createGraph(filteredData);
+        }
+        
            createGraph(issuesData);
          
            // Pass category data from Django context to JavaScript

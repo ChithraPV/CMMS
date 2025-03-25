@@ -159,14 +159,14 @@
       <thead>
          <tr>
             <th onclick="sortTable(0)">ID</th>
-            <th>Asset Name</th>
-            <th>Stock ID</th>
-            <th>Assigned Department</th>
-            <th>Worker</th>
-            <th>Status</th>
-            <th>Scheduled Date</th>
-            <th>Due Date</th>
-            <th>Completed Date</th>
+            <th onclick="sortTable(1)">Asset Name</th>
+            <th onclick="sortTable(2)">Stock ID</th>
+            <th onclick="sortTable(3)">Assigned Department</th>
+            <th onclick="sortTable(4)">Worker</th>
+            <th onclick="sortTable(5)">Status</th>
+            <th onclick="sortTable(6)">Scheduled Date</th>
+            <th onclick="sortTable(7)">Due Date</th>
+            <th onclick="sortTable(8)">Completed Date</th>
             {% if show_actions %}
             <th>Actions</th>
             {% endif %}
@@ -321,26 +321,10 @@
        var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
        var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
    
-       // **Priority Column Sorting**
-       if (columnIndex === 6) {
-         // Remove decorative symbol and trim priority text
-         aText = aText
-           .replace(/\★|[\u273A]/g, "")
-           .trim()
-           .toLowerCase();
-         bText = bText
-           .replace(/\★|[\u273A]/g, "")
-           .trim()
-           .toLowerCase();
-   
-         // Define priority mapping
-         var priorityOrder = { high: 1, medium: 2, low: 3 };
-         aText = priorityOrder[aText] || 0;
-         bText = priorityOrder[bText] || 0;
-       }
+      
    
        // **Reported Date Column Sorting**
-       else if (columnIndex === 8) {
+       if (columnIndex === 8 || columnIndex === 6 || columnIndex === 7) {
          aText = parseCustomDate(aText).getTime() || 0;
          bText = parseCustomDate(bText).getTime() || 0;
        }

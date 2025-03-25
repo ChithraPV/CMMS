@@ -8,6 +8,10 @@
 </head>
 <body>
     <h4 style="text-align:center">Upload Asset Stock via Excel</h4>
+    <a href="{% url 'download_excel_template' %}" class="btn btn-success">Download Excel Format</a>
+    {% comment %} <div class="text-md-end mb-3">
+        <a href="{% url 'download_excel_template' %}" class="btn btn-success">Download Excel Format</a>
+    </div> {% endcomment %}
 
     {% if messages %}
         {% for message in messages %}

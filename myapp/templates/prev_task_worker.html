@@ -153,18 +153,18 @@
 
          <div id="table-view" class="view active">
             </form>
-            <table>
+            <table id="tasksTable">
                <thead>
                   <tr>
                     <th onclick="sortTable(0)">ID</th>
-                    <th>Asset Name</th>
-                    <th>Stock ID</th>
-                    <th>Assigned Department</th>
-                    <th>Worker</th>
-                    <th>Status</th>
-                    <th>Scheduled Date</th>
-                    <th>Due Date</th>
-                    <th>Completed Date</th>
+                    <th onclick="sortTable(1)">Asset Name</th>
+                    <th onclick="sortTable(2)">Stock ID</th>
+                    <th onclick="sortTable(3)">Assigned Department</th>
+                    <th onclick="sortTable(4)">Worker</th>
+                    <th onclick="sortTable(5)">Status</th>
+                    <th onclick="sortTable(6)">Scheduled Date</th>
+                    <th onclick="sortTable(7)">Due Date</th>
+                    <th onclick="sortTable(8)">Completed Date</th>
                     {% comment %} {% if show_actions %}
                     <th>Actions</th>
                     {% endif %} {% endcomment %}
@@ -221,5 +221,52 @@
          </div>
       </div>
    </body>
+   <script>
+      function sortTable(columnIndex) {
+         var table = document.getElementById("tasksTable");
+         var rows = Array.from(table.rows).slice(1); // Exclude header row
+         var headers = table.rows[0].cells; // Access table headers
+         var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
+       
+         // Remove sorting classes from all headers
+         Array.from(headers).forEach((header) => {
+           header.classList.remove("asc", "desc");
+         });
+       
+         // Helper function to parse the custom date format
+         function parseCustomDate(dateStr) {
+           return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
+         }
+       
+         // Sorting logic
+         rows.sort(function (a, b) {
+           var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+           var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+       
+          
+       
+           // **Reported Date Column Sorting**
+         if (columnIndex === 6 || columnIndex === 7 || columnIndex === 8) {
+             aText = parseCustomDate(aText).getTime() || 0;
+             bText = parseCustomDate(bText).getTime() || 0;
+           }
+       
+           // General sorting for other columns
+           if (isAscending) {
+             return aText > bText ? 1 : aText < bText ? -1 : 0;
+           } else {
+             return aText < bText ? 1 : aText > bText ? -1 : 0;
+           }
+         });
+       
+         // Append sorted rows back to the table
+         var tbody = table.querySelector("tbody");
+         rows.forEach((row) => tbody.appendChild(row));
+       
+         // Add sorting classes to the current header
+         headers[columnIndex].classList.toggle("asc", isAscending);
+         headers[columnIndex].classList.toggle("desc", !isAscending);
+       }
+   </script>
 </html>
 {% endblock %}

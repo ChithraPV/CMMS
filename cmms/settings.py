@@ -184,9 +184,9 @@ PUSH_NOTIFICATIONS_SETTINGS = {
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
 # EMAIL_HOST_PASSWORD = '12password@#'
 
-# SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: store sessions in the database
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: store sessions in the database
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 3600  # 1 hour
 
 LOGIN_URL = '/'
 

@@ -1021,7 +1021,7 @@ def calendar(request):
             "assigned_date": task.assigned_date.strftime('%Y-%m-%d') if task.assigned_date else None,
         }
         for task in tasks 
-        if task.due_date and task.due_date >= datetime.now().date()
+        if task.due_date and task.due_date >= datetime.now().date() and task.issue_id.status!='Completed'
     ]
     
     context = {
@@ -1408,9 +1408,15 @@ def generate_pdf_report(request):
                     task = task_queryset.filter(issue_id=issue.get('issue_id')).first()  # Assuming Task model has 'issue_id'
                     due_date = task.due_date if task else 'N/A'
                     assigned_worker_id = task.worker_id if task else 'N/A'
+                    # if assigned_worker_id != 'N/A':
+                    #       worker = CustomUser.objects.filter(id=assigned_worker_id).first()
+                    #       assigned_worker = worker.first_name +' '+worker.last_name
+
+                    assigned_worker = 'N/A'
                     if assigned_worker_id != 'N/A':
                           worker = CustomUser.objects.filter(id=assigned_worker_id).first()
-                          assigned_worker = worker.first_name +' '+worker.last_name
+                          assigned_worker = f"{worker.first_name} {worker.last_name}" if worker else 'N/A'
+
 
 
                     dept = Department.objects.filter(dept_id=issue['reported_dept_id']).first()
@@ -2000,6 +2006,19 @@ def mark_notification_as_read(request, notification_id):
     notification.is_read = True
     notification.save()
     return redirect('notifications')
+
+
+
+from django.http import FileResponse
+import os
+from django.conf import settings
+def download_excel_template(request):
+    file_path = os.path.join(settings.BASE_DIR, 'myapp/static/excel/import_asset_template.xlsx')
+    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='import_asset_template.xlsx')
+
+def download_user_excel_template(request):
+    file_path = os.path.join(settings.BASE_DIR, 'myapp/static/excel/import_user_template.xlsx')
+    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='import_user_template.xlsx')
 
 
 

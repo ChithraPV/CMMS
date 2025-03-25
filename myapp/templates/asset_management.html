@@ -180,20 +180,21 @@
 
 
    <div class="table-responsive" id="asset-results">
-      <table class="table table-bordered table-striped text-center">
+      <table class="table table-bordered table-striped text-center" id="assetTable">
          <thead class="table-dark">
             <tr>
-               <th>Asset ID</th>
-               <th>Asset Name</th>
-               <th>Stock ID</th>
-               <th>Location</th>
-               <th>Maintenance Frequency</th>
-               <th>Last Maintenance Date</th>
-               <th>Next Maintenance Date</th>
-               <th>Status</th>
-               <th>Cost</th>
-               <th>Maintenance Department</th>
-               <th>Actions</th>
+               
+               <th onclick="sortTable(0)">Asset ID</th>
+               <th onclick="sortTable(1)">Asset Name</th>
+               <th onclick="sortTable(2)">Stock ID</th>
+               <th onclick="sortTable(3)">Location</th>
+               <th onclick="sortTable(4)">Maintenance Frequency</th>
+               <th onclick="sortTable(5)">Last Maintenance Date</th>
+               <th onclick="sortTable(6)">Next Maintenance Date</th>
+               <th onclick="sortTable(7)">Status</th>
+               <th onclick="sortTable(8)">Cost</th>
+               <th onclick="sortTable(9)">Maintenance Department</th>
+               <th onclick="sortTable(10)">Actions</th>
             </tr>
          </thead>
          <tbody>
@@ -275,5 +276,50 @@ function showeditModal(assetId) {
  function hideeditModal() {
    document.getElementById('editModal').style.display = 'none';
 } 
+
+
+function sortTable(columnIndex) {
+   var table = document.getElementById("assetTable");
+   var rows = Array.from(table.rows).slice(1); // Exclude header row
+   var headers = table.rows[0].cells; // Access table headers
+   var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
+ 
+   // Remove sorting classes from all headers
+   Array.from(headers).forEach((header) => {
+     header.classList.remove("asc", "desc");
+   });
+ 
+   // Helper function to parse the custom date format
+   function parseCustomDate(dateStr) {
+     return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
+   }
+ 
+   // Sorting logic
+   rows.sort(function (a, b) {
+     var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+     var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+ 
+     // **Reported Date Column Sorting**
+     if (columnIndex === 6 || columnIndex === 5) {
+       aText = parseCustomDate(aText).getTime() || 0;
+       bText = parseCustomDate(bText).getTime() || 0;
+     }
+ 
+     // General sorting for other columns
+     if (isAscending) {
+       return aText > bText ? 1 : aText < bText ? -1 : 0;
+     } else {
+       return aText < bText ? 1 : aText > bText ? -1 : 0;
+     }
+   });
+ 
+   // Append sorted rows back to the table
+   var tbody = table.querySelector("tbody");
+   rows.forEach((row) => tbody.appendChild(row));
+ 
+   // Add sorting classes to the current header
+   headers[columnIndex].classList.toggle("asc", isAscending);
+   headers[columnIndex].classList.toggle("desc", !isAscending);
+ }
 </script>
 {% endblock %}

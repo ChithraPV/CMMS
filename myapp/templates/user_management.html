@@ -1,6 +1,12 @@
 <!-- templates/admin/user_management.html -->
 {% extends 'admin.html' %} {% block content %}
 <style>
+   th.asc::after {
+      content: " ▲";
+      }
+      th.desc::after {
+      content: " ▼";
+      }
    /* General styling for search form */
    .search-form {
    display: flex;
@@ -90,6 +96,7 @@
 </style>
 <div class="container mt-4">
    <h2 class="text-center mb-4">User Management</h2>
+  
    <form method="get" action="{% url 'search_user' %}">
       <div style="max-width: 400px; margin: 0 auto; text-align: center;">
          <input 
@@ -107,9 +114,11 @@
          </button>
       </div>
    </form>
+   <br>
    <div class="text-end mb-3">
       <a href="{% url 'add_user' %}" class="btn btn-success">Add New User</a>
       <a href="#" id="importButton" class="btn btn-success">Import From Excel</a>
+      <a href="{% url 'download_user_excel_template' %}" class="btn btn-success">Download Excel Format</a>
    </div>
 
    <div class="col-6 col-md-12 excel">
@@ -121,16 +130,16 @@
       </form>
    </div>
    <div class="table-responsive">
-      <table class="table table-bordered table-striped text-center">
+      <table class="table table-bordered table-striped text-center" id="usersTable">
          <thead class="table-dark">
             <tr>
-               <th>Username</th>
-               <th>First Name</th>
-               <th>Last Name</th>
-               <th>Email</th>
-               <th>Role</th>
-               <th>Department</th>
-               <th>Actions</th>
+               <th onclick="sortTable(0)">Username</th>
+               <th onclick="sortTable(1)">First Name</th>
+               <th onclick="sortTable(2)">Last Name</th>
+               <th onclick="sortTable(3)">Email</th>
+               <th onclick="sortTable(4)">Role</th>
+               <th onclick="sortTable(5)">Department</th>
+               <th onclick="sortTable(6)">Actions</th>
             </tr>
          </thead>
          <tbody>
@@ -159,6 +168,47 @@
         $('.excel').show();   // Show the bulk upload form
       });
     });
+
+    function sortTable(columnIndex) {
+      var table = document.getElementById("usersTable");
+      var rows = Array.from(table.rows).slice(1); // Exclude header row
+      var headers = table.rows[0].cells; // Access table headers
+      var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
+    
+      // Remove sorting classes from all headers
+      Array.from(headers).forEach((header) => {
+        header.classList.remove("asc", "desc");
+      });
+    
+      // Helper function to parse the custom date format
+      function parseCustomDate(dateStr) {
+        return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
+      }
+    
+      // Sorting logic
+      rows.sort(function (a, b) {
+        var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+        var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+    
+       
+      
+    
+        // General sorting for other columns
+        if (isAscending) {
+          return aText > bText ? 1 : aText < bText ? -1 : 0;
+        } else {
+          return aText < bText ? 1 : aText > bText ? -1 : 0;
+        }
+      });
+    
+      // Append sorted rows back to the table
+      var tbody = table.querySelector("tbody");
+      rows.forEach((row) => tbody.appendChild(row));
+    
+      // Add sorting classes to the current header
+      headers[columnIndex].classList.toggle("asc", isAscending);
+      headers[columnIndex].classList.toggle("desc", !isAscending);
+    }
    
     
 </script>

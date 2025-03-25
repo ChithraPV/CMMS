@@ -109,6 +109,8 @@ urlpatterns = [
     path('prev_worker_pending_tasks/', views.prev_worker_pending_tasks, name='prev_worker_pending_tasks'),
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/read/<int:notification_id>/', views.mark_notification_as_read, name='mark_notification_as_read'),
+    path('download-template/', views.download_excel_template, name='download_excel_template'),
+    path('download-user_template/', views.download_user_excel_template, name='download_user_excel_template'),
     
 
 

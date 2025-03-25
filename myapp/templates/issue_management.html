@@ -220,7 +220,7 @@
             {% if issue.issue_category == 'Others' %} <a href={% url 'assign_issue' pk=issue.issue_id%} style="color:white; font-size: 20px; text-decoration: none;background-color:red">Assign</a>{%endif%} </td> {% endcomment %}
 
             <td>
-              {% if issue.issue_category == 'Others' %}
+              {% if issue.issue_category == 'Others' and issue.status == 'Pending' %}
                   <a href="{% url 'assign_issue' pk=issue.issue_id %}" 
                      style="color:white; font-size: 20px; text-decoration: none; background-color:red; padding: 10px 20px; border-radius: 5px; display: inline-block;">
                       Assign

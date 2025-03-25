@@ -225,15 +225,15 @@
          <!-- Table View Section -->
          <div id="table-view" class="view active">
             </form>
-            <table>
+            <table id="tasksTable">
                <thead>
                   <tr>
-                     <th>Task ID</th>
-                     <th>Issue Description</th>
-                     <th>Due Date</th>
-                     <th>Priority</th>
-                     <th>Status</th>
-                     <th>Actions</th>
+                     <th onclick="sortTable(0)">Task ID</th>
+                     <th onclick="sortTable(1)">Issue Description</th>
+                     <th onclick="sortTable(2)">Due Date</th>
+                     <th onclick="sortTable(3)">Priority</th>
+                     <th onclick="sortTable(4)">Status</th>
+                     <th onclick="sortTable(5)">Actions</th>
                   </tr>
                </thead>
                <tbody>
@@ -298,6 +298,68 @@
             }, 300); // Delays submission by 300ms to prevent rapid calls
         }
         
+
+        function sortTable(columnIndex) {
+         var table = document.getElementById("tasksTable");
+         var rows = Array.from(table.rows).slice(1); // Exclude header row
+         var headers = table.rows[0].cells; // Access table headers
+         var isAscending = !headers[columnIndex].classList.contains("asc"); // Determine sorting order
+       
+         // Remove sorting classes from all headers
+         Array.from(headers).forEach((header) => {
+           header.classList.remove("asc", "desc");
+         });
+       
+         // Helper function to parse the custom date format
+         function parseCustomDate(dateStr) {
+           return new Date(Date.parse(dateStr.replace(/\./g, ""))); // Remove periods and parse
+         }
+       
+         // Sorting logic
+         rows.sort(function (a, b) {
+           var aText = a.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+           var bText = b.cells[columnIndex].innerText.trim().toLowerCase(); // Convert to lowercase
+       
+           // **Priority Column Sorting**
+           if (columnIndex === 3) {
+             // Remove decorative symbol and trim priority text
+             aText = aText
+               .replace(/\★|[\u273A]/g, "")
+               .trim()
+               .toLowerCase();
+             bText = bText
+               .replace(/\★|[\u273A]/g, "")
+               .trim()
+               .toLowerCase();
+       
+             // Define priority mapping
+             var priorityOrder = { high: 1, medium: 2, low: 3 };
+             aText = priorityOrder[aText] || 0;
+             bText = priorityOrder[bText] || 0;
+           }
+       
+           // **Reported Date Column Sorting**
+           else if (columnIndex === 2) {
+             aText = parseCustomDate(aText).getTime() || 0;
+             bText = parseCustomDate(bText).getTime() || 0;
+           }
+       
+           // General sorting for other columns
+           if (isAscending) {
+             return aText > bText ? 1 : aText < bText ? -1 : 0;
+           } else {
+             return aText < bText ? 1 : aText > bText ? -1 : 0;
+           }
+         });
+       
+         // Append sorted rows back to the table
+         var tbody = table.querySelector("tbody");
+         rows.forEach((row) => tbody.appendChild(row));
+       
+         // Add sorting classes to the current header
+         headers[columnIndex].classList.toggle("asc", isAscending);
+         headers[columnIndex].classList.toggle("desc", !isAscending);
+       }
       </script>
    </body>
   
